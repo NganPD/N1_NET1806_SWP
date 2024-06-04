@@ -1,6 +1,10 @@
 package online.be.service;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import online.be.entity.Account;
+import online.be.enums.Role;
 import online.be.exception.BadRequestException;
 import online.be.model.*;
 import online.be.repository.AuthenticationRepository;
@@ -41,10 +45,9 @@ public class AuthenticationService implements UserDetailsService {
 
         // xử lý logic register
         Account account = new Account();
-
         account.setPhone(registerRequest.getPhone());
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        account.setRole(registerRequest.getRole());
+        account.setRole(Role.CUSTOMER);
         account.setEmail(registerRequest.getEmail());
         account.setFullName(registerRequest.getFullName());
 
@@ -84,6 +87,30 @@ public class AuthenticationService implements UserDetailsService {
         accountResponse.setRole(account.getRole());
         accountResponse.setId(account.getId());
 
+        return accountResponse;
+    }
+
+    public LoginGoogleResponse loinGoogle(LoginGoogleRequest loginRequest) {
+        LoginGoogleResponse accountResponse = new LoginGoogleResponse();
+        try {
+            FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(loginRequest.getToken());
+            String email = firebaseToken.getEmail();
+            Account account = authenticationRepository.findAccountByEmail(email);
+            if (account == null) {
+                account.setFullName(firebaseToken.getName());
+                account.setEmail(firebaseToken.getEmail());
+                account.setRole(Role.CUSTOMER);
+                authenticationRepository.save(account);
+            }
+            accountResponse.setEmail(account.getEmail());
+            accountResponse.setFullName(account.getFullName());
+            accountResponse.setId(account.getId());
+            accountResponse.setRole(account.getRole());
+            String token = tokenService.generateToken(account);
+            accountResponse.setToken(token);
+        } catch (FirebaseAuthException ex) {
+            ex.printStackTrace();
+        }
         return accountResponse;
     }
 
