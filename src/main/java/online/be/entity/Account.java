@@ -23,6 +23,7 @@ public class Account implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
 
+    @Column
     String fullName;
 
     @Column(unique = true)

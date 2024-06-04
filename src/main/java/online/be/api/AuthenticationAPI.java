@@ -47,7 +47,7 @@ public class AuthenticationAPI {
         return ResponseEntity.ok(account);
     }
 
-    @PostMapping("forgot-password")
+    @PostMapping("/forgot-password")
     public void forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         authenticationService.forgotPasswordRequest(forgotPasswordRequest.getEmail());
     }
