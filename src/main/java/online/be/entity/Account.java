@@ -21,22 +21,22 @@ public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    private long id;
 
     @Column
-    String fullName;
+    private String fullName;
 
     @Column(unique = true)
-    String email;
+    private String email;
 
     @Column(unique = true)
-    String phone;
+    private String phone;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
+    private String password;
 
     @Enumerated(EnumType.STRING)
-    Role role;
+    private Role role;
 
 
     @Override
