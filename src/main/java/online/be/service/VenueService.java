@@ -1,64 +1,61 @@
 package online.be.service;
 
-import online.be.entity.Court;
 import online.be.entity.Venue;
 import online.be.repository.VenueRepostiory;
 
 import java.util.List;
-import java.util.Optional;
 
 public class VenueService {
 
-    VenueRepostiory venueRepostiory;
+    private final VenueRepostiory venueRepostiory;
 
-    //contructor
-
+    // Constructor
     public VenueService(VenueRepostiory venueRepostiory) {
         this.venueRepostiory = venueRepostiory;
     }
 
-    //tạo một venue
-    public Venue createVenue (Venue venue){
+    // Tạo một venue mới
+    public Venue createVenue(Venue venue) {
         return venueRepostiory.save(venue);
     }
 
-    //get venue by id
-
-    public Venue getVenueById(Long venueId){
-        Optional<Venue> venueOptional = venueRepostiory.findById(venueId);
-        if(venueOptional.isPresent()){
-            return venueOptional.get();
-        }else{
-            throw new RuntimeException(("Venue not found with ID: " + venueId));
-        }
+    // Lấy venue bằng ID
+    public Venue getVenueById(Long venueId) {
+        // Sử dụng findById của repository để tìm venue theo ID
+        // Nếu không tìm thấy, ném ra một RuntimeException
+        return venueRepostiory.findById(venueId)
+                .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + venueId));
     }
 
-    //getAllVenue
-    public List<Venue> getAllVenues(){
+    // Lấy tất cả venues
+    public List<Venue> getAllVenues() {
         return venueRepostiory.findAll();
     }
 
-    //update venue infomration
-    public Venue updateVenue(Long venueId, Venue venueDetails){
-        Optional<Venue> venueOptional = venueRepostiory.findById(venueId);
-        if(venueOptional.isPresent()){
-            Venue venue = venueOptional.get();
-            venue.setName(venueDetails.getName());
-            venue.setAddress(venueDetails.getAddress());
-            venue.setDescription(venueDetails.getDescription());
-            venue.setOperatingHours(venueDetails.getOperatingHours());
-            venue.setPaymentInfor(venue.getPaymentInfor());
-            venue.setNumberOfCourts(venueDetails.getNumberOfCourts());
-            venue.setRating(venueDetails.getRating());
-            venue.setImageURL(venueDetails.getImageURL());
-            return venueRepostiory.save(venue);
-        }else{
-            throw new RuntimeException("Venue not found with ID: " + venueId);
-        }
+    // Cập nhật thông tin venue
+    public Venue updateVenue(Long venueId, Venue venueDetails) {
+        // Lấy venue bằng ID
+        Venue venue = getVenueById(venueId);
+        // Cập nhật thông tin venue với thông tin mới từ venueDetails
+        venue.setName(venueDetails.getName());
+        venue.setAddress(venueDetails.getAddress());
+        venue.setDescription(venueDetails.getDescription());
+        venue.setOperatingHours(venueDetails.getOperatingHours());
+        venue.setPaymentInfor(venueDetails.getPaymentInfor());
+        venue.setNumberOfCourts(venueDetails.getNumberOfCourts());
+        venue.setRating(venueDetails.getRating());
+        venue.setImageURL(venueDetails.getImageURL());
+        // Lưu và trả về venue đã được cập nhật
+        return venueRepostiory.save(venue);
     }
 
-    //delete venue
-    public void deleteVenue(Long venueId){
+    // Xóa venue bằng ID
+    public void deleteVenue(Long venueId) {
+        // Trước tiên kiểm tra xem venue có tồn tại hay không
+        if (!venueRepostiory.existsById(venueId)) {
+            throw new RuntimeException("Venue not found with ID: " + venueId);
+        }
+        // Nếu tồn tại, thực hiện xóa venue
         venueRepostiory.deleteById(venueId);
     }
 }

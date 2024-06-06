@@ -18,23 +18,23 @@ public class Court {
     private long courtId;
 
     @Column(nullable = false)
-    String courtName;
+    private String courtName;
 
     @Column(nullable = false)
-    String location;
+    private String location;
 
     @Column(nullable = false)
-    String operatingHours;
+    private String operatingHours;
 
     @Column
-    String description;
+    private String description;
     @Column
-    String paymentInfo;
+    private String paymentInfo;
     @Column
-    int numberOfCourts;
+    private int numberOfCourts;
 
     @ManyToOne
     @JoinColumn(name = "venueId", nullable = false)
-    Venue venue;
+    private Venue venue;
 
 }

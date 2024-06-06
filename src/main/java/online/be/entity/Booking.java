@@ -18,23 +18,23 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long bookingId;
+    private Long bookingId;
 
     @Column(name = "booking_date", nullable = false)
-    LocalDate bookingDate;
+    private LocalDate bookingDate;
 
     @Column(name = "total_hours", nullable = false)
-    double totalHours;
+    private double totalHours;
 
     @Column(name = "total_price", nullable = false)
-    BigDecimal totalPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "bookingType", nullable = false)
-    BookingType bookingType;
+    private BookingType bookingType;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
-    Account account;
+    private Account account;
 
 }
