@@ -90,7 +90,7 @@ public class AuthenticationService implements UserDetailsService {
         return accountResponse;
     }
 
-    public LoginGoogleResponse loinGoogle(LoginGoogleRequest loginRequest) {
+    public LoginGoogleResponse loginGoogle(LoginGoogleRequest loginRequest) {
         LoginGoogleResponse accountResponse = new LoginGoogleResponse();
         try {
             FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(loginRequest.getToken());
