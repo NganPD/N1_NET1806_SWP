@@ -17,16 +17,24 @@ public class Court {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long courtId;
 
+    @Column(nullable = false)
     String courtName;
 
+    @Column(nullable = false)
     String location;
 
+    @Column(nullable = false)
     String operatingHours;
 
+    @Column
     String description;
-
+    @Column
     String paymentInfo;
+    @Column
+    int numberOfCourts;
 
-    int quantity;
+    @ManyToOne
+    @JoinColumn(name = "venueId", nullable = false)
+    Venue venue;
 
 }
