@@ -1,10 +1,20 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { NavLink, useNavigate } from "react-router-dom";
+import { selectUser } from "../../redux/features/counterSlice";
+import { auth, googleProvider } from "../../config/firebaseConfig";
+import { signInWithPopup } from "firebase/auth";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  //lưu redux bằng useDispatch
+  const dispatch = useDispatch()
+  // lấy user trong redux
+  const useSelect = useSelector(selectUser)
+  // sau khi đăng nhập xong muốn người dùng ở trang nào thì dùng navigate
+  const navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
     // Xử lý đăng nhập tại đây
@@ -14,6 +24,24 @@ const LoginForm = () => {
 
   const handleGoogleLogin = () => {
     // Xử lý đăng nhập bằng Google tại đây
+    signInWithPopup(auth, googleProvider)
+    .then((result) => {
+     
+      const token = result.user.accessToken;
+      const user = result.user;
+      console.log(user)
+      navigate("/")
+  
+    }).catch((error) => {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData.email;
+    
+    });
+  
+
     console.log("Đăng nhập với Google");
   };
 
@@ -77,13 +105,13 @@ const LoginForm = () => {
             >
               Đăng nhập với Google
             </button>
-            <button
+            {/* <button
               type="button"
               className="w-full bg-blue-700  text-white py-2 rounded-lg hover:bg-blue-800 transition duration-200"
               onClick={handleFacebookLogin}
             >
               Đăng nhập với Facebook
-            </button>
+            </button> */}
           </div>
           <div className="text-center">
             <NavLink

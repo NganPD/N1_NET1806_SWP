@@ -23,39 +23,48 @@ import RegisterBookingType from "./components/Court/RegisterBookingType";
 import ManageSchedules from "./components/Court/ManageSchedules";
 import CourtLayout from "./layouts/CourtLayout";
 import ManageCourts from "./components/Court/ManageCourts";
+import { persistor, store } from "./redux/store";
+import { Provider } from 'react-redux'
+import { PersistGate } from "redux-persist/integration/react";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route index element={<HomePage />} />
-          <Route path="users" element={<User />} />
-          <Route path="admins" element={<Admin />} />
-          <Route path="login" element={<LoginForm />} />
-          <Route path="register" element={<RegisterForm />} />
-          <Route path="courts" element={<CourtList />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-        </Route>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="accounts" element={<AccountManagement />} />
-          <Route path="courts" element={<CourtManagement />} />
-          <Route path="new-court" element={<NewCourtRegistration />} />
-        </Route>
-        <Route path="/court-manager" element={<CourtLayout />}>
-          <Route path="register-court-info" element={<RegisterCourtInfo />} />
-          <Route
-            path="register-booking-type"
-            element={<RegisterBookingType />}
-          />
-          <Route path="manage-courts" element={<ManageCourts />} />
-          <Route path="manage-schedules" element={<ManageSchedules />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </React.StrictMode>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route index element={<HomePage />} />
+            <Route path="users" element={<User />} />
+            <Route path="admins" element={<Admin />} />
+            <Route path="login" element={<LoginForm />} />
+            <Route path="register" element={<RegisterForm />} />
+            <Route path="courts" element={<CourtList />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="accounts" element={<AccountManagement />} />
+            <Route path="courts" element={<CourtManagement />} />
+            <Route path="new-court" element={<NewCourtRegistration />} />
+          </Route>
+          <Route path="/court-manager" element={<CourtLayout />}>
+            <Route path="register-court-info" element={<RegisterCourtInfo />} />
+            <Route
+              path="register-booking-type"
+              element={<RegisterBookingType />}
+            />
+            <Route path="manage-courts" element={<ManageCourts />} />
+            <Route path="manage-schedules" element={<ManageSchedules />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </PersistGate>
+
+  </Provider>,
+
+
 );
 
 // If you want to start measuring performance in your app, pass a function
