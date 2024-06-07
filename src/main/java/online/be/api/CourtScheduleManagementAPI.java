@@ -19,8 +19,8 @@ public class CourtScheduleManagementAPI {
 
     // Lấy tất cả các CourtSchedule
     @GetMapping
-    public List<CourtSchedule> getAllCourtSchedules() {
-        return courtScheduleService.findAll();
+    public ResponseEntity<List<CourtSchedule>> getAllCourtSchedules() {
+        return ResponseEntity.ok(courtScheduleService.findAll());
     }
 
     // Lấy CourtSchedule theo ID
@@ -32,8 +32,8 @@ public class CourtScheduleManagementAPI {
 
     // Tạo mới một CourtSchedule
     @PostMapping
-    public CourtSchedule createCourtSchedule(@RequestBody CourtSchedule courtSchedule) {
-        return courtScheduleService.save(courtSchedule);
+    public ResponseEntity<CourtSchedule> createCourtSchedule(@RequestBody CourtSchedule courtSchedule) {
+        return ResponseEntity.ok(courtScheduleService.save(courtSchedule));
     }
 
     // Cập nhật thông tin một CourtSchedule
@@ -63,13 +63,13 @@ public class CourtScheduleManagementAPI {
 
     // Lấy danh sách CourtSchedule theo trạng thái
     @GetMapping("/status/{status}")
-    public List<CourtSchedule> getCourtSchedulesByStatus(@PathVariable String status) {
-        return courtScheduleService.findByStatus(status);
+    public ResponseEntity<List<CourtSchedule>> getCourtSchedulesByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(courtScheduleService.findByStatus(status));
     }
 
     // Lấy danh sách CourtSchedule theo ngày
     @GetMapping("/date/{date}")
-    public List<CourtSchedule> getCourtSchedulesByDate(@PathVariable LocalDate date) {
-        return courtScheduleService.findByDate(date);
+    public ResponseEntity<List<CourtSchedule>> getCourtSchedulesByDate(@PathVariable LocalDate date) {
+        return ResponseEntity.ok(courtScheduleService.findByDate(date));
     }
 }

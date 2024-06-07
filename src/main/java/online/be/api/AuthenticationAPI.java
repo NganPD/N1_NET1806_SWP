@@ -50,7 +50,7 @@ public class AuthenticationAPI {
 
     @PostMapping("login-google")
     public ResponseEntity loginGoogle(@RequestBody LoginGoogleRequest loginGg){
-        return ResponseEntity.ok(authenticationService.loinGoogle(loginGg));
+        return ResponseEntity.ok(authenticationService.loginGoogle(loginGg));
     }
 
     @PostMapping("/forgot-password")

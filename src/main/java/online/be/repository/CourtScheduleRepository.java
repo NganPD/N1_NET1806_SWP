@@ -14,4 +14,8 @@ public interface CourtScheduleRepository extends JpaRepository<CourtSchedule, Lo
 
     // Tìm các CourtSchedule theo ngày
     List<CourtSchedule> findByDate(LocalDate date);
+
+    // Lấy tất cả CourtSchedule
+    List<CourtSchedule> findAll();
+
 }

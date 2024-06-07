@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PriceSlotRepository extends JpaRepository<PriceSlot, Long> {
@@ -15,5 +16,9 @@ public interface PriceSlotRepository extends JpaRepository<PriceSlot, Long> {
     // Tìm các PriceSlot theo Venue
     List<PriceSlot> findByVenue(Venue venue);
 
-    //Xoá các PriceSlot theo Id
+    //Tìm các PriceSlot theo Id
+    Optional<PriceSlot> findById(Long Id);
+
+    //Lấy tất cả PriceSlot theo Id
+    List<PriceSlot> findAll();
 }

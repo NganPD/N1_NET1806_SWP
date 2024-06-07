@@ -23,8 +23,9 @@ public class PriceSlotManagementAPI {
 
     // Lấy tất cả các PriceSlot
     @GetMapping
-    public List<PriceSlot> getAllPriceSlots() {
-        return priceSlotService.findAll();
+    public ResponseEntity<List<PriceSlot>> getAllPriceSlots() {
+
+        return ResponseEntity.ok(priceSlotService.findAll());
     }
 
     // Lấy PriceSlot theo ID
@@ -36,8 +37,8 @@ public class PriceSlotManagementAPI {
 
     // Tạo mới một PriceSlot
     @PostMapping
-    public PriceSlot createPriceSlot(@RequestBody PriceSlot priceSlot) {
-        return priceSlotService.save(priceSlot);
+    public ResponseEntity<PriceSlot> createPriceSlot(@RequestBody PriceSlot priceSlot) {
+        return ResponseEntity.ok(priceSlotService.save(priceSlot));
     }
 
     // Cập nhật thông tin một PriceSlot
@@ -74,8 +75,8 @@ public class PriceSlotManagementAPI {
 
     // Lấy danh sách PriceSlot theo giá
     @GetMapping("/price/{price}")
-    public List<PriceSlot> getPriceSlotsByPrice(@PathVariable double price) {
-        return priceSlotService.findByPrice(price);
+    public ResponseEntity<List<PriceSlot>> getPriceSlotsByPrice(@PathVariable double price) {
+        return ResponseEntity.ok(priceSlotService.findByPrice(price));
     }
 
     // Lấy danh sách PriceSlot theo Venue

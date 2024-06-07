@@ -19,8 +19,8 @@ public class TimeSlotManagementAPI {
 
     // Lấy tất cả các TimeSlot
     @GetMapping
-    public List<TimeSlot> getAllTimeSlots() {
-        return timeSlotService.findAll();
+    public ResponseEntity<List<TimeSlot>> getAllTimeSlots() {
+        return ResponseEntity.ok(timeSlotService.findAll());
     }
 
     // Lấy TimeSlot theo ID
@@ -32,8 +32,8 @@ public class TimeSlotManagementAPI {
 
     // Tạo mới một TimeSlot
     @PostMapping
-    public TimeSlot createTimeSlot(@RequestBody TimeSlot timeSlot) {
-        return timeSlotService.save(timeSlot);
+    public ResponseEntity<TimeSlot> createTimeSlot(@RequestBody TimeSlot timeSlot) {
+        return ResponseEntity.ok(timeSlotService.save(timeSlot));
     }
 
     // Cập nhật thông tin một TimeSlot
@@ -64,13 +64,13 @@ public class TimeSlotManagementAPI {
 
     // Lấy danh sách TimeSlot theo độ dài
     @GetMapping("/duration/{duration}")
-    public List<TimeSlot> getTimeSlotsByDuration(@PathVariable int duration) {
-        return timeSlotService.findByDuration(duration);
+    public ResponseEntity<List<TimeSlot>> getTimeSlotsByDuration(@PathVariable int duration) {
+        return ResponseEntity.ok(timeSlotService.findByDuration(duration));
     }
 
     // Lấy danh sách TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     @GetMapping("/start/{start}/end/{end}")
-    public List<TimeSlot> getTimeSlotsByStartTimeBetween(@PathVariable LocalTime start, @PathVariable LocalTime end) {
-        return timeSlotService.findByStartTimeBetween(start, end);
+    public ResponseEntity<List<TimeSlot>> getTimeSlotsByStartTimeBetween(@PathVariable LocalTime start, @PathVariable LocalTime end) {
+        return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 }
