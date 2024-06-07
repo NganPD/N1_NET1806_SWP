@@ -14,4 +14,6 @@ public interface PriceSlotRepository extends JpaRepository<PriceSlot, Long> {
 
     // Tìm các PriceSlot theo Venue
     List<PriceSlot> findByVenue(Venue venue);
+
+    //Xoá các PriceSlot theo Id
 }

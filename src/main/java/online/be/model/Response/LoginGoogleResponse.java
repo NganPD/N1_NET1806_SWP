@@ -1,11 +1,14 @@
-package online.be.model;
+package online.be.model.Response;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import online.be.enums.Role;
 
 @Getter
 @Setter
+@ToString
+
 public class LoginGoogleResponse {
 
     private long id;

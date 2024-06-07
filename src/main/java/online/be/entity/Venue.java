@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -32,6 +34,9 @@ public class Venue {
 
     @Column(name = "rating")
     private float rating;
+
+    @OneToMany(mappedBy = "Venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PriceSlot> priceSlots;
 
     @Column(name = "image_URL")
     private String imageURL;
