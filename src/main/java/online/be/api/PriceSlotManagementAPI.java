@@ -30,7 +30,7 @@ public class PriceSlotManagementAPI {
 
     // Lấy PriceSlot theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<PriceSlot> getPriceSlotById(@PathVariable Long id) {
+    public ResponseEntity<PriceSlot> getPriceSlotById(@PathVariable long id) {
         Optional<PriceSlot> priceSlot = priceSlotService.findById(id);
         return priceSlot.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -43,7 +43,7 @@ public class PriceSlotManagementAPI {
 
     // Cập nhật thông tin một PriceSlot
     @PutMapping("/{id}")
-    public ResponseEntity<PriceSlot> updatePriceSlot(@PathVariable Long id, @RequestParam Long venueId, @RequestBody PriceSlot priceSlotDetails) {
+    public ResponseEntity<PriceSlot> updatePriceSlot(@PathVariable long id, @RequestParam long venueId, @RequestBody PriceSlot priceSlotDetails) {
         Optional<PriceSlot> priceSlot = priceSlotService.findById(id);
         if (priceSlot.isPresent()) {
             priceSlot.get().setPrice(priceSlotDetails.getPrice());
@@ -64,7 +64,7 @@ public class PriceSlotManagementAPI {
 
     // Xóa một PriceSlot
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePriceSlot(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePriceSlot(@PathVariable long id) {
         if (priceSlotService.findById(id).isPresent()) {
             priceSlotService.deleteById(id);
             return ResponseEntity.noContent().build();
@@ -81,7 +81,7 @@ public class PriceSlotManagementAPI {
 
     // Lấy danh sách PriceSlot theo Venue
     @GetMapping("/venue/{venueId}")
-    public ResponseEntity<List<PriceSlot>> getPriceSlotsByVenue(@PathVariable Long venueId) {
+    public ResponseEntity<List<PriceSlot>> getPriceSlotsByVenue(@PathVariable long venueId) {
         Venue venue = venueService.getVenueById(venueId);
         if (venue != null) {
             List<PriceSlot> priceSlots = priceSlotService.findByVenue(venue);

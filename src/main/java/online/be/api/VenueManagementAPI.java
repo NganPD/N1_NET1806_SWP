@@ -25,7 +25,7 @@ public class VenueManagementAPI {
     }
 
     @GetMapping("/{venueId}")
-    public ResponseEntity<Venue> getVenueById(@RequestBody Long venueId){
+    public ResponseEntity<Venue> getVenueById(@RequestBody long venueId){
         Venue venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
@@ -37,13 +37,13 @@ public class VenueManagementAPI {
     }
 
     @PutMapping("/{venueId}")
-    public ResponseEntity<Venue> updateVenue(@PathVariable Long venueId,@RequestBody Venue venueDetails){
+    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId,@RequestBody Venue venueDetails){
         Venue updatedVenue = venueService.updateVenue(venueId, venueDetails);
         return ResponseEntity.ok().body(updatedVenue);
     }
 
     @DeleteMapping("/{venueId}")
-    public ResponseEntity<Venue> deleteVenue(@PathVariable Long venueId){
+    public ResponseEntity<Venue> deleteVenue(@PathVariable long venueId){
         venueService.deleteVenue(venueId);
         return ResponseEntity.noContent().build();//204
     }

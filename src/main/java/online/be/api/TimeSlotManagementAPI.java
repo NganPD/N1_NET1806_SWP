@@ -25,7 +25,7 @@ public class TimeSlotManagementAPI {
 
     // Lấy TimeSlot theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<TimeSlot> getTimeSlotById(@PathVariable Long id) {
+    public ResponseEntity<TimeSlot> getTimeSlotById(@PathVariable long id) {
         Optional<TimeSlot> timeSlot = timeSlotService.findById(id);
         return timeSlot.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -38,7 +38,7 @@ public class TimeSlotManagementAPI {
 
     // Cập nhật thông tin một TimeSlot
     @PutMapping("/{id}")
-    public ResponseEntity<TimeSlot> updateTimeSlot(@PathVariable Long id, @RequestBody TimeSlot timeSlotDetails) {
+    public ResponseEntity<TimeSlot> updateTimeSlot(@PathVariable long id, @RequestBody TimeSlot timeSlotDetails) {
         Optional<TimeSlot> optionalTimeSlot = timeSlotService.findById(id);
         if (optionalTimeSlot.isPresent()) {
             TimeSlot timeSlot = optionalTimeSlot.get();
@@ -53,7 +53,7 @@ public class TimeSlotManagementAPI {
 
     // Xóa một TimeSlot
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTimeSlot(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTimeSlot(@PathVariable long id) {
         if (timeSlotService.findById(id).isPresent()) {
             timeSlotService.deleteById(id);
             return ResponseEntity.noContent().build();

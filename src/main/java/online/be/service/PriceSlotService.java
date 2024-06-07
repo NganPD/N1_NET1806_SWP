@@ -21,7 +21,7 @@ public class PriceSlotService {
     }
 
     // Tìm PriceSlot theo ID
-    public Optional<PriceSlot> findById(Long id) {
+    public Optional<PriceSlot> findById(long id) {
         return priceSlotRepository.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class PriceSlotService {
     }
 
     // Xóa một PriceSlot theo ID
-    public void deleteById(Long id) {
+    public void deleteById(long id) {
         priceSlotRepository.deleteById(id);
     }
 

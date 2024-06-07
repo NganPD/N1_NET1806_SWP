@@ -13,7 +13,7 @@ public class PriceSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long priceSlotId;
+    private long priceSlotId;
 
     private Double price;
 

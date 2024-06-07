@@ -21,7 +21,7 @@ public class TimeSlotService {
     }
 
     // Tìm TimeSlot theo ID
-    public Optional<TimeSlot> findById(Long id) {
+    public Optional<TimeSlot> findById(long id) {
         return timeSlotRepository.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class TimeSlotService {
     }
 
     // Xóa một TimeSlot theo ID
-    public void deleteById(Long id) {
+    public void deleteById(long id) {
         timeSlotRepository.deleteById(id);
     }
 

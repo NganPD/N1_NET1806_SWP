@@ -12,7 +12,7 @@ import java.util.List;
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long venueId;
+    private long venueId;
 
     @Column(name = "venue_name", nullable = false)
     private String name;
@@ -35,7 +35,7 @@ public class Venue {
     @Column(name = "rating")
     private float rating;
 
-    @OneToMany(mappedBy = "Venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PriceSlot> priceSlots;
 
     @Column(name = "image_URL")

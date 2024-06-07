@@ -21,7 +21,7 @@ public class CourtScheduleService {
     }
 
     // Tìm CourtSchedule theo ID
-    public Optional<CourtSchedule> findById(Long id) {
+    public Optional<CourtSchedule> findById(long id) {
         return courtScheduleRepository.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class CourtScheduleService {
     }
 
     // Xóa một CourtSchedule theo ID
-    public void deleteById(Long id) {
+    public void deleteById(long id) {
         courtScheduleRepository.deleteById(id);
     }
 

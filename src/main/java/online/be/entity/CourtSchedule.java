@@ -16,7 +16,7 @@ public class CourtSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long courtScheduleID;
+    private long courtScheduleID;
 
     @Column(nullable = false)
     private String status;

@@ -10,8 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
-    //Tìm TimeSlot theo Id
-    Optional<TimeSlot> findById(Long id);
 
     // Tìm các TimeSlot theo độ dài
     List<TimeSlot> findByDuration(int duration);

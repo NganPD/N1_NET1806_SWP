@@ -52,7 +52,7 @@ public class CourtScheduleManagementAPI {
 
     // Xóa một CourtSchedule
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourtSchedule(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCourtSchedule(@PathVariable long id) {
         if (courtScheduleService.findById(id).isPresent()) {
             courtScheduleService.deleteById(id);
             return ResponseEntity.noContent().build();

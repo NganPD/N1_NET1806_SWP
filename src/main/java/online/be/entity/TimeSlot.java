@@ -16,7 +16,7 @@ public class TimeSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long slotID;
+    private long slotID;
 
     @Column(nullable = false)
     private int duration; // in minutes

@@ -38,7 +38,7 @@ public class CourtService {
         return courtRepository.findAll();
     }
     //update Court
-    public Court updateCourt(Long courtId, Court courtDetails){
+    public Court updateCourt(long courtId, Court courtDetails){
         Optional<Court> courtOptional = courtRepository.findById(courtId);
         if(courtOptional.isPresent()){
             Court court = courtOptional.get();

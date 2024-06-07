@@ -28,19 +28,19 @@ public class CourtManagementAPI {
     }
 
     @GetMapping("/{courtId}")
-    public ResponseEntity<Court> getCourtById(@PathVariable Long courtId){
+    public ResponseEntity<Court> getCourtById(@PathVariable long courtId){
         Court court = courtService.getCourtById(courtId);
         return ResponseEntity.ok().body(court);
     }
 
     @PutMapping("/{courtId}")
-    public ResponseEntity<Court> updateCourt(@PathVariable Long courtId, @RequestBody Court courtDetails){
+    public ResponseEntity<Court> updateCourt(@PathVariable long courtId, @RequestBody Court courtDetails){
         Court updatedCourt = courtService.updateCourt(courtId, courtDetails);
         return ResponseEntity.ok().body(updatedCourt);
     }
 
     @DeleteMapping("/{courtId}")
-    public ResponseEntity<Court> deleteCourt(@PathVariable Long courtId){
+    public ResponseEntity<Court> deleteCourt(@PathVariable long courtId){
         courtService.deleteCourt(courtId);
         return ResponseEntity.noContent().build();//trả về 204 No Content
     }
