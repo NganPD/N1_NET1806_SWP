@@ -1,7 +1,6 @@
 package online.be.api;
 
 import online.be.entity.TimeSlot;
-import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

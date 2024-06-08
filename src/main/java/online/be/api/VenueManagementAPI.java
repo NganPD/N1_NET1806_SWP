@@ -1,6 +1,7 @@
 package online.be.api;
 
 import online.be.entity.Venue;
+import online.be.model.Request.VenueRequest;
 import online.be.service.VenueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,9 @@ public class VenueManagementAPI {
     }
 
     @PostMapping
-    public ResponseEntity<Venue> createVenue(@RequestBody Venue venue){
-        Venue createdVenue = venueService.createVenue(venue);
-        return ResponseEntity.ok().body(venue);
+    public ResponseEntity<Venue> createVenue(@RequestBody VenueRequest venueRequest){
+        Venue createdVenue = venueService.createVenue(venueRequest);
+        return ResponseEntity.ok().body(createdVenue);
     }
 
     @GetMapping("/{venueId}")

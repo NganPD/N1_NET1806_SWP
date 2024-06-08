@@ -1,6 +1,7 @@
 package online.be.service;
 
 import online.be.entity.Venue;
+import online.be.model.Request.VenueRequest;
 import online.be.repository.VenueRepostiory;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,15 @@ public class VenueService {
     }
 
     // Tạo một venue mới
-    public Venue createVenue(Venue venue) {
+    public Venue createVenue(VenueRequest venueRequest) {
+        Venue venue = new Venue();
+        venue.setName(venueRequest.getVenueName());
+        venue.setDescription(venueRequest.getDescription());
+        venue.setImageURL(venueRequest.getImageURL());
+        venue.setPaymentInfor(venueRequest.getPaymentInfor());
+        venue.setNumberOfCourts(venueRequest.getNumberOfCourts());
+        venue.setOperatingHours(venueRequest.getOperatingHours());
+
         return venueRepostiory.save(venue);
     }
 
@@ -44,7 +53,6 @@ public class VenueService {
         venue.setOperatingHours(venueDetails.getOperatingHours());
         venue.setPaymentInfor(venueDetails.getPaymentInfor());
         venue.setNumberOfCourts(venueDetails.getNumberOfCourts());
-        venue.setRating(venueDetails.getRating());
         venue.setImageURL(venueDetails.getImageURL());
         // Lưu và trả về venue đã được cập nhật
         return venueRepostiory.save(venue);
