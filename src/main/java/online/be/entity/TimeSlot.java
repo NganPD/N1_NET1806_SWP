@@ -29,4 +29,8 @@ public class TimeSlot {
     @ManyToOne
     @JoinColumn(name = "courtScheduleID", nullable = false)
     private CourtSchedule courtSchedule;
+
+    @ManyToOne
+    @JoinColumn(name = "venueId", nullable = false)
+    private Venue venue;
 }

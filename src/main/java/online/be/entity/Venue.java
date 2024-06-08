@@ -3,12 +3,14 @@ package online.be.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +47,7 @@ public class Venue {
     @OneToOne
     @JoinColumn(name = "id", nullable = false)
     private Account account;
+
+    @OneToMany(mappedBy = "venue")
+    private List<TimeSlot> slots;
 }
