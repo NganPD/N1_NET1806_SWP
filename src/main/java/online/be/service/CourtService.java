@@ -79,9 +79,8 @@ public class CourtService {
         return courtRepository.save(court);
     }
 
-
-//delete Court
-public void deleteCourt(Long courtId){
+    //delete Court
+    public void deleteCourt(Long courtId){
     courtRepository.deleteById(courtId);
 }
 
