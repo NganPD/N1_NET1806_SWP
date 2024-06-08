@@ -34,7 +34,10 @@ public class Booking {
     private BookingType bookingType;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_Id", nullable = false)
     private Account account;
 
+    @OneToOne
+    @JoinColumn(name = "payment_Id")
+    private Payment payment;
 }
