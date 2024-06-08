@@ -50,6 +50,7 @@ public class CourtService {
     public List<Court> getAllCourts(){
         return courtRepository.findAll();
     }
+
     //update Court
     public Court updateCourt(long courtId, CourtRequest courtDetails){
         Optional<Court> courtOptional = courtRepository.findById(courtId);
