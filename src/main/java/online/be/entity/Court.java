@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
@@ -18,23 +19,12 @@ public class Court {
     private long courtId;
 
     @Column(nullable = false)
-    String courtName;
+    private String courtName;
 
     @Column(nullable = false)
-    String location;
-
-    @Column(nullable = false)
-    String operatingHours;
+    private String status;
 
     @Column
-    String description;
-    @Column
-    String paymentInfo;
-    @Column
-    int numberOfCourts;
-
-    @ManyToOne
-    @JoinColumn(name = "venueId", nullable = false)
-    Venue venue;
+    private String amenities;
 
 }

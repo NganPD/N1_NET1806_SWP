@@ -31,7 +31,7 @@ public class Venue {
     int numberOfCourts;
 
     @Column(name = "rating")
-    float rating;
+    Float rating;
 
     @Column(name = "image_URL")
     String imageURL;

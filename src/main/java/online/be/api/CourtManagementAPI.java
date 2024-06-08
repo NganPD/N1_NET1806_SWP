@@ -2,6 +2,8 @@ package online.be.api;
 
 
 import online.be.entity.Court;
+import online.be.model.CreateCourtRequest;
+import online.be.model.UpdateCourtRequest;
 import online.be.service.CourtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +24,8 @@ public class CourtManagementAPI {
 
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Court> createCourt(@RequestBody Court court){
-        Court createdCourt = courtService.createCourt(court);
+    public ResponseEntity<Court> createCourt(@RequestBody CreateCourtRequest createCourtRequest){
+        Court createdCourt = courtService.createCourt(createCourtRequest);
         return new ResponseEntity<>(createdCourt, HttpStatus.CREATED);
     }
 
@@ -34,8 +36,8 @@ public class CourtManagementAPI {
     }
 
     @PutMapping("/{courtId}")
-    public ResponseEntity<Court> updateCourt(@PathVariable Long courtId, @RequestBody Court courtDetails){
-        Court updatedCourt = courtService.updateCourt(courtId, courtDetails);
+    public ResponseEntity<Court> updateCourt(@PathVariable Long courtId, @RequestBody UpdateCourtRequest updateCourtRequest){
+        Court updatedCourt = courtService.updateCourt(courtId, updateCourtRequest);
         return ResponseEntity.ok().body(updatedCourt);
     }
 
