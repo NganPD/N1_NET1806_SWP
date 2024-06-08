@@ -35,9 +35,6 @@ public class Venue {
     @Column(name = "rating")
     private float rating;
 
-    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PriceSlot> priceSlots;
-
     @Column(name = "image_URL")
     private String imageURL;
 
