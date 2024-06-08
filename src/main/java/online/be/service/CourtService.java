@@ -1,7 +1,10 @@
 package online.be.service;
 
 import online.be.entity.Court;
+import online.be.entity.Venue;
+import online.be.model.Request.CourtRequest;
 import online.be.repository.CourtRepository;
+import online.be.repository.VenueRepostiory;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,7 @@ import java.util.Optional;
 public class CourtService {
 
     CourtRepository courtRepository;
+    VenueRepostiory venueRepostiory;
 
     //contructor
     public CourtService(CourtRepository courtRepository) {
@@ -19,7 +23,11 @@ public class CourtService {
     }
 
     //tạo court
-    public Court createCourt(Court court){
+    public Court createCourt(CourtRequest courtRequest){
+        Venue venue = venueRepostiory.findById(courtRequest.getVenueId()).get();
+        Court court = new Court();
+        court.setCourtName(courtRequest.getCourtName());
+        court.setVenue(venue);
         return courtRepository.save(court);
     }
 

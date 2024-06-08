@@ -1,6 +1,5 @@
 package online.be.api;
 
-
 import online.be.entity.Court;
 import online.be.service.CourtService;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/courts")
 public class CourtManagementAPI {
 
-    CourtService courtService;
+    private final CourtService courtService;
 
     public CourtManagementAPI(CourtService courtService) {
         this.courtService = courtService;
@@ -40,9 +39,9 @@ public class CourtManagementAPI {
     }
 
     @DeleteMapping("/{courtId}")
-    public ResponseEntity<Court> deleteCourt(@PathVariable long courtId){
+    public ResponseEntity<Void> deleteCourt(@PathVariable long courtId){
         courtService.deleteCourt(courtId);
-        return ResponseEntity.noContent().build();//trả về 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
