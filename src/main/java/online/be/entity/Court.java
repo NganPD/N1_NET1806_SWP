@@ -21,17 +21,10 @@ public class Court {
     private String courtName;
 
     @Column(nullable = false)
-    private String location;
+    private boolean status;
 
     @Column(nullable = false)
-    private String operatingHours;
-
-    @Column
-    private String description;
-    @Column
-    private String paymentInfo;
-    @Column
-    private int numberOfCourts;
+    private String amenities;
 
     @ManyToOne
     @JoinColumn(name = "venueId", nullable = false)
