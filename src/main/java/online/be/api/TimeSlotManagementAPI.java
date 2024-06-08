@@ -1,7 +1,11 @@
 package online.be.api;
 
+import online.be.entity.Court;
 import online.be.entity.TimeSlot;
+import online.be.model.Request.TimeSlotRequest;
+import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,46 +23,36 @@ public class TimeSlotManagementAPI {
     // Lấy tất cả các TimeSlot
     @GetMapping
     public ResponseEntity<List<TimeSlot>> getAllTimeSlots() {
-        return ResponseEntity.ok(timeSlotService.findAll());
+        List<TimeSlot> timeSlotList = timeSlotService.getAllTimeSlots();
+        return ResponseEntity.ok().body(timeSlotList);
     }
 
     // Lấy TimeSlot theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<TimeSlot> getTimeSlotById(@PathVariable long id) {
-        Optional<TimeSlot> timeSlot = timeSlotService.findById(id);
-        return timeSlot.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<TimeSlot> getTimeSlotById(@PathVariable long timeSlotId) {
+        TimeSlot timeSlot = timeSlotService.getTimeSlotById(timeSlotId);
+        return ResponseEntity.ok().body(timeSlot);
     }
 
     // Tạo mới một TimeSlot
     @PostMapping
-    public ResponseEntity<TimeSlot> createTimeSlot(@RequestBody TimeSlot timeSlot) {
-        return ResponseEntity.ok(timeSlotService.save(timeSlot));
+    public ResponseEntity<TimeSlot> createTimeSlot(@RequestBody TimeSlotRequest timeSlotRequest) {
+        TimeSlot timeSlot = timeSlotService.createTimeSlot(timeSlotRequest);
+        return new ResponseEntity<>(timeSlot, HttpStatus.CREATED);
     }
 
     // Cập nhật thông tin một TimeSlot
     @PutMapping("/{id}")
-    public ResponseEntity<TimeSlot> updateTimeSlot(@PathVariable long id, @RequestBody TimeSlot timeSlotDetails) {
-        Optional<TimeSlot> optionalTimeSlot = timeSlotService.findById(id);
-        if (optionalTimeSlot.isPresent()) {
-            TimeSlot timeSlot = optionalTimeSlot.get();
-            timeSlot.setDuration(timeSlotDetails.getDuration());
-            timeSlot.setStartTime(timeSlotDetails.getStartTime());
-            timeSlot.setEndTime(timeSlotDetails.getEndTime());
-            return ResponseEntity.ok(timeSlotService.save(timeSlot));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<TimeSlot> updateTimeSlot(@PathVariable long timeSlotId, @RequestBody TimeSlotRequest timeSlotDetails) {
+        TimeSlot timeSlot = timeSlotService.updateTimeSlot(timeSlotId, timeSlotDetails);
+        return ResponseEntity.ok().body(timeSlot);
     }
 
     // Xóa một TimeSlot
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTimeSlot(@PathVariable long id) {
-        if (timeSlotService.findById(id).isPresent()) {
-            timeSlotService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deleteTimeSlot(@PathVariable long timeSlotId) {
+        timeSlotService.deleteTimeSlot(timeSlotId);
+        return ResponseEntity.noContent().build();
     }
 
     // Lấy danh sách TimeSlot theo độ dài

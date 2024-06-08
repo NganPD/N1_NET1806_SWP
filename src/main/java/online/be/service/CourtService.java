@@ -50,6 +50,7 @@ public class CourtService {
     public List<Court> getAllCourts(){
         return courtRepository.findAll();
     }
+
     //update Court
     public Court updateCourt(long courtId, CourtRequest courtRequest){
         //kiểm tra xem court có tồn tại hay không
