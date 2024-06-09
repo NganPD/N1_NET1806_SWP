@@ -21,7 +21,6 @@ public class CourtManagementAPI {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Court> createCourt(@RequestBody CourtRequest courtRequest){
         Court createdCourt = courtService.createCourt(courtRequest);
         return new ResponseEntity<>(createdCourt, HttpStatus.CREATED);

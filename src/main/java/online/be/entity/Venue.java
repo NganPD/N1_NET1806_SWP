@@ -40,12 +40,11 @@ public class Venue {
     @Column(name = "image_URL")
     private String imageURL;
 
-    @OneToMany
-    @JoinColumn(name = "courtId", nullable = false)
+    @OneToMany(mappedBy = "venue")
     private List<Court> courts;
 
     @OneToOne
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Account account;
 
     @OneToMany(mappedBy = "venue")
