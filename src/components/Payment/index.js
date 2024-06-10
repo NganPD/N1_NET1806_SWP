@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const court = location.state.court;
+  const court = location.state?.court;
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
@@ -18,6 +18,17 @@ const PaymentPage = () => {
   const [dayOfWeek, setDayOfWeek] = useState("");
   const [months, setMonths] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [flexibleBookings, setFlexibleBookings] = useState([]);
+
+  // Giờ chơi cố định
+  const fixedTimes = [
+    "10:00 - 12:00",
+    "12:00 - 14:00",
+    "14:00 - 16:00",
+    "16:00 - 18:00",
+    "18:00 - 20:00",
+    "20:00 - 22:00",
+  ];
 
   const handleNextStep = () => {
     if (step === 1) {
@@ -28,11 +39,12 @@ const PaymentPage = () => {
         alert("Vui lòng điền đầy đủ thông tin cho lịch cố định");
         return;
       }
-      if (
-        (bookingType === "one-time" || bookingType === "flexible") &&
-        (!selectedDate || !selectedTime)
-      ) {
+      if (bookingType === "one-time" && (!selectedDate || !selectedTime)) {
         alert("Vui lòng chọn ngày và thời gian đặt sân");
+        return;
+      }
+      if (bookingType === "flexible" && flexibleBookings.length === 0) {
+        alert("Vui lòng chọn ít nhất một ngày và thời gian đặt sân");
         return;
       }
     }
@@ -41,6 +53,24 @@ const PaymentPage = () => {
 
   const handlePreviousStep = () => {
     setStep(step - 1);
+  };
+
+  const handleAddFlexibleBooking = () => {
+    if (selectedDate && selectedTime) {
+      setFlexibleBookings([
+        ...flexibleBookings,
+        { date: selectedDate, time: selectedTime },
+      ]);
+      setSelectedDate("");
+      setSelectedTime("");
+    } else {
+      alert("Vui lòng chọn ngày và thời gian trước khi thêm");
+    }
+  };
+
+  const handleRemoveFlexibleBooking = (index) => {
+    const updatedBookings = flexibleBookings.filter((_, i) => i !== index);
+    setFlexibleBookings(updatedBookings);
   };
 
   const handlePayment = (e) => {
@@ -57,6 +87,7 @@ const PaymentPage = () => {
     console.log("Day of Week:", dayOfWeek);
     console.log("Months:", months);
     console.log("Start Date:", startDate);
+    console.log("Flexible Bookings:", flexibleBookings);
     // Sau khi thanh toán thành công, điều hướng về trang chủ hoặc trang xác nhận
     navigate("/confirmation");
   };
@@ -124,7 +155,7 @@ const PaymentPage = () => {
                   <div className="mb-4">
                     <label className="block mb-2">Chọn giờ chơi cố định</label>
                     <div className="flex flex-wrap">
-                      {court.availableTimes.map((time, index) => (
+                      {fixedTimes.map((time, index) => (
                         <button
                           key={index}
                           type="button"
@@ -164,7 +195,7 @@ const PaymentPage = () => {
                   </div>
                 </>
               )}
-              {(bookingType === "one-time" || bookingType === "flexible") && (
+              {bookingType === "one-time" && (
                 <div className="mb-4">
                   <label className="block mb-2">Chọn ngày</label>
                   <input
@@ -176,23 +207,62 @@ const PaymentPage = () => {
                   />
                 </div>
               )}
-              <div className="flex flex-wrap mb-4">
-                {court.availableTimes.map((time, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    className={`m-2 px-4 py-2 rounded-full ${
-                      selectedTime === time
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                    onClick={() => setSelectedTime(time)}
-                  >
-                    {time}
-                  </button>
-                ))}
-              </div>
-              <div className="flex justify-between">
+              {bookingType === "flexible" && (
+                <div>
+                  <div className="mb-4">
+                    <label className="block mb-2">Chọn ngày và giờ</label>
+                    <div className="flex mb-2">
+                      <input
+                        type="date"
+                        className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                      />
+                      <select
+                        className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                      >
+                        <option value="">Chọn giờ</option>
+                        {fixedTimes.map((time, index) => (
+                          <option key={index} value={time}>
+                            {time}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                      onClick={handleAddFlexibleBooking}
+                    >
+                      Thêm ngày
+                    </button>
+                  </div>
+                  {flexibleBookings.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold mb-2">
+                        Lịch linh hoạt đã chọn
+                      </h4>
+                      {flexibleBookings.map((booking, index) => (
+                        <div key={index} className="flex items-center mb-2">
+                          <p className="mr-2">
+                            {booking.date} - {booking.time}
+                          </p>
+                          <button
+                            type="button"
+                            className="bg-red-500 text-white px-2 py-1 rounded-lg"
+                            onClick={() => handleRemoveFlexibleBooking(index)}
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="flex justify-between mt-4">
                 <button
                   type="button"
                   className="bg-gray-500 text-white px-4 py-2 rounded-lg"

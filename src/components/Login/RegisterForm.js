@@ -6,6 +6,7 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(""); // Thêm state cho số điện thoại
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,6 +15,7 @@ const RegisterForm = () => {
     console.log("Email:", email);
     console.log("Password:", password);
     console.log("Confirm Password:", confirmPassword);
+    console.log("Phone Number:", phoneNumber); // In số điện thoại ra console
   };
 
   return (
@@ -71,6 +73,16 @@ const RegisterForm = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="tel"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              id="phoneNumber"
+              placeholder="Số điện thoại (không bắt buộc)"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
           <button

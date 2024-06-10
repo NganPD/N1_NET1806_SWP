@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 const CourtCard = ({ court }) => {
   const navigate = useNavigate();
 
-  const handleBooking = () => {
-    navigate("/payment", { state: { court } });
+  const handleViewDetails = () => {
+    navigate("/court-details", { state: { court } });
   };
+
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg m-4">
       <img className="w-[25rem] h-[20rem]" src={court.image} alt="Court" />
@@ -19,15 +20,11 @@ const CourtCard = ({ court }) => {
           {"☆".repeat(5 - court.rating)}
         </div>
         <p className="text-gray-700 text-base">Giá: {court.price} VNĐ</p>
-        <div className="flex space-x-2">
-          {court.availableTimes.map((time, index) => (
-            <span
-              key={index}
-              className="bg-yellow-300 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-            >
-              {time}
-            </span>
-          ))}
+        <div className="mt-2">
+          <span className="text-lg font-semibold">Giờ hoạt động:</span>
+          <p className="text-gray-700 text-base">
+            {court.operatingHours.start} - {court.operatingHours.end}
+          </p>
         </div>
         <div className="flex space-x-2 mt-2">
           {court.amenities.includes("Wifi") && (
@@ -40,14 +37,19 @@ const CourtCard = ({ court }) => {
               Canteen
             </span>
           )}
+          {court.amenities.includes("Parking") && (
+            <span className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
+              Parking
+            </span>
+          )}
         </div>
       </div>
       <div className="px-6 pt-4 pb-2">
         <button
-          onClick={handleBooking}
+          onClick={handleViewDetails}
           className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
         >
-          Đặt Sân
+          Xem Chi Tiết
         </button>
       </div>
     </div>
@@ -62,7 +64,7 @@ const CourtList = () => {
       location: "Hồ Chí Minh",
       courts: 2,
       rating: 4,
-      availableTimes: ["17:30", "16:00", "15:00"],
+      operatingHours: { start: "10:00 AM", end: "10:00 PM" },
       amenities: ["Wifi", "Canteen"],
       price: 100000,
       image:
@@ -74,132 +76,13 @@ const CourtList = () => {
       location: "Hồ Chí Minh",
       courts: 4,
       rating: 5,
-      availableTimes: ["18:00", "19:00", "20:00"],
+      operatingHours: { start: "10:00 AM", end: "10:00 PM" },
       amenities: ["Wifi", "Parking"],
       price: 120000,
       image:
         "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
     },
-    {
-      id: 3,
-      name: "Sân cầu lông Thủ Đức",
-      location: "Hồ Chí Minh",
-      courts: 3,
-      rating: 3,
-      availableTimes: ["16:30", "17:30", "18:30"],
-      amenities: ["Canteen", "Parking"],
-      price: 90000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 4,
-      name: "Sân cầu lông Tân Bình",
-      location: "Hồ Chí Minh",
-      courts: 5,
-      rating: 4,
-      availableTimes: ["17:00", "18:00", "19:00"],
-      amenities: ["Wifi", "Canteen"],
-      price: 110000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 5,
-      name: "Sân cầu lông Quận 7",
-      location: "Hồ Chí Minh",
-      courts: 2,
-      rating: 4,
-      availableTimes: ["17:30", "18:30", "19:30"],
-      amenities: ["Wifi", "Parking"],
-      price: 100000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 6,
-      name: "Sân cầu lông Gò Vấp",
-      location: "Hồ Chí Minh",
-      courts: 6,
-      rating: 5,
-      availableTimes: ["18:00", "19:00", "20:00"],
-      amenities: ["Wifi", "Canteen"],
-      price: 130000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 7,
-      name: "Sân cầu lông Bình Thạnh",
-      location: "Hồ Chí Minh",
-      courts: 3,
-      rating: 4,
-      availableTimes: ["17:30", "18:30", "19:30"],
-      amenities: ["Wifi", "Parking"],
-      price: 100000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 8,
-      name: "Sân cầu lông Quận 1",
-      location: "Hồ Chí Minh",
-      courts: 4,
-      rating: 4,
-      availableTimes: ["18:00", "19:00", "20:00"],
-      amenities: ["Wifi", "Canteen"],
-      price: 120000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 9,
-      name: "Sân cầu lông Bình Tân",
-      location: "Hồ Chí Minh",
-      courts: 5,
-      rating: 5,
-      availableTimes: ["18:30", "19:30", "20:30"],
-      amenities: ["Wifi", "Parking"],
-      price: 140000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 10,
-      name: "Sân cầu lông Quận 3",
-      location: "Hồ Chí Minh",
-      courts: 3,
-      rating: 3,
-      availableTimes: ["17:00", "18:00", "19:00"],
-      amenities: ["Canteen", "Parking"],
-      price: 90000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 11,
-      name: "Sân cầu lông Quận 4",
-      location: "Hồ Chí Minh",
-      courts: 4,
-      rating: 4,
-      availableTimes: ["17:30", "18:30", "19:30"],
-      amenities: ["Wifi", "Parking"],
-      price: 100000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
-    {
-      id: 12,
-      name: "Sân cầu lông Phú Nhuận",
-      location: "Hồ Chí Minh",
-      courts: 2,
-      rating: 4,
-      availableTimes: ["17:00", "18:00", "19:00"],
-      amenities: ["Wifi", "Canteen"],
-      price: 100000,
-      image:
-        "https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg",
-    },
+    // ... Các sân khác
   ];
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -248,15 +131,13 @@ const CourtList = () => {
 
   return (
     <div className="container mx-auto mb-6">
-      <h1 className="text-4xl font-bold text-center my-8">List Court</h1>
-
-      <div class="flex flex-row gap-4 items-center justify-center">
-        <div className="flex justify-center ">
+      <h1 className="text-4xl font-bold text-center my-8">Danh sách sân</h1>
+      <div className="flex flex-row gap-4 items-center justify-center">
+        <div className="flex justify-center">
           <input
-            class=""
             type="text"
             placeholder="Tìm kiếm sân..."
-            className="px-4  py-2 border rounded-lg w-[20rem]"
+            className="px-4 py-2 border rounded-lg w-[20rem]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -345,5 +226,4 @@ const CourtList = () => {
     </div>
   );
 };
-
 export default CourtList;
