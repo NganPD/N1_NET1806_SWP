@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,4 +34,7 @@ public class TimeSlot {
     @ManyToOne
     @JoinColumn(name = "venueId", nullable = false)
     private Venue venue;
+
+    @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
+    private List<TimeSlot> timeSlots;
 }

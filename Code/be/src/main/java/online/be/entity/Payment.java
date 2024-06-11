@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import online.be.enums.PaymentStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,13 +24,14 @@ public class Payment {
     @Column
     private double Amount;
 
-    @Column(nullable = false)
-    private boolean paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 
     @Column(nullable = false)
-    private LocalDateTime paymentDate;
+    private String paymentDate;
 
-    @OneToOne(mappedBy = "payment")
+    @OneToOne
+    @JoinColumn(name = "booking_Id")
     private Booking booking;
 
 }
