@@ -42,7 +42,6 @@ public class PaymentAPI {
         paymentService.deletePayment(paymentId);
         return ResponseEntity.noContent().build();
     }
-
     @GetMapping
     public ResponseEntity<List<Payment>> getAllPayments(){
         List<Payment> Payments = paymentService.getAllPayments();
