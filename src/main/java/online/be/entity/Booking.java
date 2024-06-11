@@ -21,13 +21,13 @@ public class Booking {
     private long bookingId;
 
     @Column(name = "booking_date", nullable = false)
-    private LocalDate bookingDate;
+    private String bookingDate;
 
-    @Column(name = "total_hours", nullable = false)
-    private double totalHours;
+    @Column(name = "hours", nullable = false)
+    private double hours;
 
-    @Column(name = "total_price", nullable = false)
-    private BigDecimal totalPrice;
+    @Column(name = "price", nullable = false)
+    private double price;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "bookingType", nullable = false)

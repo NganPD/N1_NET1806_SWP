@@ -38,12 +38,11 @@ public class CourtService {
 
     //lấy court dựa trên id
     public Court getCourtById(long courtId){
-        Optional<Court> courtOptional = courtRepository.findById(courtId);
-        if(courtOptional.isPresent()){
-            return courtOptional.get();
-        }else{
-            throw new RuntimeException("Court not found with ID: " + courtId);
+        Court court = courtRepository.findById(courtId).get();
+        if(court == null){
+            throw new RuntimeException("CourtId is not existed: " + courtId);
         }
+        return court;
     }
 
     //show toàn bộ court

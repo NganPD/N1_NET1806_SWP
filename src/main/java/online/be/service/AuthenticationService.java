@@ -74,7 +74,7 @@ public class AuthenticationService implements UserDetailsService {
         // nhờ repo => save xuống db
         return authenticationRepository.save(account);
     }
-
+    
     public AccountResponse login(LoginRequest loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getEmail(),
