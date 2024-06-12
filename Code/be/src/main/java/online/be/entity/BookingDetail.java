@@ -21,6 +21,9 @@ public class BookingDetail {
     @Column
     private Double totalHours;
 
+    @Column
+    private Double unitPrice;
+    
     @OneToOne
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;

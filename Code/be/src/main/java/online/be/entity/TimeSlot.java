@@ -36,5 +36,5 @@ public class TimeSlot {
     private Venue venue;
 
     @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
-    private List<TimeSlot> timeSlots;
+    private List<BookingDetail> bookingDetails;
 }

@@ -22,7 +22,7 @@ public class PaymentAPI {
     @PostMapping
     public ResponseEntity<Payment> createPayment(@RequestBody PaymentRequest paymentRequest){
         Payment createdPayment = paymentService.createPayment(paymentRequest);
-        return new ResponseEntity<>(createdPayment, HttpStatus.CREATED);
+        return ResponseEntity.ok().body(createdPayment);
     }
 
     @GetMapping("/{paymentId}")

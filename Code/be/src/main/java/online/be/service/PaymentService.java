@@ -4,9 +4,11 @@ import online.be.entity.Payment;
 import online.be.model.Request.PaymentRequest;
 import online.be.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class PaymentService {
     @Autowired
     PaymentRepository paymentRepo;
