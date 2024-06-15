@@ -28,7 +28,7 @@ public class Payment {
     private PaymentStatus status;
 
     @Column(nullable = false)
-    private LocalDate paymentDate;
+    private String paymentDate;
 
     @OneToOne
     @JoinColumn(name = "booking_Id")

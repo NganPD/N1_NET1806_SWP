@@ -17,41 +17,55 @@ public class TimeSlotService {
 
     @Autowired
     private TimeSlotRepository timeSlotRepository;
-    @Autowired
-    private CourtScheduleRepository courtScheduleRepository;
+
+    private final CourtScheduleRepository courtScheduleRepository;
+
+    public TimeSlotService(TimeSlotRepository timeSlotRepository, CourtScheduleRepository courtScheduleRepository) {
+        this.timeSlotRepository = timeSlotRepository;
+        this.courtScheduleRepository = courtScheduleRepository;
+    }
 
     // Lưu một TimeSlot mới hoặc cập nhật một TimeSlot đã tồn tại
     public TimeSlot createTimeSlot(TimeSlotRequest timeSlotRequest) {
         TimeSlot timeSlot = new TimeSlot();
+        CourtSchedule courtSchedule = courtScheduleRepository.findById(timeSlotRequest.getCourtScheduleId()).get();
+        if (courtSchedule == null) {
+            throw new RuntimeException("CourtScheduleId is not existed: " + timeSlotRequest.getCourtScheduleId());
+        }
         timeSlot.setDuration(timeSlotRequest.getDuration());
         timeSlot.setStartTime(timeSlotRequest.getStartTime());
         timeSlot.setEndTime(timeSlotRequest.getEndTime());
+        timeSlot.setCourtSchedule(courtSchedule);
         return timeSlotRepository.save(timeSlot);
-    }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
+    }
 
     // Cập nhật thông tin TimeSlot
     public TimeSlot updateTimeSlot(long timeSlotId, TimeSlotRequest timeSlotRequest) {
         Optional<TimeSlot> timeSlotOptional = timeSlotRepository.findById(timeSlotId);
         if (timeSlotOptional.isEmpty()) {
-            throw new RuntimeException("TimeSlot not found with ID: " + timeSlotId);//Tự handle lỗi để front end nhận được
+            throw new RuntimeException("TimeSlot not found with ID: " + timeSlotId);
         }
         TimeSlot timeSlot = new TimeSlot();
-
+        CourtSchedule courtSchedule = courtScheduleRepository.findById(timeSlotRequest.getCourtScheduleId()).get();
+        if (courtSchedule == null) {
+            throw new RuntimeException("CourtScheduleId is not existed: " + timeSlotRequest.getCourtScheduleId());
+        }
         timeSlot.setDuration(timeSlotRequest.getDuration());
         timeSlot.setStartTime(timeSlotRequest.getStartTime());
         timeSlot.setEndTime(timeSlotRequest.getEndTime());
+        timeSlot.setCourtSchedule(courtSchedule);
         return timeSlotRepository.save(timeSlot);
-    }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
+    }
 
     // Tìm các TimeSlot theo độ dài
     public List<TimeSlot> findByDuration(int duration) {
         return timeSlotRepository.findByDuration(duration);
-    }//Tự tạo hiển thị không có slot
+    }
 
     // Tìm các TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     public List<TimeSlot> findByStartTimeBetween(LocalTime start, LocalTime end) {
         return timeSlotRepository.findByStartTimeBetween(start, end);
-    }//Tự tạo hiển thị không có slot
+    }
 
     // Hiển thị TimeSlot dựa trên id
     public TimeSlot getTimeSlotById(long timeSlotId) {
@@ -59,17 +73,17 @@ public class TimeSlotService {
         if (timeSlotOptional.isPresent()) {
             return timeSlotOptional.get();
         } else {
-            throw new RuntimeException("TimeSlot not found with ID: " + timeSlotId);//Tự handle lỗi để front end nhận được
+            throw new RuntimeException("TimeSlot not found with ID: " + timeSlotId);
         }
     }
 
     // Hiển thị toàn bộ TimeSlot
     public List<TimeSlot> getAllTimeSlots() {
         return timeSlotRepository.findAll();
-    }//Tự tạo hiển thị không có slot
+    }
 
     // Xoá một TimeSlot
     public void deleteTimeSlot(Long timeSlotId) {
         timeSlotRepository.deleteById(timeSlotId);
-    }//Tự tạo hiển thị không có slot
+    }
 }

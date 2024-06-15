@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-
+@Repository
 public interface CourtScheduleRepository extends JpaRepository<CourtSchedule, Long> {
     // Tìm các CourtSchedule theo trạng thái
     List<CourtSchedule> findByStatus(String status);

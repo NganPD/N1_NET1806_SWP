@@ -40,7 +40,4 @@ public class Booking {
     @OneToOne
     @JoinColumn(name = "payment_Id")
     private Payment payment;
-
-    //THiếu reference của transaction, booking detail và booking history
-    //Xoá reference payment
 }

@@ -1,7 +1,6 @@
 package online.be.api;
 
 import online.be.entity.CourtSchedule;
-import online.be.model.Request.CourtScheduleRequest;
 import online.be.service.CourtScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,35 +20,45 @@ public class CourtScheduleManagementAPI {
     // Lấy tất cả các CourtSchedule
     @GetMapping
     public ResponseEntity<List<CourtSchedule>> getAllCourtSchedules() {
-        return ResponseEntity.ok(courtScheduleService.getAllCourtSchedules());
+        return ResponseEntity.ok(courtScheduleService.findAll());
     }
 
     // Lấy CourtSchedule theo ID
     @GetMapping("/{id}")
     public ResponseEntity<CourtSchedule> getCourtScheduleById(@PathVariable Long id) {
-        CourtSchedule courtSchedule = courtScheduleService.getCourtScheduleById(id);
-        return ResponseEntity.ok(courtSchedule);
+        Optional<CourtSchedule> courtSchedule = courtScheduleService.findById(id);
+        return courtSchedule.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Tạo mới một CourtSchedule
     @PostMapping
-    public ResponseEntity<CourtSchedule> createCourtSchedule(@RequestBody CourtScheduleRequest courtScheduleRequest) {
-        CourtSchedule courtSchedule = courtScheduleService.createSchedule(courtScheduleRequest);
-        return ResponseEntity.ok(courtSchedule);
+    public ResponseEntity<CourtSchedule> createCourtSchedule(@RequestBody CourtSchedule courtSchedule) {
+        return ResponseEntity.ok(courtScheduleService.save(courtSchedule));
     }
 
     // Cập nhật thông tin một CourtSchedule
     @PutMapping("/{id}")
-    public ResponseEntity<CourtSchedule> updateCourtSchedule(@PathVariable Long id, @RequestBody CourtScheduleRequest courtScheduleDetail) {
-        CourtSchedule courtSchedule = courtScheduleService.updateCourtSchedule(id, courtScheduleDetail);
-        return ResponseEntity.ok(courtSchedule);
+    public ResponseEntity<CourtSchedule> updateCourtSchedule(@PathVariable Long id, @RequestBody CourtSchedule courtScheduleDetails) {
+        Optional<CourtSchedule> optionalCourtSchedule = courtScheduleService.findById(id);
+        if (optionalCourtSchedule.isPresent()) {
+            CourtSchedule courtSchedule = optionalCourtSchedule.get();
+            courtSchedule.setStatus(courtScheduleDetails.getStatus());
+            courtSchedule.setDate(courtScheduleDetails.getDate());
+            return ResponseEntity.ok(courtScheduleService.save(courtSchedule));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Xóa một CourtSchedule
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourtSchedule(@PathVariable long id) {
-        courtScheduleService.deleteById(id);
-        return ResponseEntity.noContent().build();
+        if (courtScheduleService.findById(id).isPresent()) {
+            courtScheduleService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Lấy danh sách CourtSchedule theo trạng thái

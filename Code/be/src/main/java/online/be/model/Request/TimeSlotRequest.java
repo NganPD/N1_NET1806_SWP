@@ -13,4 +13,5 @@ public class TimeSlotRequest {
 
     private int duration; // in minutes
 
+    private long courtScheduleId;
 }

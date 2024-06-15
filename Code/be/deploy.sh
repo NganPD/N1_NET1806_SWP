@@ -1,10 +1,10 @@
 echo "Building app..."
-./mvnw clean package #build ra file jar
+./mvnw clean package
 
 echo "Deploy files to server..."
-scp -r  target/be.jar root@167.71.200.75:/var/www/be/ #copy file jar day len server
+scp -r -i /Users/macbook/Desktop/test target/be.jar root@167.99.74.201:/var/www/be/
 
-ssh root@167.71.200.75 <<EOF
+ssh -i /Users/macbook/Desktop/test root@167.99.74.201 <<EOF
 pid=\$(sudo lsof -t -i :8080)
 
 if [ -z "\$pid" ]; then
