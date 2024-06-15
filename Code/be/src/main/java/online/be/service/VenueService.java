@@ -5,19 +5,16 @@ import online.be.entity.Venue;
 import online.be.model.Request.VenueRequest;
 import online.be.repository.CourtRepository;
 import online.be.repository.VenueRepostiory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class VenueService {
-
+    @Autowired
     VenueRepostiory venueRepostiory;
+    @Autowired
     CourtRepository courtRepository;
-
-    // Constructor
-    public VenueService(VenueRepostiory venueRepostiory) {
-        this.venueRepostiory = venueRepostiory;
-    }
 
     // Tạo một venue mới
     public Venue createVenue(VenueRequest venueRequest) {
@@ -31,14 +28,14 @@ public class VenueService {
         venue.setCourts(venueRequest.getCourt());
 
         return venueRepostiory.save(venue);
-    }
+    }//Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     // Lấy venue bằng ID
     public Venue getVenueById(long venueId) {
         // Sử dụng findById của repository để tìm venue theo ID
         // Nếu không tìm thấy, ném ra một RuntimeException
         return venueRepostiory.findById(venueId)
-                .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + venueId));
+                .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + venueId));//Tự handle lỗi để front end nhận được
     }
 
     // Lấy tất cả venues
@@ -61,13 +58,13 @@ public class VenueService {
         venue.setCourts((List<Court>) venueDetails.getCourts());
         // Lưu và trả về venue đã được cập nhật
         return venueRepostiory.save(venue);
-    }
+    }//Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     // Xóa venue bằng ID
     public void deleteVenue(long venueId) {
         // Trước tiên kiểm tra xem venue có tồn tại hay không
         if (!venueRepostiory.existsById(venueId)) {
-            throw new RuntimeException("Venue not found with ID: " + venueId);
+            throw new RuntimeException("Venue not found with ID: " + venueId);//Tự handle lỗi để front end nhận được
         }
         // Nếu tồn tại, thực hiện xóa venue
         venueRepostiory.deleteById(venueId);
