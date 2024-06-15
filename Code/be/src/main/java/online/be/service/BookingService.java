@@ -17,7 +17,7 @@ public class BookingService {
     BookingRepository bookingRepo;
 
 
-    public BookingResponse createBooking(BookingRequest bookingRequest){
+    public Booking createBooking(BookingRequest bookingRequest){
         Booking booking = new Booking();
 
         booking.setBookingDate(bookingRequest.getBookingDate());
@@ -26,57 +26,41 @@ public class BookingService {
         booking.setPrice(bookingRequest.getPrice());
         booking.setAccount(bookingRequest.getAccount());
         booking.setPayment(bookingRequest.getPayment());
-        bookingRepo.save(booking);
-        //tra ve response
-        BookingResponse response = new BookingResponse();
-        response.setBookingId(booking.getBookingId());
-        response.setMessage("Booking created successfully");
-        response.setBookingStatus(BookingStatus.SUCCESS);
-        return response;
-    }
 
-    public BookingResponse getBookingById(Long bookingId){
-        Booking booking = bookingRepo.findById(bookingId).orElse(null);
-        BookingResponse response = new BookingResponse();
-        if(booking != null){
-            response.setBookingId(booking.getBookingId());
-            response.setBookingStatus(BookingStatus.SUCCESS);
-            response.setMessage("Booking found");
+        return bookingRepo.save(booking);
+    }
+    //Sửa lại createBooking theo luồng yêu cầu của FunctionalRequirement
+    //Nên dùng try catch khi cố tạo một đối tượng mới để handle lỗi
+
+    public Booking getBookingById(Long bookingId){
+        Booking booking = bookingRepo.findById(bookingId).get();
+        if(booking == null) {
+            throw new RuntimeException("This booking ID does not exist");//Không để RuntimeException, hạn chế if else
         }else{
-            response.setMessage("Booking not found");
-            response.setBookingStatus(BookingStatus.FAILURE);
+            return booking;
         }
-        return response;
     }
 
     public List<Booking> getAllBookings(){
         return bookingRepo.findAll();
-    }
+    }//Tự tạo hiển thị khi không có Booking
 
-    public BookingResponse updateBooking(BookingRequest bookingRequest, Long bookingId){
-        Booking existingBooking = bookingRepo.findById(bookingId).orElse(null);
-        BookingResponse response = new BookingResponse();
-        if(existingBooking != null) {
-            //update existingBooking fields base on request
-            existingBooking.setBookingDate(bookingRequest.getBookingDate());
-            existingBooking.setBookingType(bookingRequest.getBookingType());
-            existingBooking.setHours(bookingRequest.getHours());
-            existingBooking.setPrice(bookingRequest.getPrice());
-            existingBooking.setAccount(bookingRequest.getAccount());
-            existingBooking.setPayment(bookingRequest.getPayment());
-            bookingRepo.save(existingBooking);
+    public Booking updateBooking(BookingRequest bookingRequest, Long bookingId){
+        Booking booking = getBookingById(bookingId);
 
-            response.setBookingId(bookingId);
-            response.setBookingStatus(BookingStatus.SUCCESS);
-            response.setMessage("Updated Successfully");
-        }else{
-            response.setMessage("Booking not found");
-            response.setBookingStatus(BookingStatus.FAILURE);
-        }
-        return response;
+        booking.setBookingDate(bookingRequest.getBookingDate());
+        booking.setBookingType(bookingRequest.getBookingType());
+        booking.setHours(bookingRequest.getHours());
+        booking.setPrice(bookingRequest.getPrice());
+        booking.setAccount(bookingRequest.getAccount());
+        booking.setPayment(bookingRequest.getPayment());
+
+        return bookingRepo.save(booking);
     }
+    //Chưa try-catch và xử lý lỗi không tồn tại
 
     public void deleteBooking(Long bookingId){
         bookingRepo.deleteById(bookingId);
     }
+    //Tự tạo hiển thị không có Booking
 }

@@ -33,5 +33,4 @@ public class BookingDetail {
     private TimeSlot timeSlot;
 
 
-
 }

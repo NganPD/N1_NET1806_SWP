@@ -27,7 +27,9 @@ public class VenueService {
         Venue venue = new Venue();
         venue.setName(venueRequest.getVenueName());
         venue.setDescription(venueRequest.getDescription());
+        venue.setImageURL(venueRequest.getImageURL());
         venue.setPaymentInfor(venueRequest.getPaymentInfor());
+        venue.setNumberOfCourts(venueRequest.getNumberOfCourts());
         venue.setOperatingHours(venueRequest.getOperatingHours());
         venue.setClosingHours(venue.getClosingHours());
         //kiem tra cac danh sach id cua court
@@ -42,14 +44,14 @@ public class VenueService {
             venue.setManager(manager);
         }
         return venueRepostiory.save(venue);
-    }
+    }//Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     // Lấy venue bằng ID
     public Venue getVenueById(long venueId) {
         // Sử dụng findById của repository để tìm venue theo ID
         // Nếu không tìm thấy, ném ra một RuntimeException
         return venueRepostiory.findById(venueId)
-                .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + venueId));
+                .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + venueId));//Tự handle lỗi để front end nhận được
     }
 
     // Lấy tất cả venues
@@ -71,13 +73,13 @@ public class VenueService {
 
         // Lưu và trả về venue đã được cập nhật
         return venueRepostiory.save(venue);
-    }
+    }//Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     // Xóa venue bằng ID
     public void deleteVenue(long venueId) {
         // Trước tiên kiểm tra xem venue có tồn tại hay không
         if (!venueRepostiory.existsById(venueId)) {
-            throw new RuntimeException("Venue not found with ID: " + venueId);
+            throw new RuntimeException("Venue not found with ID: " + venueId);//Tự handle lỗi để front end nhận được
         }
         // Nếu tồn tại, thực hiện xóa venue
 

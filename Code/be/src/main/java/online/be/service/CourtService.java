@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourtService {
@@ -20,6 +21,10 @@ public class CourtService {
     @Autowired
     VenueRepostiory venueRepostiory;
 
+    //contructor
+    public CourtService(CourtRepository courtRepository) {
+        this.courtRepository = courtRepository;
+    }
 
     //tạo court
     public Court createCourt(CreateCourtRequest courtRequest) {
@@ -29,6 +34,7 @@ public class CourtService {
         court.setAmenities(courtRequest.getAmenities());
         return courtRepository.save(court);
     }
+    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     //lấy court dựa trên id
     public Court getCourtById(long courtId) {
@@ -65,6 +71,7 @@ public class CourtService {
             throw new RuntimeException("Not found VenueId: " + courtRequest.getVenueId());
         }
     }
+    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     //delete Court
     public void deleteCourt(Long courtId) {
@@ -75,6 +82,10 @@ public class CourtService {
             throw new RuntimeException("CourtId is not existed: " + courtId);
         }
     }
+//    public void deleteCourt(Long courtId){
+//    courtRepository.deleteById(courtId);
+//}//Tự tạo hiển thị không có court
+
 }
 
 
