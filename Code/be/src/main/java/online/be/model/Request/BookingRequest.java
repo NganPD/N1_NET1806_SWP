@@ -13,4 +13,5 @@ public class BookingRequest {
     private BookingType bookingType;
     private Account account;
     private Payment payment;
+    //Thiết kế lại request theo format của luồng đặt lịch
 }

@@ -12,4 +12,5 @@ public class PaymentRequest {
     private String paymentMethod;
     private PaymentStatus paymentStatus;
     private Booking booking;
+    //không cần tạo payment request
 }

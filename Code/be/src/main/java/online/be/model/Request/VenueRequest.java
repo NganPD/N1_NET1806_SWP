@@ -15,4 +15,5 @@ public class VenueRequest {
     private String imageURL;
     private int numberOfCourts;
     private List<Court> court;
+    //Thay đổi request theo trường, không để trực tiếp Object
 }

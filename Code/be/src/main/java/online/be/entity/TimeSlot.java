@@ -34,7 +34,7 @@ public class TimeSlot {
     @ManyToOne
     @JoinColumn(name = "venueId", nullable = false)
     private Venue venue;
-
-    @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
-    private List<TimeSlot> timeSlots;
+//
+//    @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
+//    private List<TimeSlot> timeSlots;
 }
