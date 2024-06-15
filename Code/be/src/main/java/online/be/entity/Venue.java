@@ -25,28 +25,19 @@ public class Venue {
     @Column(name="operating_hours", nullable = false)
     private String operatingHours;
 
+    @Column(name="closing_hours", nullable = false)
+    private String closingHours;
+
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "paymentInfor", nullable = false)
+    @Column(name = "payment_infor", nullable = false)
     private String paymentInfor;
-
-    @Column(name = "number_of_courts")
-    private int numberOfCourts;
-
-    @Column(name = "rating")
-    private float rating;
-
-    @Column(name = "image_URL")
-    private String imageURL;
 
     @OneToMany(mappedBy = "venue")
     private List<Court> courts;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Account account;
-
-    @OneToMany(mappedBy = "venue")
-    private List<TimeSlot> slots;
+    private Account manager;
 }

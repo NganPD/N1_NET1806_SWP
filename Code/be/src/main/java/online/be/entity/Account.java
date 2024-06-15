@@ -38,6 +38,13 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne
+    @JoinColumn(name = "venue_id")
+    private Venue venue;
+
+    @ManyToOne
+    @JoinColumn(name = "court_id")
+    private Court court;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

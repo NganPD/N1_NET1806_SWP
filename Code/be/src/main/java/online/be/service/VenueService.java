@@ -1,35 +1,46 @@
 package online.be.service;
 
+import online.be.entity.Account;
 import online.be.entity.Court;
 import online.be.entity.Venue;
 import online.be.model.Request.VenueRequest;
+import online.be.repository.AuthenticationRepository;
 import online.be.repository.CourtRepository;
 import online.be.repository.VenueRepostiory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 public class VenueService {
 
+    @Autowired
     VenueRepostiory venueRepostiory;
+    @Autowired
     CourtRepository courtRepository;
-
-    // Constructor
-    public VenueService(VenueRepostiory venueRepostiory) {
-        this.venueRepostiory = venueRepostiory;
-    }
+    @Autowired
+    AuthenticationRepository authenticationRepository;
 
     // Tạo một venue mới
     public Venue createVenue(VenueRequest venueRequest) {
         Venue venue = new Venue();
         venue.setName(venueRequest.getVenueName());
         venue.setDescription(venueRequest.getDescription());
-        venue.setImageURL(venueRequest.getImageURL());
         venue.setPaymentInfor(venueRequest.getPaymentInfor());
-        venue.setNumberOfCourts(venueRequest.getNumberOfCourts());
         venue.setOperatingHours(venueRequest.getOperatingHours());
-        venue.setCourts(venueRequest.getCourt());
-
+        venue.setClosingHours(venue.getClosingHours());
+        //kiem tra cac danh sach id cua court
+        List<Court> courts = courtRepository.findAllById(venueRequest.getCourtId());
+        if(courts != null){
+            //them vao venue
+            venue.setCourts(courts);
+        }
+        Account manager = authenticationRepository.findById(venueRequest.getManagerId()).get();
+        if(manager != null){
+            //them manager vao thong tin cua venue
+            venue.setManager(manager);
+        }
         return venueRepostiory.save(venue);
     }
 
@@ -47,18 +58,17 @@ public class VenueService {
     }
 
     // Cập nhật thông tin venue
-    public Venue updateVenue(long venueId, Venue venueDetails) {
+    public Venue updateVenue(long venueId, VenueRequest venueRequest) {
         // Lấy venue bằng ID
-        Venue venue = getVenueById(venueId);
-        // Cập nhật thông tin venue với thông tin mới từ venueDetails
-        venue.setName(venueDetails.getName());
-        venue.setAddress(venueDetails.getAddress());
-        venue.setDescription(venueDetails.getDescription());
-        venue.setOperatingHours(venueDetails.getOperatingHours());
-        venue.setPaymentInfor(venueDetails.getPaymentInfor());
-        venue.setNumberOfCourts(venueDetails.getNumberOfCourts());
-        venue.setImageURL(venueDetails.getImageURL());
-        venue.setCourts((List<Court>) venueDetails.getCourts());
+        Venue venue = venueRepostiory.findById(venueId).get();
+        // Cập nhật thông tin venue với thông tin mới từ venueRequest
+        venue.setName(venueRequest.getVenueName());
+        venue.setAddress(venueRequest.getAddress());
+        venue.setDescription(venueRequest.getDescription());
+        venue.setOperatingHours(venueRequest.getOperatingHours());
+        venue.setPaymentInfor(venueRequest.getPaymentInfor());
+        //cập nhật lại danh sách court trong venue
+
         // Lưu và trả về venue đã được cập nhật
         return venueRepostiory.save(venue);
     }
@@ -70,6 +80,6 @@ public class VenueService {
             throw new RuntimeException("Venue not found with ID: " + venueId);
         }
         // Nếu tồn tại, thực hiện xóa venue
-        venueRepostiory.deleteById(venueId);
+
     }
 }

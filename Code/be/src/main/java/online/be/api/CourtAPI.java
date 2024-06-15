@@ -1,44 +1,44 @@
 package online.be.api;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Court;
 import online.be.model.Request.CreateCourtRequest;
 import online.be.service.CourtService;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/courts")
-public class CourtManagementAPI {
+@RequestMapping("api/court")
+@SecurityRequirement(name = "api")
+public class CourtAPI {
 
-    private final CourtService courtService;
+    @Autowired
+    CourtService courtService;
 
-    public CourtManagementAPI(CourtService courtService) {
-        this.courtService = courtService;
-    }
 
     @PostMapping
-    public ResponseEntity<Court> createCourt(@RequestBody CreateCourtRequest courtRequest){
+    public ResponseEntity createCourt(@RequestBody CreateCourtRequest courtRequest){
         Court createdCourt = courtService.createCourt(courtRequest);
-        return new ResponseEntity<>(createdCourt, HttpStatus.CREATED);
+        return ResponseEntity.ok().body(createdCourt);
     }
 
     @GetMapping("/{courtId}")
-    public ResponseEntity<Court> getCourtById(@PathVariable long courtId){
+    public ResponseEntity getCourtById(@PathVariable long courtId){
         Court court = courtService.getCourtById(courtId);
         return ResponseEntity.ok().body(court);
     }
 
     @PutMapping("/{courtId}")
-    public ResponseEntity<Court> updateCourt(@PathVariable long courtId, @RequestBody CreateCourtRequest courtDetails){
+    public ResponseEntity updateCourt(@PathVariable long courtId, @RequestBody CreateCourtRequest courtDetails){
         Court updatedCourt = courtService.updateCourt(courtId, courtDetails);
         return ResponseEntity.ok().body(updatedCourt);
     }
 
     @DeleteMapping("/{courtId}")
-    public ResponseEntity<Void> deleteCourt(@PathVariable long courtId){
+    public ResponseEntity deleteCourt(@PathVariable long courtId){
         courtService.deleteCourt(courtId);
         return ResponseEntity.noContent().build();
     }

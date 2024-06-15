@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import online.be.enums.CourtStatus;
+import online.be.enums.CourtType;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
@@ -21,13 +24,26 @@ public class Court {
     private String courtName;
 
     @Column(nullable = false)
-    private boolean status;
+    private CourtStatus status;
+
+    @Column
+    private String amenities;
+
+    @Column
+    private String description;
 
     @Column(nullable = false)
-    private String amenities;
+    private CourtType courtType;
 
     @ManyToOne
     @JoinColumn(name = "venueId", nullable = false)
     private Venue venue;
+
+    @OneToMany(mappedBy = "account_id")
+    List<Account> staffs;
+
+//    @OneToOne
+//    @JoinColumn(name = "scheduleId", nullable = false)
+//    private CourtSchedule schedule;
 
 }

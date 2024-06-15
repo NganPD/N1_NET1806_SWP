@@ -1,15 +1,11 @@
 package online.be.model.Request;
 
 import lombok.Data;
+import online.be.enums.CourtStatus;
 
 @Data
-public class CourtRequest {
-
+public class CreateCourtRequest {
     private String courtName;
-
-    private boolean status;
-
+    private CourtStatus status;
     private String amenities;
-
-    private long venueId;
 }
