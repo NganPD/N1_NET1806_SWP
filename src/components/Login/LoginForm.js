@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
-import { selectUser } from "../../redux/features/counterSlice";
+import { login, selectUser } from "../../redux/features/counterSlice";
 import { auth, googleProvider } from "../../config/firebaseConfig";
 import { signInWithPopup } from "firebase/auth";
+import api from "../../config/axios";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -15,31 +16,43 @@ const LoginForm = () => {
   const useSelect = useSelector(selectUser)
   // sau khi đăng nhập xong muốn người dùng ở trang nào thì dùng navigate
   const navigate = useNavigate()
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Xử lý đăng nhập tại đây
-    console.log("Email:", email);
-    console.log("Password:", password);
+    try {
+      const res = await api.post("/login", {
+        email: email,
+        password: password
+      })
+      console.log(res.data)
+      localStorage.setItem("token", res.data.token)
+      dispatch(login(res.data))
+      navigate("/users")
+    } catch (error) {
+      console.log(error)
+    }
+
+
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     // Xử lý đăng nhập bằng Google tại đây
-    signInWithPopup(auth, googleProvider)
-      .then((result) => {
+    const result = await signInWithPopup(auth, googleProvider)
+    console.log(result)
+    const token = result.user.accessToken;
+    console.log(token)
+    try {
+      const res = await api.post("/login-google", {
+        token: token
+      })
+      console.log(res.data)
+      localStorage.setItem("token", res.data.token)
+      dispatch(login(res.data))
+      navigate("/users")
+    } catch (error) {
+      console.log(error)
+    }
 
-        const token = result.user.accessToken;
-        const user = result.user;
-        console.log(user)
-        navigate("/")
-
-      }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-
-      });
 
 
     console.log("Đăng nhập với Google");

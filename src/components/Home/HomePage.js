@@ -1,14 +1,54 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 
-const featuredCourtsData = [
+const newsData = [
+  {
+    id: 1,
+    title: "Khám Phá Những Điểm Khác Biệt Giữa Pickleball Vs Tennis",
+    date: "13-06-2024 17:35",
+    image:
+      "https://cdn.shopvnb.com/img/400x240/uploads/tin_tuc/san-cau-long-hoa-sen-5_1718240803.webp",
+    description:
+      "Tennis đã từ lâu luôn khẳng định được vị thế của mình là một bộ môn thể thao quý tộc, phổ biến trên toàn thế giới...",
+  },
+  {
+    id: 2,
+    title: "Quang Dương Pickleball - Tài Năng Trẻ Gốc Việt Đầy Triển Vọng",
+    date: "13-06-2024 17:32",
+    image:
+      "https://cdn.shopvnb.com/img/400x240/uploads/tin_tuc/san-cau-long-hoa-sen-5_1718240803.webp",
+    description:
+      "Gần đây, Quang Dương Pickleball đã trở thành cái tên đáng chú ý đối với những người yêu thích bộ môn Pickleball...",
+  },
+  {
+    id: 3,
+    title:
+      "Khám Phá Chi Tiết Sân Cầu Lông Huệ Thiên Tại Địa Chỉ Phường Hiệp Bình Phước",
+    date: "13-06-2024 16:47",
+    image:
+      "https://cdn.shopvnb.com/img/400x240/uploads/tin_tuc/san-cau-long-hoa-sen-5_1718240803.webp",
+    description:
+      "Nếu bạn đang sinh sống tại phường Hiệp Bình Phước, khu vực thành phố Thủ Đức đang tìm kiếm cho mình...",
+  },
+  {
+    id: 4,
+    title: "Trải Nghiệm Và Đánh Giá Chi Tiết Sân Cầu Lông Hoa Sen Ở Thủ Đức",
+    date: "13-06-2024 16:44",
+    image:
+      "https://cdn.shopvnb.com/img/400x240/uploads/tin_tuc/san-cau-long-hoa-sen-5_1718240803.webp",
+    description:
+      "Sân cầu lông Hoa Sen là một trong những sân cầu đáp ứng nhu cầu chất lượng của các lông thủ, thiết kế hiện đại...",
+  },
+  // Thêm các mục dữ liệu giả khác tương tự
+];
+const courtsData = [
   {
     id: 1,
     name: "Sân cầu lông Việt Đức",
     location: "Hồ Chí Minh",
     image:
       "https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png",
+    price: "100.000 đ/giờ",
   },
   {
     id: 2,
@@ -16,6 +56,7 @@ const featuredCourtsData = [
     location: "Hồ Chí Minh",
     image:
       "https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png",
+    price: "150.000 đ/giờ",
   },
   {
     id: 3,
@@ -23,126 +64,115 @@ const featuredCourtsData = [
     location: "Hồ Chí Minh",
     image:
       "https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png",
+    price: "120.000 đ/giờ",
+  },
+  {
+    id: 3,
+    name: "Sân cầu lông Thủ Đức",
+    location: "Hồ Chí Minh",
+    image:
+      "https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png",
+    price: "120.000 đ/giờ",
+  },
+  {
+    id: 3,
+    name: "Sân cầu lông Thủ Đức",
+    location: "Hồ Chí Minh",
+    image:
+      "https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png",
+    price: "120.000 đ/giờ",
   },
   // Thêm các mục dữ liệu giả khác tương tự
 ];
 
 const HomePage = (props) => {
   return (
-    <div className="homepage-container">
-      <main className="bg-white">
-        <section className="relative bg-gray-200 text-center py-20">
-          <img
-            src="https://i.pinimg.com/736x/d8/1a/6a/d81a6a84a1793ac23939d40ad1e75686.jpg"
-            alt="Badminton Court"
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-          />
-          <div className="relative z-10">
-            <h1 className="text-5xl font-bold text-blue-600">
-              Welcome to Badminton Club
-            </h1>
-            <p className="text-xl text-gray-700 mt-4">
-              Join us to improve your skills and have fun!
-            </p>
-            <button className="mt-6 bg-blue-500 text-white rounded-full px-8 py-4 hover:bg-blue-600">
-              Get Started
-            </button>
-          </div>
-        </section>
+    <div className="homepage-container bg-gray-100">
+      <section className="relative text-center py-20">
+        <img
+          src="https://sieuthicaulong.vn/images/slider/1678970732-2880x1120_momota.jpg"
+          alt="Badminton Banner"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-40">
+          <h1 className="text-5xl font-bold text-white">
+            Welcome to Badminton Club - Đặt sân nhanh chóng và dễ dàng
+          </h1>
+          <button className="mt-6 bg-yellow-500 text-white rounded-full px-8 py-4 hover:bg-yellow-600">
+            Khám phá ngay
+          </button>
+        </div>
+      </section>
 
-        <section className="py-20">
-          <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-bold text-gray-800 text-center">
-              About Us
-            </h2>
-            <p className="text-gray-600 mt-4 text-center">
-              We are a community of badminton enthusiasts of all levels. Whether
-              you are a beginner or a professional, you'll find a place here!
-            </p>
+      <section className="py-20 bg-gray-100">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-gray-900 text-center">
+            Sân cầu lông nổi bật
+          </h2>
+          <div className="flex justify-center mt-8">
+            <nav className="flex space-x-4">
+              <button className="bg-orange-500 text-white px-4 py-2 rounded">
+                Tất cả
+              </button>
+              <button className="text-gray-600 hover:text-orange-500 px-4 py-2">
+                Sân ở Hồ Chí Minh
+              </button>
+              <button className="text-gray-600 hover:text-orange-500 px-4 py-2">
+                Sân ở Hà Nội
+              </button>
+              <button className="text-gray-600 hover:text-orange-500 px-4 py-2">
+                Sân ở Đà Nẵng
+              </button>
+            </nav>
           </div>
-        </section>
-
-        <section className="bg-gray-200 py-20">
-          <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-bold text-gray-800 text-center">
-              Our Services
-            </h2>
-            <div className="flex flex-wrap mt-8">
-              <div className="w-full md:w-1/3 p-4">
-                <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex flex-wrap mt-8 justify-center">
+            {courtsData.map((court) => (
+              <div key={court.id} className="w-full md:w-1/5 p-4">
+                <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-orange-500">
                   <img
-                    src="https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                    alt="Training Sessions"
-                  />
-                  <h3 className="text-xl font-bold text-gray-800 mt-4">
-                    Training Sessions
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    Join our training sessions to improve your skills.
-                  </p>
-                </div>
-              </div>
-              <div className="w-full md:w-1/3 p-4">
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <img
-                    src="https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png"
-                    alt="Court Booking"
+                    src={court.image}
+                    alt={court.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
                   <h3 className="text-xl font-bold text-gray-800 mt-4">
-                    Court Booking
+                    {court.name}
                   </h3>
-                  <p className="text-gray-600 mt-2">
-                    Book a court for your next game with ease.
-                  </p>
+                  <p className="text-gray-600 mt-2">{court.location}</p>
+                  <p className="text-red-500 mt-2">{court.price}</p>
                 </div>
               </div>
-              <div className="w-full md:w-1/3 p-4">
-                <div className="bg-white rounded-lg shadow-lg p-6">
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-gray-100">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-gray-900 text-center">
+            Tin tức mới
+          </h2>
+          <div className="flex flex-wrap mt-8 justify-center">
+            {newsData.map((news) => (
+              <div key={news.id} className="w-full md:w-1/4 p-4">
+                <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col justify-between h-full">
                   <img
-                    src="https://inhat.vn/hcm/wp-content/uploads/2022/06/thue-san-cau-long-tphcm-2-min.png"
-                    alt="Tournaments"
+                    src={news.image}
+                    alt={news.title}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
                   <h3 className="text-xl font-bold text-gray-800 mt-4">
-                    Tournaments
+                    {news.title}
                   </h3>
-                  <p className="text-gray-600 mt-2">
-                    Participate in our regular tournaments and compete with
-                    others.
+                  <p className="text-orange-500 mt-2">{news.date}</p>
+                  <p className="text-gray-600 mt-2 flex-grow">
+                    {news.description}
                   </p>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        </section>
-
-        <section className="py-20">
-          <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-bold text-gray-800 text-center">
-              Featured Courts
-            </h2>
-            <div className="flex flex-wrap mt-8 justify-center">
-              {featuredCourtsData.map((court) => (
-                <div key={court.id} className="w-full md:w-1/3 p-4">
-                  <div className="bg-white rounded-lg shadow-lg p-6">
-                    <img
-                      src={court.image}
-                      alt={court.name}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <h3 className="text-xl font-bold text-gray-800 mt-4">
-                      {court.name}
-                    </h3>
-                    <p className="text-gray-600 mt-2">{court.location}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </main>
+        </div>
+      </section>
     </div>
   );
 };

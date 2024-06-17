@@ -1,22 +1,56 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { NavLink, useNavigate } from "react-router-dom";
+import {  selectUser } from "../../redux/features/counterSlice";
+import api from "../../config/axios";
+import {  toast } from 'react-toastify';
+
 
 const RegisterForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState(""); // Thêm state cho số điện thoại
+ 
+    //lưu redux bằng useDispatch
+    const dispatch = useDispatch()
+    // lấy user trong redux
+    const useSelect = useSelector(selectUser)
+    // sau khi đăng nhập xong muốn người dùng ở trang nào thì dùng navigate
+    const navigate = useNavigate()
+   
+   
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     // Xử lý đăng ký tại đây
     console.log("Username:", username);
     console.log("Email:", email);
     console.log("Password:", password);
-    console.log("Confirm Password:", confirmPassword);
+    // console.log("Confirm Password:", value.confirmPassword);
     console.log("Phone Number:", phoneNumber); // In số điện thoại ra console
+    
+    try {
+      const res = await api.post("/register", {
+        username:username,
+        email: email,
+        password: password,
+        // confirmPassword:confirmPassword,
+        phoneNumber:phoneNumber
+      })
+      
+     toast.success('Sign up successfully')
+      
+      navigate("/")
+
+    } catch (error) {
+      console.log(error)
+    }
   };
+
+
 
   return (
     <div
@@ -64,7 +98,7 @@ const RegisterForm = () => {
               required
             />
           </div>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <input
               type="password"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -74,7 +108,7 @@ const RegisterForm = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-          </div>
+          </div> */}
           <div className="mb-4">
             <input
               type="tel"
@@ -85,7 +119,7 @@ const RegisterForm = () => {
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
-          <button
+          <button 
             type="submit"
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
           >

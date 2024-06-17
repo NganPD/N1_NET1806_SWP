@@ -1,49 +1,97 @@
-// src/components/Header/Header.js
 import React from "react";
-import { LOGO } from "../../assets";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import { FaSearch, FaShoppingCart } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, selectUser } from "../../redux/features/counterSlice";
 
 const Header = () => {
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+  console.log("user", user)
   return (
-    <header className="pb-3">
-      <div className="w-full  m-0 flex flex-column items-center justify-between gap-4">
-        <nav className="w-full p-3 flex items-center justify-center space-x-20 bg-gray-100">
-          <NavLink to="/" className="flex items-center">
-            <img src={LOGO} alt="Logo" className="h-[5rem]  rounded-full" />
-          </NavLink>
-          <NavLink
-            to="/"
-            className="text-gray-900 font-bold no-underline  hover:text-blue-600"
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/courts"
-            className="text-gray-500 no-underline hover:text-blue-600"
-          >
-            Court
-          </NavLink>
-          <NavLink
-            to="/contact"
-            className="text-gray-500 no-underline hover:text-blue-600"
-          >
-            Contacts
-          </NavLink>
-          <div class="flex flex-row gap-2">
+    <header className="bg-white shadow-md">
+      <div className="bg-blue-600 py-2">
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <Link to="/" className="flex items-center">
+            <img
+              src="https://sieuthicaulong.vn/images/logo/1678420509-final-logo.png?ver=1.2.2"
+              alt="Logo"
+              className="h-12 mr-2"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+          </Link>
+
+          <nav className="flex space-x-4">
             <NavLink
-              to="login"
-              className="border border-blue-500 text-blue-500 rounded-full px-4 py-2 hover:bg-blue-100 no-underline"
+              exact
+              to="/"
+              className="bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-yellow-500 hover:text-white"
+              activeClassName="bg-yellow-500 text-white"
             >
-              Sign in
+              Trang chủ
             </NavLink>
             <NavLink
-              to="register"
-              className="bg-[#5BD1FF] text-white rounded-full px-4 py-2 hover:bg-blue-600 no-underline"
+              to="/courts"
+              className="text-white hover:text-yellow-500 px-4 py-2"
+              activeClassName="text-yellow-500"
             >
-              Sign up
+              Sân cầu lông
             </NavLink>
-          </div>
-        </nav>
+            <NavLink
+              to="/news"
+              className="text-white hover:text-yellow-500 px-4 py-2"
+              activeClassName="text-yellow-500"
+            >
+              Bản tin
+            </NavLink>
+            <NavLink
+              to="/knowledge"
+              className="text-white hover:text-yellow-500 px-4 py-2"
+              activeClassName="text-yellow-500"
+            >
+              Chia sẻ kiến thức
+            </NavLink>
+            <NavLink
+              to="/contact"
+              className="text-white hover:text-yellow-500 px-4 py-2"
+              activeClassName="text-yellow-500"
+            >
+              Liên hệ
+            </NavLink>
+            <NavLink
+              to="/about"
+              className="text-white hover:text-yellow-500 px-4 py-2"
+              activeClassName="text-yellow-500"
+            >
+              Về chúng tôi
+            </NavLink>
+          </nav>
+          {
+            user != null ? <h2 style={{
+              cursor: "pointer"
+            }} onClick={() => {
+              dispatch(logout())
+
+            }}>
+              Logout
+            </h2> : (
+              <div className="flex items-center space-x-4">
+                <Link
+                  to="/register"
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600"
+                >
+                  Đăng ký
+                </Link>
+                <Link
+                  to="/login"
+                  className="bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-yellow-500 hover:text-white"
+                >
+                  Đăng nhập
+                </Link>
+              </div>
+            )
+          }
+        </div>
       </div>
     </header>
   );

@@ -1,52 +1,113 @@
-import React, { useState, useEffect } from "react";
+import { Button, Form, Input, Modal, Table } from 'antd';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
-const AccountManagement = () => {
-  const [accounts, setAccounts] = useState([]);
+function AccountManagement() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [data, setData] = useState([]);
 
-  useEffect(() => {
-    // Fake data for accounts
-    const fakeAccounts = [
-      { id: 1, name: "Nguyen Van A", email: "nguyenvana@example.com" },
-      { id: 2, name: "Tran Thi B", email: "tranthib@example.com" },
-      { id: 3, name: "Le Van C", email: "levanc@example.com" },
-      { id: 4, name: "Pham Thi D", email: "phamthid@example.com" },
-      { id: 5, name: "Hoang Van E", email: "hoangvane@example.com" },
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const onFinish = async (values) => {
+        try {
+            const res = await axios.post("https://665d6f09e88051d604068e77.mockapi.io/category", values);
+            setData([...data, res.data]);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Error adding category:", error);
+        }
+    };
+
+    const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
+
+    const handleDelete = async (values) => {
+        try {
+            await axios.delete(`https://665d6f09e88051d604068e77.mockapi.io/category/${values.id}`);
+            setData(data.filter((item) => item.id !== values.id));
+        } catch (error) {
+            console.error("Error deleting category:", error);
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+            const res = await axios.get("https://665d6f09e88051d604068e77.mockapi.io/category");
+            setData(res.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const columns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Category Name',
+            dataIndex: 'categoryName',
+            key: 'categoryName',
+        },
+        {
+            title: 'Action',
+            render: (values) => (
+                <Button onClick={() => handleDelete(values)} danger type="primary">
+                    Delete
+                </Button>
+            ),
+        },
     ];
-    setAccounts(fakeAccounts);
-  }, []);
 
-  return (
-    <div className=" bg-white p-4">
-      <h2 className="text-2xl font-bold mb-4">Quản lý thông tin tài khoản</h2>
-      <table className="min-w-full">
-        <thead>
-          <tr>
-            <th className="py-2">ID</th>
-            <th className="py-2">Tên</th>
-            <th className="py-2">Email</th>
-            <th className="py-2">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {accounts.map((account) => (
-            <tr key={account.id}>
-              <td className="py-2">{account.id}</td>
-              <td className="py-2">{account.name}</td>
-              <td className="py-2">{account.email}</td>
-              <td className="py-2">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                  Chỉnh sửa
-                </button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded ml-2">
-                  Xóa
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+    return (
+        <div>
+            <Button type="primary" onClick={showModal}>
+                Add new category
+            </Button>
+            <Modal footer={false} title="Add Category" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Form
+                    name="basic"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 16 }}
+                    style={{ maxWidth: 600 }}
+                    initialValues={{ remember: true }}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    autoComplete="off"
+                >
+                    <Form.Item
+                        label="Category Name"
+                        name="categoryName"
+                        rules={[{ required: true, message: 'Please input the category name!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <Table dataSource={data} columns={columns} rowKey="id" />
+        </div>
+    );
+}
 
 export default AccountManagement;
