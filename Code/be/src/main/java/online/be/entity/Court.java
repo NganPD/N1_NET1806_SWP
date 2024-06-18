@@ -20,19 +20,19 @@ public class Court {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long courtId;
 
-    @Column(nullable = false)
+    @Column(name = "court_name", nullable = false)
     private String courtName;
 
-    @Column(nullable = false)
+    @Column(name = "court_status", nullable = false)
     private CourtStatus status;
 
-    @Column
+    @Column(name = "amenities")
     private String amenities;
 
-    @Column
+    @Column(name = "description")
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "court_type", nullable = false)
     private CourtType courtType;
 
     @ManyToOne

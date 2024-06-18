@@ -12,8 +12,7 @@ public class VenueRequest {
     private String address;
     private String operatingHours;
     private String closingHours;
-    private String paymentInfor;
+    private String image;
     private String description;
-    private List<Long> courtId;
-    private Long managerId;
+    private Long paymentAccountId;
 }

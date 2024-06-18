@@ -39,15 +39,9 @@ public class VenueAPI {
     }
 
     @PutMapping("/{venueId}")
-    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId,@RequestBody Venue venueDetails){
-        Venue updatedVenue = venueService.updateVenue(venueId, venueDetails);
+    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId,@RequestBody VenueRequest venueRequest){
+        Venue updatedVenue = venueService.updateVenue(venueId, venueRequest);
         return ResponseEntity.ok().body(updatedVenue);
-    }
-
-    @DeleteMapping("/{venueId}")
-    public ResponseEntity<Venue> deleteVenue(@PathVariable long venueId){
-        venueService.deleteVenue(venueId);
-        return ResponseEntity.noContent().build();//204
     }
 
 }

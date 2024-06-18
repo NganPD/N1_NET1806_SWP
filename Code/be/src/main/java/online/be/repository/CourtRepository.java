@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface CourtRepository extends JpaRepository<Court, Long> {
     List<Court> findCourtsByVenueId(long venueId);
+    List<Court> findCourtByType(String courtType);
 }

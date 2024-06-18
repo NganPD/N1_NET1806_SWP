@@ -3,7 +3,9 @@ package online.be.service;
 import online.be.entity.Court;
 import online.be.entity.CourtSchedule;
 import online.be.entity.TimeSlot;
+import online.be.exception.BadRequestException;
 import online.be.model.Request.CourtScheduleRequest;
+import online.be.repository.CourtRepository;
 import online.be.repository.CourtScheduleRepository;
 import online.be.repository.TimeSlotRepository;
 import org.hibernate.internal.util.collections.ArrayHelper;
@@ -24,6 +26,8 @@ public class CourtScheduleService {
     private CourtScheduleRepository courtScheduleRepository;
     @Autowired
     private TimeSlotRepository timeSlotRepository;
+    @Autowired
+    private CourtRepository courtRepository;
 
     public List<CourtSchedule> getAllCourtSchedules(){//Tự tạo hiển thị không có Booking
         return courtScheduleRepository.findAll();
@@ -39,6 +43,10 @@ public class CourtScheduleService {
 
     // Lưu một CourtSchedule mới hoặc cập nhật một CourtSchedule đã tồn tại
     public CourtSchedule createSchedule(CourtScheduleRequest courtScheduleRequest) {
+        Court court = courtRepository.findById(courtScheduleRequest.getTimeSlotsId().get());
+        if(court == null){
+            throw new BadRequestException("Court not found");
+        }
         LocalDate currentDate = LocalDate.now();
         LocalDate requestedDate;
         try {
@@ -75,7 +83,7 @@ public class CourtScheduleService {
     public CourtSchedule updateCourtSchedule(long id, CourtScheduleRequest courtScheduleRequest) {
         CourtSchedule schedule = courtScheduleRepository.findById(id).get();
         if(schedule == null){
-            throw new RuntimeException("ScheduleId is not existed: " + id);//Tự handle lỗi để front end nhận được
+            throw new BadRequestException("ScheduleId is not existed: " + id);//Tự handle lỗi để front end nhận được
         }
         LocalDate currentDate = LocalDate.now();
         LocalDate requestedDate;

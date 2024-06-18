@@ -3,6 +3,7 @@ package online.be.api;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Court;
 import online.be.model.Request.CreateCourtRequest;
+import online.be.model.Request.UpdateCourtRequest;
 import online.be.service.CourtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,8 @@ public class CourtAPI {
     }
 
     @PutMapping("/{courtId}")
-    public ResponseEntity updateCourt(@PathVariable long courtId, @RequestBody CreateCourtRequest courtDetails){
-        Court updatedCourt = courtService.updateCourt(courtId, courtDetails);
+    public ResponseEntity updateCourt(@RequestBody UpdateCourtRequest updateCourtRequest){
+        Court updatedCourt = courtService.updateCourt(updateCourtRequest);
         return ResponseEntity.ok().body(updatedCourt);
     }
 
