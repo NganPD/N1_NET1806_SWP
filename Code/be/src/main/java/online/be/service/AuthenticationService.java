@@ -194,6 +194,7 @@ public class AuthenticationService implements UserDetailsService {
         authenticationRepository.save(account);
     }
 
+    //khoa account lai neu muon xoa thi chi co the chinh status
     public void lockAccount(Long accountId){
         Account account = authenticationRepository.findById(accountId).orElseThrow(
                 () -> new BadRequestException("Account not found!")

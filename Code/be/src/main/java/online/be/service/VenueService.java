@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -118,6 +119,9 @@ public class VenueService {
     }
 
     //search by Location
-    //search
+    //search by available slots
+    public List<Venue> getVenueWithAvailableSlots(LocalDateTime startDateTime, LocalDateTime endDateTime){
+        return venueRepostiory.findVenueWithAvailableSlots(startDateTime,endDateTime);
+    }
 
 }
