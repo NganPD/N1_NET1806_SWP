@@ -43,7 +43,7 @@ public class CourtScheduleService {
 
     // Lưu một CourtSchedule mới hoặc cập nhật một CourtSchedule đã tồn tại
     public CourtSchedule createSchedule(CourtScheduleRequest courtScheduleRequest) {
-        Court court = courtRepository.findById(courtScheduleRequest.getTimeSlotsId().get());
+        Court court = courtRepository.findById(courtScheduleRequest.getCourtId()).get();
         if(court == null){
             throw new BadRequestException("Court not found");
         }
@@ -72,6 +72,7 @@ public class CourtScheduleService {
         schedule.setStatus(courtScheduleRequest.getStatus());
         schedule.setDate(requestedDate);
         schedule.setTimeSlots(timeSlots);
+        schedule.setCourt(court);
 
         return courtScheduleRepository.save(schedule);
     }

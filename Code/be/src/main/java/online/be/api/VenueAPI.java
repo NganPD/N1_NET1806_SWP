@@ -44,4 +44,10 @@ public class VenueAPI {
         return ResponseEntity.ok().body(updatedVenue);
     }
 
+    //lay theo availableslot
+    @GetMapping{"/{venues}"}
+    public ResponseEntity findVenuesWithAvailableSlots(
+            @RequestParam("startDateTime")
+    )
+
 }

@@ -39,6 +39,10 @@ public class Venue {
     private List<Court> courts;
 
     @OneToOne
+    @JoinColumn(name="courtScheduleId", nullable = false)
+    private CourtSchedule courtSchedule;
+
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Account manager;
 

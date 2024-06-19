@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -22,10 +23,10 @@ public class TimeSlot {
     private int duration; // in minutes
 
     @Column(nullable = false)
-    private LocalTime startTime;
+    private LocalDateTime startTime;
 
     @Column(nullable = false)
-    private LocalTime endTime;
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
     private Double price;
