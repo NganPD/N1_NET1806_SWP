@@ -5,13 +5,13 @@ const CourtList = () => {
   const courtData = [
     {
       id: 1,
-      name: "Sân bóng đá đại học Thủy Lợi",
-      location: "Quận Đống Đa - Hà Nội",
-      courts: 4,
+      name: "sân cầu lông Cây Lộc Vừng",
+      location: "1110 B2, Phạm Văn Đồng, Phường Linh Đông, Thủ Đức",
+      courts: 2,
       rating: 4,
       amenities: ["Wifi", "Căng tin"],
-      image: "https://via.placeholder.com/400x300",
-      operatingHours: { start: "10:00 AM", end: "10:00 PM" },
+      image: "https://babolat.com.vn/wp-content/uploads/2023/11/san-danh-cau-long-cay-loc-vung-thu-duc.jpg",
+      operatingHours: { start: "07:00 AM", end: "10:00 PM" },
       availableTimes: [
         { time: "14:00 - 15:30", status: true },
         { time: "15:30 - 17:00", status: false },
@@ -22,12 +22,12 @@ const CourtList = () => {
     },
     {
       id: 2,
-      name: "Sân bóng ĐH Giao Thông Vận Tải",
-      location: "Quận Đống Đa - Hà Nội",
-      courts: 5,
+      name: "Sân cầu lông Bình Triệu",
+      location: "Số 8 Đường 20, Khu phố 4, Phường Hiệp Bình Chánh, TP. Thủ Đức",
+      courts: 2,
       rating: 5,
       amenities: ["Wifi", "Căng tin"],
-      image: "https://via.placeholder.com/400x300",
+      image: "https://babolat.com.vn/wp-content/uploads/2023/11/san-danh-cau-long-binh-trieu.jpg",
       operatingHours: { start: "10:00 AM", end: "10:00 PM" },
       availableTimes: [
         { time: "14:00 - 15:30", status: true },
@@ -39,12 +39,12 @@ const CourtList = () => {
     },
     {
       id: 3,
-      name: "Sân bóng Akka Vĩnh Hoàng",
-      location: "Hoàng Mai - Hà Nội",
-      courts: 6,
+      name: "Sân Lan Anh – Linh Trung",
+      location: "119 Đ. Số 7, Phường Linh Trung, Thủ Đức",
+      courts: 2,
       rating: 5,
       amenities: ["Wifi", "Căng tin"],
-      image: "https://via.placeholder.com/400x300",
+      image: "https://babolat.com.vn/wp-content/uploads/2023/11/san-danh-cau-long-lan-anh.jpg",
       operatingHours: { start: "10:00 AM", end: "10:00 PM" },
       availableTimes: [
         { time: "14:00 - 15:30", status: true },
@@ -56,12 +56,12 @@ const CourtList = () => {
     },
     {
       id: 4,
-      name: "Nhà thi đấu cầu lông Triều Khúc",
-      location: "Thanh Trì - Hà Nội",
-      courts: 6,
+      name: "Sân Hiển Hoa",
+      location: "262/3 Đường Trần Não, P. Bình An, Quận 2",
+      courts: 4,
       rating: 5,
       amenities: ["Wifi", "Căng tin"],
-      image: "https://via.placeholder.com/400x300",
+      image: "https://babolat.com.vn/wp-content/uploads/2023/11/san-cau-long-hien-hoa.jpg",
       operatingHours: { start: "10:00 AM", end: "10:00 PM" },
       availableTimes: [
         { time: "14:00 - 15:30", status: true },
@@ -157,11 +157,11 @@ const CourtList = () => {
               onChange={handleLocationChange}
             >
               <option value="">Tất cả</option>
-              <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-              <option value="Hà Nội">Hà Nội</option>
-              <option value="Đà Nẵng">Đà Nẵng</option>
-              <option value="Cần Thơ">Cần Thơ</option>
-              <option value="Nha Trang">Nha Trang</option>
+              <option value="Quận 1">Quận 1</option>
+              <option value="Quận Bình Thạnh">Quận Bình Thạnh</option>
+              <option value="Quận Tân Phú">Quận Tân Phú</option>
+              <option value="Quận 2">Quận 2</option>
+              <option value="Thủ Đức">Thủ Đức</option>
             </select>
           </div>
           <div>

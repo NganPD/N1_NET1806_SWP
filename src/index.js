@@ -25,8 +25,10 @@ import CourtLayout from "./layouts/CourtLayout";
 import ManageCourts from "./components/Court/ManageCourts";
 import CourtDetails from "./components/CourtDetail";
 import { persistor, store } from "./redux/store";
-import { Provider } from 'react-redux'
+import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import CourtStaffCheckin from "./components/CourtStaff/ManageCourtCheckin";
+import CourtStaffLayout from "./layouts/CourtStaffLayout";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -59,11 +61,15 @@ root.render(
             <Route path="manage-courts" element={<ManageCourts />} />
             <Route path="manage-schedules" element={<ManageSchedules />} />
           </Route>
+
+          {/* Staff */}
+          <Route path="/court-staff" element={<CourtStaffLayout />}>
+            <Route path="court-checkin" element={<CourtStaffCheckin />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </PersistGate>
-
-  </Provider>,
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

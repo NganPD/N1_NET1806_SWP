@@ -1,11 +1,20 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "../../redux/features/counterSlice";
 
 const CourtCard = ({ court }) => {
   const navigate = useNavigate();
-
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+  console.log("user", user)
   const handleViewDetails = () => {
-    navigate("/court-details", { state: { court } });
+    if(!user){
+      navigate("/login");
+    }else{
+      navigate("/court-details", { state: { court } });
+    }
+ 
   };
 
   return (
@@ -28,7 +37,7 @@ const CourtCard = ({ court }) => {
         </div>
         <div className="mb-2">
           <span className="text-lg font-semibold">Giờ hoạt động:</span>
-          <p className="text-gray-700 text-base">10:00 AM - 10:00 PM</p>
+          <p className="text-gray-700 text-base">05:00 AM - 10:00 PM</p>
         </div>
         <div className="flex flex-wrap space-x-2 mt-2">
           {court.amenities.map((amenity, index) => (

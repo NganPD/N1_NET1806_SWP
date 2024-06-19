@@ -9,84 +9,83 @@ const CourtDetails = () => {
   const navigate = useNavigate();
   const { court } = location.state || {};
 
+  const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentWeek, setCurrentWeek] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [bookingType, setBookingType] = useState("fixed");
-  const [dayOfWeek, setDayOfWeek] = useState("");
   const [months, setMonths] = useState("");
   const [startDate, setStartDate] = useState("");
   const [flexibleBookings, setFlexibleBookings] = useState([]);
-  const [selectedTime, setSelectedTime] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
 
   const fixedTimes = [
-    "10:00 - 12:00",
-    "12:00 - 14:00",
-    "14:00 - 16:00",
-    "16:00 - 18:00",
-    "18:00 - 20:00",
-    "20:00 - 22:00",
+    "05:00 - 06:00",
+    "06:00 - 07:00",
+    "07:00 - 08:00",
+    "08:00 - 09:00",
+    "09:00 - 10:00",
+    "11:00 - 12:00",
+    "12:00 - 13:00",
+    "13:00 - 14:00",
+    "14:00 - 15:00",
+    "15:00 - 16:00",
+    "16:00 - 17:00",
+    "17:00 - 18:00",
+    "18:00 - 19:00",
+    "19:00 - 20:00",
+    "20:00 - 21:00",
+    "21:00 - 22:00",
   ];
 
   if (!court) {
     return <div>Không tìm thấy thông tin sân</div>;
   }
 
-  const handleBooking = () => {
-    navigate("/payment", {
-      state: {
-        court,
-        selectedDate,
-        selectedTime,
-        name,
-        email,
-        bookingType,
-        dayOfWeek,
-        months,
-        startDate,
-        flexibleBookings,
-      },
-    });
+  const handleNextStep = () => {
+    setStep(step + 1);
   };
 
-  const openModal = (index) => {
-    setSelectedSlot(index);
-    setIsModalOpen(true);
+  const handlePreviousStep = () => {
+    setStep(step - 1);
   };
 
-  const getWeekDates = (weekOffset = 0) => {
-    const now = new Date();
-    const startOfWeek = new Date(
-      now.setDate(now.getDate() - now.getDay() + 1 + 7 * weekOffset)
-    );
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      return date;
-    });
+  const handleAddFlexibleBooking = () => {
+    if (selectedDate && selectedTime) {
+      setFlexibleBookings([
+        ...flexibleBookings,
+        { date: selectedDate, time: selectedTime },
+      ]);
+      setSelectedDate("");
+      setSelectedTime("");
+    } else {
+      alert("Vui lòng chọn ngày và thời gian trước khi thêm");
+    }
   };
 
-  const weekDates = getWeekDates(currentWeek);
+  const handleRemoveFlexibleBooking = (index) => {
+    const updatedBookings = flexibleBookings.filter((_, i) => i !== index);
+    setFlexibleBookings(updatedBookings);
+  };
 
-  const renderTimeslots = (date) => {
-    return court.availableTimes.map((slot, index) => {
-      const isPast = date < new Date() || !slot.status;
-      return (
-        <div
-          key={index}
-          className={`m-2 p-2 border rounded-lg shadow-lg cursor-pointer ${
-            selectedSlot === index ? "bg-blue-300" : "bg-blue-100"
-          } ${isPast ? "bg-gray-300 cursor-not-allowed" : "cursor-pointer"}`}
-          onClick={() => !isPast && openModal(index)}
-        >
-          <p className="text-center">{slot.time}</p>
-          <p className="text-center">120k</p>
-        </div>
-      );
-    });
+  const handlePayment = (e) => {
+    e.preventDefault();
+    // Xử lý thanh toán tại đây
+    console.log("Name:", name);
+    console.log("Email:", email);
+    console.log("Selected Time:", selectedTime);
+    console.log("Selected Date:", selectedDate);
+    console.log("Booking Type:", bookingType);
+    console.log("Months:", months);
+    console.log("Start Date:", startDate);
+    console.log("Flexible Bookings:", flexibleBookings);
+    // Sau khi thanh toán thành công, điều hướng về trang xác nhận
+    navigate("/confirmation");
   };
 
   return (
@@ -134,243 +133,299 @@ const CourtDetails = () => {
             )}
           </div>
 
-          <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
-            <h2 className="text-2xl font-bold mb-4">Chọn loại lịch đặt sân</h2>
-            <div className="mb-4">
-              <label className="block mb-2">Loại lịch:</label>
-              <select
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                value={bookingType}
-                onChange={(e) => setBookingType(e.target.value)}
+          {step === 1 && (
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
+              <h2 className="text-2xl font-bold mb-4">
+                Chọn loại lịch đặt sân
+              </h2>
+              <div className="mb-4">
+                <label className="block mb-2">Loại lịch:</label>
+                <select
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  value={bookingType}
+                  onChange={(e) => setBookingType(e.target.value)}
+                >
+                  <option value="fixed">Lịch cố định</option>
+                  <option value="one-time">Lịch ngày</option>
+                  <option value="flexible">Lịch linh hoạt</option>
+                </select>
+              </div>
+              <button
+                onClick={handleNextStep}
+                className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
               >
-                <option value="fixed">Lịch cố định</option>
-                <option value="flexible">Lịch linh hoạt</option>
-              </select>
+                Tiếp tục
+              </button>
             </div>
-            {bookingType === "fixed" && (
-              <>
-                <div className="mb-4">
-                  <label className="block mb-2">Chọn thứ</label>
-                  <select
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    value={dayOfWeek}
-                    onChange={(e) => setDayOfWeek(e.target.value)}
-                    required
-                  >
-                    <option value="">Chọn thứ</option>
-                    <option value="Monday">Thứ Hai</option>
-                    <option value="Tuesday">Thứ Ba</option>
-                    <option value="Wednesday">Thứ Tư</option>
-                    <option value="Thursday">Thứ Năm</option>
-                    <option value="Friday">Thứ Sáu</option>
-                    <option value="Saturday">Thứ Bảy</option>
-                    <option value="Sunday">Chủ Nhật</option>
-                  </select>
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Chọn giờ chơi cố định</label>
-                  <div className="flex flex-wrap">
-                    {fixedTimes.map((time, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        className={`m-2 px-4 py-2 rounded-full ${
-                          selectedTime === time
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-200 text-gray-700"
-                        }`}
-                        onClick={() => setSelectedTime(time)}
-                      >
-                        {time}
-                      </button>
-                    ))}
+          )}
+
+          {step === 2 && (
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
+              <h2 className="text-2xl font-bold mb-4">Chi tiết lịch đặt sân</h2>
+              {bookingType === "fixed" && (
+                <>
+                  <div className="mb-4">
+                    <label className="block mb-2">Chọn ngày</label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      required
+                    />
                   </div>
-                </div>
+                  <div className="mb-4">
+                    <label className="block mb-2">Chọn giờ chơi cố định</label>
+                    <div className="flex flex-wrap">
+                      {fixedTimes.map((time, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          className={`m-2 px-4 py-2 rounded-full ${
+                            selectedTime === time
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                          onClick={() => setSelectedTime(time)}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-2">
+                      Đăng ký bao nhiêu tháng
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      value={months}
+                      onChange={(e) => setMonths(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-2">Bắt đầu từ ngày</label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+              {bookingType === "one-time" && (
                 <div className="mb-4">
-                  <label className="block mb-2">Đăng ký bao nhiêu tháng</label>
-                  <input
-                    type="number"
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    value={months}
-                    onChange={(e) => setMonths(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Bắt đầu từ ngày</label>
+                  <label className="block mb-2">Chọn ngày</label>
                   <input
                     type="date"
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    required
+                  />
+                  <div className="mb-4">
+                    <label className="block mb-2">Chọn giờ chơi</label>
+                    <div className="flex flex-wrap">
+                      {fixedTimes.map((time, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          className={`m-2 px-4 py-2 rounded-full ${
+                            selectedTime === time
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                          onClick={() => setSelectedTime(time)}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {bookingType === "flexible" && (
+                <div>
+                  <div className="mb-4">
+                    <label className="block mb-2">Chọn ngày và giờ</label>
+                    <div className="flex mb-2">
+                      <input
+                        type="date"
+                        className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                      />
+                      <select
+                        className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                      >
+                        <option value="">Chọn giờ</option>
+                        {fixedTimes.map((time, index) => (
+                          <option key={index} value={time}>
+                            {time}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                      onClick={handleAddFlexibleBooking}
+                    >
+                      Thêm ngày
+                    </button>
+                  </div>
+                  {flexibleBookings.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold mb-2">
+                        Lịch linh hoạt đã chọn
+                      </h4>
+                      {flexibleBookings.map((booking, index) => (
+                        <div key={index} className="flex items-center mb-2">
+                          <p className="mr-2">
+                            {booking.date} - {booking.time}
+                          </p>
+                          <button
+                            type="button"
+                            className="bg-red-500 text-white px-2 py-1 rounded-lg"
+                            onClick={() => handleRemoveFlexibleBooking(index)}
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="flex justify-between mt-4">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg"
+                  onClick={handlePreviousStep}
+                >
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  onClick={handleNextStep}
+                >
+                  Tiếp tục
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
+              <h2 className="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
+              <div className="mb-4">
+                <label className="block mb-2">Tên</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Email</label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="flex justify-between mt-4">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg"
+                  onClick={handlePreviousStep}
+                >
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  onClick={handleNextStep}
+                >
+                  Tiếp tục
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
+              <h2 className="text-2xl font-bold mb-4">Thanh toán</h2>
+              <form onSubmit={handlePayment}>
+                <div className="mb-4">
+                  <label className="block mb-2">Số thẻ</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
                     required
                   />
                 </div>
-              </>
-            )}
-            {bookingType === "flexible" && (
-              <div>
                 <div className="mb-4">
-                  <label className="block mb-2">Chọn ngày và giờ</label>
-                  <div className="flex mb-2">
-                    <input
-                      type="date"
-                      className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                    />
-                    <select
-                      className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                    >
-                      <option value="">Chọn giờ</option>
-                      {fixedTimes.map((time, index) => (
-                        <option key={index} value={time}>
-                          {time}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <label className="block mb-2">Ngày hết hạn</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-2">CVV</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    value={cvv}
+                    onChange={(e) => setCvv(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex justify-between mt-4">
                   <button
                     type="button"
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg"
-                    onClick={() => {
-                      if (selectedDate && selectedTime) {
-                        setFlexibleBookings([
-                          ...flexibleBookings,
-                          { date: selectedDate, time: selectedTime },
-                        ]);
-                        setSelectedDate("");
-                        setSelectedTime("");
-                      } else {
-                        alert("Vui lòng chọn ngày và thời gian trước khi thêm");
-                      }
-                    }}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-lg"
+                    onClick={handlePreviousStep}
                   >
-                    Thêm ngày
+                    Quay lại
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  >
+                    Thanh toán
                   </button>
                 </div>
-                {flexibleBookings.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-bold mb-2">
-                      Lịch linh hoạt đã chọn
-                    </h4>
-                    {flexibleBookings.map((booking, index) => (
-                      <div key={index} className="flex items-center mb-2">
-                        <p className="mr-2">
-                          {booking.date} - {booking.time}
-                        </p>
-                        <button
-                          type="button"
-                          className="bg-red-500 text-white px-2 py-1 rounded-lg"
-                          onClick={() => {
-                            const updatedBookings = flexibleBookings.filter(
-                              (_, i) => i !== index
-                            );
-                            setFlexibleBookings(updatedBookings);
-                          }}
-                        >
-                          Xóa
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              </form>
+              <div className="mt-4">
+                <h3 className="text-xl font-bold mb-4">Hoặc quét mã QR</h3>
+                <img
+                  src="https://via.placeholder.com/200" // Thay thế bằng URL của mã QR thực tế
+                  alt="QR Code"
+                  className="w-1/2 mx-auto"
+                />
               </div>
-            )}
-            <div className="mb-4">
-              <label className="block mb-2">Họ và tên:</label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
             </div>
-            <div className="mb-4">
-              <label className="block mb-2">Email:</label>
-              <input
-                type="email"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              onClick={handleBooking}
-              className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-            >
-              Đặt Sân
-            </button>
-          </div>
+          )}
         </div>
       </div>
-
-      <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">
-          Đặt sân theo khung thời gian
-        </h2>
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => setCurrentWeek((prev) => prev - 1)}
-            className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-          >
-            Tuần trước
-          </button>
-          <h3 className="text-xl font-semibold">
-            Từ ngày {weekDates[0].toLocaleDateString()} đến ngày{" "}
-            {weekDates[6].toLocaleDateString()}
-          </h3>
-          <button
-            onClick={() => setCurrentWeek((prev) => prev + 1)}
-            className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-          >
-            Tuần sau
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-          {weekDates.map((date, index) => (
-            <div key={index} className="flex flex-col items-center">
-              <h4 className="font-bold">{date.toLocaleDateString()}</h4>
-              {renderTimeslots(date)}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Confirm Booking"
-        className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        {selectedSlot !== null && (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Xác nhận đặt sân</h2>
-            <p>Tên sân: {court.name}</p>
-            <p>Thời gian: {court.availableTimes[selectedSlot].time}</p>
-            <p>Giá: 120k</p>
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-300 text-gray-700 rounded-full px-4 py-2 mr-2 hover:bg-gray-400"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleBooking}
-                className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-              >
-                Xác nhận
-              </button>
-            </div>
-          </>
-        )}
-      </Modal>
     </div>
   );
 };
