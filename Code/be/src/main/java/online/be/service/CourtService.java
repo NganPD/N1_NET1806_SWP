@@ -2,14 +2,18 @@ package online.be.service;
 
 import online.be.entity.Court;
 import online.be.entity.Venue;
-import online.be.model.Request.CourtRequest;
+import online.be.enums.CourtStatus;
+import online.be.exception.BadRequestException;
+import online.be.model.Request.CreateCourtRequest;
+import online.be.model.Request.UpdateCourtRequest;
 import online.be.repository.CourtRepository;
 import online.be.repository.VenueRepostiory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class CourtService {
@@ -19,73 +23,88 @@ public class CourtService {
     @Autowired
     VenueRepostiory venueRepostiory;
 
-    //contructor
-    public CourtService(CourtRepository courtRepository) {
-        this.courtRepository = courtRepository;
-    }
 
     //tạo court
-    public Court createCourt(CourtRequest courtRequest){
+    public Court createCourt(CreateCourtRequest courtRequest) {
+        //kiem tra ten court
+        if(!Pattern.matches("^[a-zA-Z\\s]+$", courtRequest.getCourtName())){
+            throw new BadRequestException("Court name contains invalid characters.");
+        }
+        //kiem tra venue co ton tai hay khong
+        Venue venue = venueRepostiory.findById(courtRequest.getVenueId())
+                .orElseThrow(() -> new BadRequestException("Venue not found with Id " + courtRequest.getVenueId()));
         Court court = new Court();
-        Venue venue = venueRepostiory.findById(courtRequest.getVenueId()).get();
-        if(venue != null){
-            court.setCourtName(courtRequest.getCourtName());
-            court.setStatus(courtRequest.isStatus());
-            court.setAmenities(courtRequest.getAmenities());
-            court.setVenue(venue);
+        court.setCourtName(courtRequest.getCourtName());
+        court.setCourtType(courtRequest.getCourtType());
+        court.setStatus(courtRequest.getStatus());
+        court.setDescription(courtRequest.getDescription());
+        court.setAmenities(courtRequest.getAmenities());
+        court.setVenue(venue);
+
+        try {
             return courtRepository.save(court);
-        } else {
-            throw new RuntimeException("VenueId is not existed: " + courtRequest.getVenueId());//Tự handle lỗi để front end nhận được
+        }catch (DataIntegrityViolationException e){
+            throw new RuntimeException(e);
         }
     }
     //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     //lấy court dựa trên id
-    public Court getCourtById(long courtId){
+    public Court getCourtById(long courtId) {
         Court court = courtRepository.findById(courtId).get();
-        if(court == null){
-            throw new RuntimeException("CourtId is not existed: " + courtId);//Tự handle lỗi để front end nhận được
+        if (court == null) {
+            throw new RuntimeException("CourtId is not existed: " + courtId);
         }
         return court;
     }
 
     //show toàn bộ court
-    public List<Court> getAllCourts(){
+    public List<Court> getAllCourts() {
         return courtRepository.findAll();
-    }//Tự tạo hiển thị không có schedule
+    }
 
     //update Court
-    public Court updateCourt(long courtId, CourtRequest courtRequest){
-        //kiểm tra xem court có tồn tại hay không
-        Court court = getCourtById(courtId);
-        if(court == null){
-            throw new RuntimeException("CourtId is not existed: " + courtId);
+    public Court updateCourt(UpdateCourtRequest courtRequest) {
+        //kiem tra court co ton tai hay khong
+        Court court = courtRepository.findById(courtRequest.getCourtId())
+                .orElseThrow(() -> new BadRequestException("Court not found with Id: "+ courtRequest.getCourtId()));
+        //kiem tra ten court
+        if(!Pattern.matches("^[a-zA-Z\\s]+$", courtRequest.getCourtName())){
+            throw new BadRequestException("Court name contains invalid characters.");
         }
-        //kiểm tra xem venue tồn tại hay không
-        Venue venue = venueRepostiory.findById(courtRequest.getVenueId()).get();
-        if(venue == null) {
-            throw new RuntimeException("VenueId is not existed: " + courtRequest.getVenueId());//Tự handle lỗi để front end nhận được
-        }
+        //kiem tra venue co ton tai hay khong
+        Venue venue = venueRepostiory.findById(courtRequest.getVenueId())
+                .orElseThrow(()-> new BadRequestException("Venue not found with Id: " + courtRequest.getVenueId()));
 
-        //kiểm tra rằng court này có tồn tại bên trong venue này không
-
-        if(!venue.getCourts().contains(courtId)){
-            throw new RuntimeException("Court with ID: " + courtId + "does not belong to Venue with ID: " + courtRequest.getVenueId());//Tự handle lỗi để front end nhận được
-        }
-
-        //update lại các thông tin bên trong court
         court.setCourtName(courtRequest.getCourtName());
-        court.setStatus(courtRequest.isStatus());
-        court.setAmenities(courtRequest.getAmenities());
+        court.setCourtType(courtRequest.getCourtType());
+        court.setStatus(courtRequest.getStatus());
+        court.setDescription(courtRequest.getDescription());
         court.setVenue(venue);
 
-        return courtRepository.save(court);
+        try{
+            return courtRepository.save(court);
+        }catch (DataIntegrityViolationException ex){
+            throw new RuntimeException(ex.getMessage());
+        }
     }
     //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     //delete Court
-    public void deleteCourt(Long courtId){
-    courtRepository.deleteById(courtId);
-}//Tự tạo hiển thị không có court
+    public void deleteCourt(Long courtId) {
+        Court court = courtRepository.findById(courtId)
+                .orElseThrow(()->new RuntimeException("Court not found with Id: " + courtId));
+        court.setStatus(CourtStatus.INACTIVE);
+    }
 
+    //get the list of court base on their type
+    public List<Court> findCourtByType(String courtType){
+        return courtRepository.findCourtByType(courtType);
+    }
+
+
+
+    
 }
+
+

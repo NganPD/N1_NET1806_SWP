@@ -1,6 +1,6 @@
 package online.be.api;
 
-import online.be.entity.Court;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.TimeSlot;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.service.TimeSlotService;
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/timeslots")
-public class TimeSlotManagementAPI {
+@SecurityRequirement(name = "api")
+public class TimeSlotAPI {
 
     @Autowired
     private TimeSlotService timeSlotService;

@@ -27,14 +27,50 @@ public class TimeSlot {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    @ManyToOne
-    @JoinColumn(name = "courtScheduleID", nullable = false)
-    private CourtSchedule courtSchedule;
+    @Column(nullable = false)
+    private Double price;
+
+    @Column(nullable = false)
+    private Boolean status;
 
     @ManyToOne
-    @JoinColumn(name = "venueId", nullable = false)
-    private Venue venue;
-//
-//    @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
-//    private List<TimeSlot> timeSlots;
+    @JoinColumn(name = "scheduleId", nullable = false)
+    private CourtSchedule schedule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ;
+
 }

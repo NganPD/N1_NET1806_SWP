@@ -24,6 +24,10 @@ public class CourtSchedule {
     @Column(nullable = false)
     private LocalDate date;
 
+    @OneToOne
+    @JoinColumn(name = "court_id", nullable = false)
+    private Court court;
+
     @OneToMany(mappedBy = "courtSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeSlot> timeSlots;
 }

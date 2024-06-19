@@ -35,9 +35,19 @@ public class Account implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @Column(unique = true)
+    private Boolean isActive;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne
+    @JoinColumn(name = "venue_id")
+    private Venue venue;
+
+    @ManyToOne
+    @JoinColumn(name = "court_id")
+    private Court court;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

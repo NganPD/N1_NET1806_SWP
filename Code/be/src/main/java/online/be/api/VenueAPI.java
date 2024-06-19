@@ -1,5 +1,6 @@
 package online.be.api;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Venue;
 import online.be.model.Request.VenueRequest;
 import online.be.service.VenueService;
@@ -9,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-
-public class VenueManagementAPI {
+@RequestMapping("api/venue")
+@SecurityRequirement(name = "api")
+public class VenueAPI {
 
     VenueService venueService;
 
-    public VenueManagementAPI(VenueService venueService) {
+    public VenueAPI(VenueService venueService) {
         this.venueService = venueService;
     }
 
@@ -37,15 +39,9 @@ public class VenueManagementAPI {
     }
 
     @PutMapping("/{venueId}")
-    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId,@RequestBody Venue venueDetails){
-        Venue updatedVenue = venueService.updateVenue(venueId, venueDetails);
+    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId,@RequestBody VenueRequest venueRequest){
+        Venue updatedVenue = venueService.updateVenue(venueId, venueRequest);
         return ResponseEntity.ok().body(updatedVenue);
-    }
-
-    @DeleteMapping("/{venueId}")
-    public ResponseEntity<Venue> deleteVenue(@PathVariable long venueId){
-        venueService.deleteVenue(venueId);
-        return ResponseEntity.noContent().build();//204
     }
 
 }

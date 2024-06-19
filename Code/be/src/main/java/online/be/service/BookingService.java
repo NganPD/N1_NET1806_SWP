@@ -1,7 +1,9 @@
 package online.be.service;
 
 import online.be.entity.Booking;
+import online.be.enums.BookingStatus;
 import online.be.model.Request.BookingRequest;
+import online.be.model.Response.BookingResponse;
 import online.be.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

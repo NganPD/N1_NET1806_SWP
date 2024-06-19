@@ -8,10 +8,7 @@ import online.be.enums.Role;
 import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
 import online.be.model.*;
-import online.be.model.Request.LoginGoogleRequest;
-import online.be.model.Request.LoginRequest;
-import online.be.model.Request.RegisterRequest;
-import online.be.model.Request.ResetPasswordRequest;
+import online.be.model.Request.*;
 import online.be.model.Response.AccountResponse;
 import online.be.model.Response.LoginGoogleResponse;
 import online.be.repository.AuthenticationRepository;
@@ -50,40 +47,48 @@ public class AuthenticationService implements UserDetailsService {
 
     public Account register(RegisterRequest registerRequest) {
         //registerRequest: thông tin ngừoi dùng yêu cầu
-
-        // xử lý logic register
-        Account account = new Account();
-        account.setPhone(registerRequest.getPhone());
-        account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        account.setRole(Role.CUSTOMER);
-        account.setEmail(registerRequest.getEmail());
-        account.setFullName(registerRequest.getFullName());
-
-        try {
-          account = authenticationRepository.save(account);
-        }catch (DataIntegrityViolationException e){
-            System.out.println(e.getMessage());
-            if(e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr")) throw new AuthException("duplicate email");
-            else{ throw new AuthException("duplicate phone");}
-
+        Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
+        if(existingAccount != null){
+            if(!existingAccount.getIsActive()){
+                throw new BadRequestException("Tài khoản đã được đăngkysys va dang bi khoa");
+            }
         }
+            // xử lý logic register
+            Account account = new Account();
+            account.setPhone(registerRequest.getPhone());
+            account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            account.setRole(Role.CUSTOMER);
+            account.setEmail(registerRequest.getEmail());
+            account.setFullName(registerRequest.getFullName());
 
-        try {
-            EmailDetail emailDetail = new EmailDetail();
-            emailDetail.setRecipient(account.getEmail());
-            emailDetail.setSubject("You are invited to system!");
-            emailDetail.setMsgBody("aaa");
-            emailDetail.setFullName(registerRequest.getFullName());
-            emailDetail.setButtonValue("Login to system");
-            emailDetail.setLink("http://goodminton.online/");
-            emailService.sendMailTemplate(emailDetail);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+            try {
+                account = authenticationRepository.save(account);
+            } catch (DataIntegrityViolationException e) {
+                System.out.println(e.getMessage());
+                if (e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr"))
+                    throw new AuthException("duplicate email");
+                else {
+                    throw new AuthException("duplicate phone");
+                }
 
-        // nhờ repo => save xuống db
-        return account;
+            }
+
+            try {
+                EmailDetail emailDetail = new EmailDetail();
+                emailDetail.setRecipient(account.getEmail());
+                emailDetail.setSubject("You are invited to system!");
+                emailDetail.setMsgBody("aaa");
+                emailDetail.setFullName(registerRequest.getFullName());
+                emailDetail.setButtonValue("Login to system");
+                emailDetail.setLink("http://goodminton.online/");
+                emailService.sendMailTemplate(emailDetail);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+
+            // nhờ repo => save xuống db
+            return account;
     }
     
     public AccountResponse login(LoginRequest loginRequest) {
@@ -169,4 +174,42 @@ public class AuthenticationService implements UserDetailsService {
     public Account getCurrentAccount() {
         return (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+
+    public Account updateAccount(UpdatedAccountRequest updatedAccountRequest){
+        Account account = authenticationRepository.findById(updatedAccountRequest.getAccountId())
+                .orElseThrow(() -> new BadRequestException("Account Not Found"));
+        account.setPhone(updatedAccountRequest.getPhone());
+        account.setEmail(updatedAccountRequest.getEmail());
+        account.setFullName(updatedAccountRequest.getFullname());
+        account.setRole(updatedAccountRequest.getRole());
+        //save
+        return authenticationRepository.save(account);
+    }
+
+    public void assignRole(Long accountId, Role role){
+        Account account = authenticationRepository.findById(accountId).orElseThrow(
+                () -> new BadRequestException("Account not found!")
+        );
+        account.setRole(role);
+        authenticationRepository.save(account);
+    }
+
+    public void lockAccount(Long accountId){
+        Account account = authenticationRepository.findById(accountId).orElseThrow(
+                () -> new BadRequestException("Account not found!")
+        );
+        account.setIsActive(false);
+        authenticationRepository.save(account);
+    }
+
+    public void unlockAccount(long accountId){
+        Account account = authenticationRepository.findById(accountId).orElseThrow(
+                () -> new BadRequestException("Account not found!")
+        );
+        account.setIsActive(true);
+        authenticationRepository.save(account);
+    }
+
+
+
 }
