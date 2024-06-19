@@ -1,5 +1,6 @@
 Introduction:This project aims to build a convenient and effective online badminton court booking platform for both players and court managers. This platform will help players easily find a course that suits their needs, book a playing schedule, pay online and track booking history. At the same time, the platform also helps yard managers manage yard information, schedules, employees, and revenue and expenditure effectively.
 
+Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcqxJcEkXljYg6GCDU6MwSg/edit?usp=sharing
 
 Sprint 1:
 BE - Ngân - Forgot Password, Assign Roles to User, Update Acccount Information 
