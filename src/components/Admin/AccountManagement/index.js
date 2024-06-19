@@ -1,113 +1,86 @@
-import { Button, Form, Input, Modal, Table } from 'antd';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
+import api from "../../../config/axios";
 
-function AccountManagement() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [data, setData] = useState([]);
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-
-    const onFinish = async (values) => {
-        try {
-            const res = await axios.post("https://665d6f09e88051d604068e77.mockapi.io/category", values);
-            setData([...data, res.data]);
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error("Error adding category:", error);
-        }
-    };
-
-    const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
-
-    const handleDelete = async (values) => {
-        try {
-            await axios.delete(`https://665d6f09e88051d604068e77.mockapi.io/category/${values.id}`);
-            setData(data.filter((item) => item.id !== values.id));
-        } catch (error) {
-            console.error("Error deleting category:", error);
-        }
-    };
-
-    const fetchData = async () => {
-        try {
-            const res = await axios.get("https://665d6f09e88051d604068e77.mockapi.io/category");
-            setData(res.data);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    };
+const AccountManagement = () => {
+    const [accounts, setAccounts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchData();
+        const fetchAccounts = async () => {
+            try {
+                const response = await api.get("/account");
+                setAccounts(response.data);
+            } catch (error) {
+                setError(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAccounts();
     }, []);
 
-    const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'Category Name',
-            dataIndex: 'categoryName',
-            key: 'categoryName',
-        },
-        {
-            title: 'Action',
-            render: (values) => (
-                <Button onClick={() => handleDelete(values)} danger type="primary">
-                    Delete
-                </Button>
-            ),
-        },
-    ];
+    const handleDelete = async (id) => {
+        console.log(`Attempting to delete account with id: ${id}`);
+        try {
+            const response = await api.delete(`/account/${id}`);
+            console.log("Delete response:", response);
+            setAccounts(accounts.filter((account) => account.id !== id));
+        } catch (error) {
+            console.error("Failed to delete account:", error);
+        }
+    };
+
+    const handleEdit = (id) => {
+        // Implement logic to edit the account here
+        console.log("Edit account with id:", id);
+    };
+
+    if (loading) {
+        return <div className="text-center py-4">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center text-red-500 py-4">Error: {error.message}</div>;
+    }
 
     return (
-        <div>
-            <Button type="primary" onClick={showModal}>
-                Add new category
-            </Button>
-            <Modal footer={false} title="Add Category" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                <Form
-                    name="basic"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                    style={{ maxWidth: 600 }}
-                    initialValues={{ remember: true }}
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
-                    autoComplete="off"
-                >
-                    <Form.Item
-                        label="Category Name"
-                        name="categoryName"
-                        rules={[{ required: true, message: 'Please input the category name!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-            <Table dataSource={data} columns={columns} rowKey="id" />
+        <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-2xl font-bold mb-6">Quản lý thông tin tài khoản</h2>
+            <table className="min-w-full table-auto">
+                <thead>
+                    <tr className="bg-gray-200">
+                        <th className="py-2 px-4 border-b text-left">ID</th>
+                        <th className="py-2 px-4 border-b text-left">Email</th>
+                        <th className="py-2 px-4 border-b text-left">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {accounts.map((account, index) => (
+                        <tr key={account.id} className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
+                            <td className="py-2 px-4 border-b text-left">{account.id}</td>
+                            <td className="py-2 px-4 border-b text-left">{account.email}</td>
+                            <td className="py-2 px-4 border-b text-left">
+                                <button
+                                    onClick={() => handleEdit(account.id)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-700"
+                                >
+                                    Chỉnh sửa
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(account.id)}
+className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                                >
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
-}
+};
 
 export default AccountManagement;
