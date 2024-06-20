@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/courtschedules")
-public class CourtScheduleManagementAPI {
+public class CourtScheduletAPI {
 
     @Autowired
     private CourtScheduleService courtScheduleService;

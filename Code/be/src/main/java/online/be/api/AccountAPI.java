@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/account")
 @SecurityRequirement(name = "api")
 @CrossOrigin("*")
-public class AccountManagementAPI {
+public class AccountAPI {
     @Autowired
     AccountService accountService;
 

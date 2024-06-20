@@ -11,11 +11,11 @@ import java.util.List;
 
 @RestController
 
-public class VenueManagementAPI {
+public class VenueAPI {
     @Autowired
     private VenueService venueService;
 
-    public VenueManagementAPI(VenueService venueService) {
+    public VenueAPI(VenueService venueService) {
         this.venueService = venueService;
     }
 
