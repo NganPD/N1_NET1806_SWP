@@ -1,18 +1,17 @@
 package online.be.api;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Court;
-import online.be.model.Request.CreateCourtRequest;
-import online.be.model.Request.UpdateCourtRequest;
+import online.be.model.Request.CourtRequest;
 import online.be.service.CourtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/court")
+@RequestMapping("api/courts")
 @SecurityRequirement(name = "api")
 public class CourtAPI {
 
