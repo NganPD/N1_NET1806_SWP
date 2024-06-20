@@ -1,6 +1,7 @@
 package online.be.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,6 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
-@ToString
 public class Booking {
 
     @Id
@@ -34,11 +34,13 @@ public class Booking {
     private BookingType bookingType;
 
     @ManyToOne
-    @JoinColumn(name = "user_Id", nullable = false)
+    @JoinColumn(name = "account_Id", nullable = false)
+    @JsonIgnore
     private Account account;
-
+//
     @OneToOne
     @JoinColumn(name = "payment_Id")
+    @JsonIgnore
     private Payment payment;
 
     //THiếu reference của transaction, booking detail và booking history

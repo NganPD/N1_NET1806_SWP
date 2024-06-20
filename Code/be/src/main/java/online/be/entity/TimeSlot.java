@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 public class TimeSlot {
 
     @Id
@@ -29,11 +29,13 @@ public class TimeSlot {
 
     @ManyToOne
     @JoinColumn(name = "courtScheduleID", nullable = false)
-    private CourtSchedule courtSchedule;
+    @JsonIgnore
 
-    @ManyToOne
-    @JoinColumn(name = "venueId", nullable = false)
-    private Venue venue;
+    private CourtSchedule courtSchedule;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "venueId", nullable = false)
+//    private Venue venue;
 //
 //    @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
 //    private List<TimeSlot> timeSlots;

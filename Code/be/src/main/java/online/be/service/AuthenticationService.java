@@ -87,13 +87,19 @@ public class AuthenticationService implements UserDetailsService {
     }
     
     public AccountResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(),
-                loginRequest.getPassword()
-        ));
-        // => account chuẩn
 
+
+   try {
+       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+               loginRequest.getEmail(),
+               loginRequest.getPassword()
+       ));
+   }catch (Exception e ){
+       System.out.println(e.getMessage());
+   }
+        // => account chuẩn
         Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
+
         String token = tokenService.generateToken(account);
 
         AccountResponse accountResponse = new AccountResponse();
@@ -103,17 +109,18 @@ public class AuthenticationService implements UserDetailsService {
         accountResponse.setFullName(account.getFullName());
         accountResponse.setRole(account.getRole());
         accountResponse.setId(account.getId());
-
         return accountResponse;
     }
 
     public LoginGoogleResponse loginGoogle(LoginGoogleRequest loginRequest) {
+
         LoginGoogleResponse accountResponse = new LoginGoogleResponse();
         try {
             FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(loginRequest.getToken());
             String email = firebaseToken.getEmail();
             Account account = authenticationRepository.findAccountByEmail(email);
             if (account == null) {
+                account = new Account();
                 account.setFullName(firebaseToken.getName());
                 account.setEmail(firebaseToken.getEmail());
                 account.setRole(Role.CUSTOMER);

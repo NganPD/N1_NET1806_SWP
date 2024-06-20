@@ -38,12 +38,12 @@ public class PaymentAPI {
     }
 
     @DeleteMapping("/{paymentId}")
-    public ResponseEntity<Void> deletePayment(@PathVariable long paymentId){
+    public ResponseEntity deletePayment(@PathVariable long paymentId){
         paymentService.deletePayment(paymentId);
         return ResponseEntity.noContent().build();
     }
     @GetMapping
-    public ResponseEntity<List<Payment>> getAllPayments(){
+    public ResponseEntity getAllPayments(){
         List<Payment> Payments = paymentService.getAllPayments();
         return ResponseEntity.ok().body(Payments);
     }

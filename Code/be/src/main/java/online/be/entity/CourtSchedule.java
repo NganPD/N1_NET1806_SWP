@@ -11,7 +11,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 public class CourtSchedule {
 
     @Id
@@ -25,5 +24,6 @@ public class CourtSchedule {
     private LocalDate date;
 
     @OneToMany(mappedBy = "courtSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
+
     private List<TimeSlot> timeSlots;
 }

@@ -3,6 +3,7 @@ package online.be.api;
 import online.be.entity.Court;
 import online.be.model.Request.CourtRequest;
 import online.be.service.CourtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,12 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/courts")
 public class CourtManagementAPI {
-
-    private final CourtService courtService;
-
-    public CourtManagementAPI(CourtService courtService) {
-        this.courtService = courtService;
-    }
+    @Autowired
+    private CourtService courtService;
 
     @PostMapping
     public ResponseEntity<Court> createCourt(@RequestBody CourtRequest courtRequest){

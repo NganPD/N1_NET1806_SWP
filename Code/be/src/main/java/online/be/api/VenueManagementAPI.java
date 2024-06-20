@@ -3,6 +3,7 @@ package online.be.api;
 import online.be.entity.Venue;
 import online.be.model.Request.VenueRequest;
 import online.be.service.VenueService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,8 +12,8 @@ import java.util.List;
 @RestController
 
 public class VenueManagementAPI {
-
-    VenueService venueService;
+    @Autowired
+    private VenueService venueService;
 
     public VenueManagementAPI(VenueService venueService) {
         this.venueService = venueService;
