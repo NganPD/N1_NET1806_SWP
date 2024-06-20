@@ -35,43 +35,15 @@ public class TimeSlot {
     private Boolean status;
 
     @ManyToOne
-    @JoinColumn(name = "scheduleId", nullable = false)
-    private CourtSchedule schedule
+    @JoinColumn(name = "courtScheduleID", nullable = false)
+    @JsonIgnore
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            ;
-
+    private CourtSchedule courtSchedule;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "venueId", nullable = false)
+//    private Venue venue;
+//
+//    @OneToMany(mappedBy = "timeSlot",orphanRemoval = true)
+//    private List<TimeSlot> timeSlots;
 }

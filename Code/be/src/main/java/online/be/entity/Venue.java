@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import online.be.enums.VenueStatus;
 
 import java.util.List;
 
@@ -34,6 +33,18 @@ public class Venue {
 
     @Column(name = "description", nullable = false)
     private String description;
+
+    @Column(name = "paymentInfor", nullable = false)
+    private String paymentInfor;
+
+    @Column(name = "number_of_courts")
+    private int numberOfCourts;
+
+    @Column(name = "rating")
+    private float rating;
+
+    @Column(name = "image_URL")
+    private String imageURL;
 
     @OneToMany(mappedBy = "venue")
     private List<Court> courts;

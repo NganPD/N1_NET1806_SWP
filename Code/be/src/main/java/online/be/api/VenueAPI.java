@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Venue;
 import online.be.model.Request.VenueRequest;
 import online.be.service.VenueService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,12 +14,9 @@ import java.util.List;
 @RequestMapping("api/venue")
 @SecurityRequirement(name = "api")
 public class VenueAPI {
-
+    @Autowired
     VenueService venueService;
 
-    public VenueAPI(VenueService venueService) {
-        this.venueService = venueService;
-    }
 
     @PostMapping
     public ResponseEntity<Venue> createVenue(@RequestBody VenueRequest venueRequest){

@@ -99,6 +99,7 @@ public class AuthenticationService implements UserDetailsService {
         // => account chuẩn
 
         Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
+
         String token = tokenService.generateToken(account);
 
         AccountResponse accountResponse = new AccountResponse();
