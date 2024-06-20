@@ -10,7 +10,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +47,7 @@ public class Venue {
 
     @OneToMany(mappedBy = "venue")
     private List<Court> courts;
+<<<<<<< HEAD
 
     @OneToOne
     @JoinColumn(name="courtScheduleId", nullable = false)
@@ -60,4 +60,13 @@ public class Venue {
     @OneToOne
     @JoinColumn(name = "payment_account_id", nullable = false)
     private PaymentAccount paymentAccount;
+=======
+//
+//    @OneToOne
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private Account account;
+//
+//    @OneToMany(mappedBy = "venue")
+//    private List<TimeSlot> slots;
+>>>>>>> origin/feat/AccountManagerAPI
 }

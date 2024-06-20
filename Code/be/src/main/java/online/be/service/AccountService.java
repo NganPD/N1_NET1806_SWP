@@ -8,9 +8,12 @@ import online.be.model.Request.AccountRequest;
 import online.be.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+<<<<<<< HEAD
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+=======
+>>>>>>> origin/feat/AccountManagerAPI
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +22,11 @@ import java.util.Optional;
 import static java.rmi.server.LogStream.log;
 
 @Service
+<<<<<<< HEAD
 public class AccountService implements UserDetailsService {
+=======
+public class AccountService {
+>>>>>>> origin/feat/AccountManagerAPI
     @Autowired
     AccountRepository accountRepository;
 
@@ -73,9 +80,12 @@ public class AccountService implements UserDetailsService {
         }
         accountRepository.deleteById(id);
     }
+<<<<<<< HEAD
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
     }
+=======
+>>>>>>> origin/feat/AccountManagerAPI
 }

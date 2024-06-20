@@ -1,6 +1,9 @@
 package online.be.api;
 
+<<<<<<< HEAD
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+=======
+>>>>>>> origin/feat/AccountManagerAPI
 import online.be.entity.TimeSlot;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.service.TimeSlotService;
@@ -14,7 +17,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/timeslots")
+<<<<<<< HEAD
 @SecurityRequirement(name = "api")
+=======
+>>>>>>> origin/feat/AccountManagerAPI
 public class TimeSlotAPI {
 
     @Autowired

@@ -14,9 +14,18 @@ import java.util.List;
 @RequestMapping("api/venue")
 @SecurityRequirement(name = "api")
 public class VenueAPI {
+<<<<<<< HEAD
     @Autowired
     VenueService venueService;
 
+=======
+
+    VenueService venueService;
+
+    public VenueAPI(VenueService venueService) {
+        this.venueService = venueService;
+    }
+>>>>>>> origin/feat/AccountManagerAPI
 
     @PostMapping
     public ResponseEntity<Venue> createVenue(@RequestBody VenueRequest venueRequest){
@@ -42,10 +51,18 @@ public class VenueAPI {
         return ResponseEntity.ok().body(updatedVenue);
     }
 
+<<<<<<< HEAD
     //lay theo availableslot
     @GetMapping{"/{venues}"}
     public ResponseEntity findVenuesWithAvailableSlots(
             @RequestParam("startDateTime")
     )
+=======
+//    //lay theo availableslot
+//    @GetMapping{"/{venues}"}
+//    public ResponseEntity findVenuesWithAvailableSlots(
+//            @RequestParam("startDateTime")
+//    )
+>>>>>>> origin/feat/AccountManagerAPI
 
 }

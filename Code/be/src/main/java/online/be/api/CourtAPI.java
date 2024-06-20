@@ -3,14 +3,15 @@ package online.be.api;
 import online.be.entity.Court;
 import online.be.model.Request.CourtRequest;
 import online.be.service.CourtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+<<<<<<< HEAD
 @RequestMapping("api/courts")
 @SecurityRequirement(name = "api")
 public class CourtAPI {
@@ -18,6 +19,12 @@ public class CourtAPI {
     @Autowired
     CourtService courtService;
 
+=======
+@RequestMapping("/api/courts")
+public class CourtAPI {
+    @Autowired
+    private CourtService courtService;
+>>>>>>> origin/feat/AccountManagerAPI
 
     @PostMapping
     public ResponseEntity<Court> createCourt(@RequestBody CourtRequest courtRequest){

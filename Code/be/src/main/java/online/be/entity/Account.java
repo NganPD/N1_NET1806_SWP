@@ -12,11 +12,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@ToString
 public class Account implements UserDetails {
 
     @Id
@@ -41,6 +41,7 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+<<<<<<< HEAD
     @OneToOne
     @JoinColumn(name = "venue_id")
     private Venue venue;
@@ -48,6 +49,10 @@ public class Account implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "court_id")
     private Court court;
+=======
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
+    Set<Booking> bookings;
+>>>>>>> origin/feat/AccountManagerAPI
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
