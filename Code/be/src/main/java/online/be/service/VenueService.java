@@ -44,18 +44,18 @@ public class VenueService {
     }
 
     // Cập nhật thông tin venue
-    public Venue updateVenue(long venueId, Venue venueDetails) {
+    public Venue updateVenue(long venueId, VenueRequest venueDetails) {
         // Lấy venue bằng ID
         Venue venue = getVenueById(venueId);
         // Cập nhật thông tin venue với thông tin mới từ venueDetails
-        venue.setName(venueDetails.getName());
+        venue.setName(venueDetails.getVenueName());
         venue.setAddress(venueDetails.getAddress());
         venue.setDescription(venueDetails.getDescription());
         venue.setOperatingHours(venueDetails.getOperatingHours());
         venue.setPaymentInfor(venueDetails.getPaymentInfor());
         venue.setNumberOfCourts(venueDetails.getNumberOfCourts());
         venue.setImageURL(venueDetails.getImageURL());
-        venue.setCourts((List<Court>) venueDetails.getCourts());
+        venue.setCourts((List<Court>) venueDetails.getCourt());
         // Lưu và trả về venue đã được cập nhật
         return venueRepostiory.save(venue);
     }//Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
