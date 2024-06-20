@@ -6,7 +6,6 @@ import online.be.model.Request.BookingRequest;
 import online.be.model.Response.BookingResponse;
 import online.be.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +16,8 @@ public class BookingService {
     @Autowired
     BookingRepository bookingRepo;
 
-    public Booking createBooking(BookingRequest bookingRequest){
 
+    public Booking createBooking(BookingRequest bookingRequest){
         Booking booking = new Booking();
 
         booking.setBookingDate(bookingRequest.getBookingDate());

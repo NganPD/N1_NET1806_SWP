@@ -14,7 +14,6 @@ import online.be.service.AuthenticationService;
 @RestController
 @RequestMapping("api")
 @SecurityRequirement(name = "api")
-@CrossOrigin("*")
 public class AuthenticationAPI {
 
     // nhận request từ front-end
