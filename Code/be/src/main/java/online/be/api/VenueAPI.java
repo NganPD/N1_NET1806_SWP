@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Venue;
 import online.be.model.Request.VenueRequest;
 import online.be.service.VenueService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -45,9 +47,27 @@ public class VenueAPI {
     }
 
     //lay theo availableslot
-    @GetMapping{"/{venues}"}
-    public ResponseEntity findVenuesWithAvailableSlots(
-            @RequestParam("startDateTime")
-    )
+//    @GetMapping("/search-venues-availableslots")
+//    public ResponseEntity findVenuesWithAvailableSlots(
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDateTime,
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDateTime){
+//        List<Venue> venues = venueService.getVenueWithAvailableSlots(startDateTime,endDateTime);
+//        return ResponseEntity.ok(venues);
+//    }
+
+    //lấy theo tên
+//    @GetMapping("/search-venues-name")
+//    public ResponseEntity searchVenues(@RequestParam("keyword") String keyword){
+//        List<Venue> venues = venueService.searchvenues(keyword);
+//        return ResponseEntity.ok(venues);
+//    }
+
+    @DeleteMapping("/{venueId}")
+    public ResponseEntity<Void> deleteVenue(@PathVariable Long venueId){
+        venueService.deleteVenue(venueId);
+        return ResponseEntity.noContent().build();//204
+    }
+
+
 
 }

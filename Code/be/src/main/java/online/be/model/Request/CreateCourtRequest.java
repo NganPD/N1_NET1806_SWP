@@ -2,7 +2,6 @@ package online.be.model.Request;
 
 import lombok.Data;
 import online.be.enums.CourtStatus;
-import online.be.enums.CourtType;
 
 @Data
 public class CreateCourtRequest {

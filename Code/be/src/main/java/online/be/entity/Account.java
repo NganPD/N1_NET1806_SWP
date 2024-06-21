@@ -36,7 +36,7 @@ public class Account implements UserDetails {
     private String password;
 
     @Column(unique = true)
-    private Boolean isActive;
+    private boolean isActive;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -48,6 +48,12 @@ public class Account implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "court_id")
     private Court court;
+
+    @OneToMany(mappedBy = "account")
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "account")
+    private List<StaffCourt> accountCourts;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

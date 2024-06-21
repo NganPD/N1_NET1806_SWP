@@ -1,12 +1,11 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import online.be.enums.CourtStatus;
-import online.be.enums.CourtType;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
@@ -24,6 +23,7 @@ public class Court {
     private String courtName;
 
     @Column(name = "court_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private CourtStatus status;
 
     @Column(name = "amenities")
@@ -32,18 +32,18 @@ public class Court {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "court_type", nullable = false)
-    private CourtType courtType;
-
     @ManyToOne
-    @JoinColumn(name = "venueId", nullable = false)
+    @JsonIgnore
+    @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
-    @OneToMany(mappedBy = "account_id")
-    List<Account> staffs;
+    @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CourtSchedule> courtSchedules;
 
-//    @OneToOne
-//    @JoinColumn(name = "scheduleId", nullable = false)
-//    private CourtSchedule schedule;
+    @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BookingDetail> bookingDetails;
+
+    @OneToMany(mappedBy = "court")
+    private List<StaffCourt> accountCourts;
 
 }

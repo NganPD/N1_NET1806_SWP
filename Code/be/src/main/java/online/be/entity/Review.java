@@ -8,20 +8,23 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class PaymentAccount {
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentAccountID;
+    private long id;
 
-    @Column(name = "payment_name", nullable = false)
-    private String paymentName;
+    @Column(name = "comment")
+    private String comment;
 
-    @Column(name = "account_holder_name", nullable = false)
-    private String accountHolderName;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+    private Account account;
 
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
+
 }

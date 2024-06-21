@@ -7,7 +7,7 @@ import online.be.exception.BadRequestException;
 import online.be.model.Request.CreateCourtRequest;
 import online.be.model.Request.UpdateCourtRequest;
 import online.be.repository.CourtRepository;
-import online.be.repository.VenueRepostiory;
+import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,17 +21,13 @@ public class CourtService {
     @Autowired
     CourtRepository courtRepository;
     @Autowired
-    VenueRepostiory venueRepostiory;
+    VenueRepository venueRepository;
 
 
     //tạo court
     public Court createCourt(CreateCourtRequest courtRequest) {
-        //kiem tra ten court
-        if(!Pattern.matches("^[a-zA-Z\\s]+$", courtRequest.getCourtName())){
-            throw new BadRequestException("Court name contains invalid characters.");
-        }
         //kiem tra venue co ton tai hay khong
-        Venue venue = venueRepostiory.findById(courtRequest.getVenueId())
+        Venue venue = venueRepository.findById(courtRequest.getVenueId())
                 .orElseThrow(() -> new BadRequestException("Venue not found with Id " + courtRequest.getVenueId()));
         Court court = new Court();
         court.setCourtName(courtRequest.getCourtName());
@@ -73,7 +69,7 @@ public class CourtService {
             throw new BadRequestException("Court name contains invalid characters.");
         }
         //kiem tra venue co ton tai hay khong
-        Venue venue = venueRepostiory.findById(courtRequest.getVenueId())
+        Venue venue = venueRepository.findById(courtRequest.getVenueId())
                 .orElseThrow(()-> new BadRequestException("Venue not found with Id: " + courtRequest.getVenueId()));
 
         court.setCourtName(courtRequest.getCourtName());
@@ -97,10 +93,10 @@ public class CourtService {
         court.setStatus(CourtStatus.INACTIVE);
     }
 
-    //get the list of court base on their type
-    public List<Court> findCourtByType(String courtType){
-        return courtRepository.findCourtByType(courtType);
-    }
+//    //get the list of court base on their type
+//    public List<Court> findCourtByType(String courtType){
+//        return courtRepository.findCourtByType(courtType);
+//    }
 
 
 

@@ -49,7 +49,7 @@ public class AuthenticationService implements UserDetailsService {
         //registerRequest: thông tin ngừoi dùng yêu cầu
         Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
         if(existingAccount != null){
-            if(!existingAccount.getIsActive()){
+            if(!existingAccount.isActive()){
                 throw new BadRequestException("Tài khoản đã được đăngkysys va dang bi khoa");
             }
         }
@@ -119,6 +119,7 @@ public class AuthenticationService implements UserDetailsService {
             String email = firebaseToken.getEmail();
             Account account = authenticationRepository.findAccountByEmail(email);
             if (account == null) {
+                account = new Account();
                 account.setFullName(firebaseToken.getName());
                 account.setEmail(firebaseToken.getEmail());
                 account.setRole(Role.CUSTOMER);
@@ -199,7 +200,7 @@ public class AuthenticationService implements UserDetailsService {
         Account account = authenticationRepository.findById(accountId).orElseThrow(
                 () -> new BadRequestException("Account not found!")
         );
-        account.setIsActive(false);
+        account.setActive(false);
         authenticationRepository.save(account);
     }
 
@@ -207,7 +208,7 @@ public class AuthenticationService implements UserDetailsService {
         Account account = authenticationRepository.findById(accountId).orElseThrow(
                 () -> new BadRequestException("Account not found!")
         );
-        account.setIsActive(true);
+        account.setActive(true);
         authenticationRepository.save(account);
     }
 

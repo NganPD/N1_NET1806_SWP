@@ -3,9 +3,10 @@ package online.be.service;
 import online.be.entity.Venue;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
+import online.be.exception.NoDataFoundException;
 import online.be.model.Request.VenueRequest;
 import online.be.repository.PaymentAccountRepository;
-import online.be.repository.VenueRepostiory;
+import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
 public class VenueService {
 
     @Autowired
-    VenueRepostiory venueRepostiory;
+    VenueRepository venueRepository;
 
     @Autowired
     PaymentAccountRepository paymentAccountRepository;
@@ -34,9 +35,9 @@ public class VenueService {
         venue.setDescription(venueRequest.getDescription());
         venue.setOperatingHours(venueRequest.getOperatingHours());
         venue.setClosingHours(venue.getClosingHours());
-        venue.setPaymentAccount(paymentAccountRepository.findById(venueRequest.getPaymentAccountId()).get());
+//        venue.setPaymentAccount(paymentAccountRepository.findById(venueRequest.getPaymentAccountId()));
         try {
-            venue = venueRepostiory.save(venue);
+            venue = venueRepository.save(venue);
         }catch(DataIntegrityViolationException e){
             System.out.println(e.getMessage());
         }
@@ -47,7 +48,7 @@ public class VenueService {
     // Lấy venue bằng ID
     public Venue getVenueById(long venueId) {
         // Sử dụng findById của repository để tìm venue theo ID
-        Venue venue = venueRepostiory.findById(venueId).get();
+        Venue venue = venueRepository.findById(venueId).get();
         if(venue == null){
             try{
                 throw new BadRequestException("Venue not found");
@@ -61,7 +62,7 @@ public class VenueService {
 
     // Lấy tất cả venues
     public List<Venue> getAllVenues() {
-        return venueRepostiory.findAll();
+        return venueRepository.findAll();
     }
 
     // Cập nhật thông tin venue
@@ -71,18 +72,18 @@ public class VenueService {
             throw new RuntimeException("Venue name contains invalid characters. Only letters and spaces are allowed.");
         }
         // Lấy venue bằng ID
-        Venue venue = venueRepostiory.findById(venueId)
+        Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(()-> new BadRequestException("Venue not found with id: " + venueId));
         // Cập nhật thông tin venue với thông tin mới từ venueRequest
         venue.setName(venueRequest.getVenueName());
         venue.setAddress(venueRequest.getAddress());
         venue.setDescription(venueRequest.getDescription());
         venue.setOperatingHours(venueRequest.getOperatingHours());
-        venue.setPaymentAccount(paymentAccountRepository.findById(venueRequest.getPaymentAccountId()).get());
+//        venue.setPaymentAccount(paymentAccountRepository.findById(venueRequest.getPaymentAccountId()).get());
         //cập nhật lại danh sách court trong venue
         try{
             // Lưu và trả về venue đã được cập nhật
-            venue = venueRepostiory.save(venue);
+            venue = venueRepository.save(venue);
         }catch (DataIntegrityViolationException e){
             System.out.println(e.getMessage());
         }
@@ -93,35 +94,37 @@ public class VenueService {
     // Xóa venue bằng ID
     public void deleteVenue(long venueId) {
         // Trước tiên kiểm tra xem venue có tồn tại hay không
-        Venue existingVenue = venueRepostiory.findById(venueId)
+        Venue existingVenue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new BadRequestException("Venue not found with ID: " + venueId));
         //Tự handle lỗi để front end nhận được
         existingVenue.setVenueStatus(VenueStatus.INACTIVE);
     }
 
     //search by name
-    public List<Venue> getByName(String venueName){
-        List<Venue> venueList = venueRepostiory.findByName(venueName);
+    public List<Venue> searchvenues(String keywords){
+        List<Venue> venueList = venueRepository.searchVenue(keywords);
         if(venueList.isEmpty()){
-            throw new RuntimeException("No Data");
+            throw new NoDataFoundException("0 search");
         }else{
             return venueList;
         }
     }
-
-    //search by opening hours and closing hours
-    public List<Venue> getByOpeningHour(String openingHour){
-        List<Venue> venues = venueRepostiory.findByOpeningHours(openingHour);
-        if(venues.isEmpty()){
-            throw new RuntimeException("No Valid Data");
-        }
-        return venues;
-    }
-
+//
+////    //search by opening hours and closing hours
+////    public List<Venue> getByOpeningHour(String openingHour){
+////        List<Venue> venues = venueRepository.findByOpeningHours(openingHour);
+////        if(venues.isEmpty()){
+////            throw new RuntimeException("No Valid Data");
+////        }
+////        return venues;
+////    }
+//
     //search by Location
     //search by available slots
-    public List<Venue> getVenueWithAvailableSlots(LocalDateTime startDateTime, LocalDateTime endDateTime){
-        return venueRepostiory.findVenueWithAvailableSlots(startDateTime,endDateTime);
+//    public List<Venue> getVenueWithAvailableSlots(LocalDateTime startDateTime, LocalDateTime endDateTime){
+//        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startDateTime,endDateTime);
+//        if(venues.isEmpty()){
+//            throw new NoDataFoundException("0 search");
+//        }
+//        return venues;
     }
-
-}

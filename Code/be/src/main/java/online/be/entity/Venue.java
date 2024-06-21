@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 @ToString
 public class Venue {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long venueId;
@@ -20,33 +21,33 @@ public class Venue {
     @Column(name = "venue_name", nullable = false)
     private String name;
 
-    @Column(name="address", nullable = false)
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name ="venue_status",nullable = false)
+    @Column(name = "venue_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
-    @Column(name="operating_hours", nullable = false)
+    @Column(name = "operating_hours", nullable = false)
     private String operatingHours;
 
-    @Column(name="closing_hours", nullable = false)
+    @Column(name = "closing_hours", nullable = false)
     private String closingHours;
 
     @Column(name = "description", nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "venue")
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
 
     @OneToOne
-    @JoinColumn(name="courtScheduleId", nullable = false)
-    private CourtSchedule courtSchedule;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "manager_id", nullable = false)
     private Account manager;
 
-    @OneToOne
-    @JoinColumn(name = "payment_account_id", nullable = false)
-    private PaymentAccount paymentAccount;
+    @OneToMany(mappedBy = "venue")
+    private List<PaymentAccount> paymentAccounts;
+
+    @OneToMany(mappedBy = "venue")
+    private List<Review> reviews;
+
 }

@@ -1,12 +1,12 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -29,49 +29,16 @@ public class TimeSlot {
     private LocalDateTime endTime;
 
     @Column(nullable = false)
-    private Double price;
+    private double price;
 
     @Column(nullable = false)
-    private Boolean status;
+    private boolean status;
 
     @ManyToOne
-    @JoinColumn(name = "scheduleId", nullable = false)
-    private CourtSchedule schedule
+    @JsonIgnore
+    @JoinColumn(name = "venue_id")
+    private Venue venue;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            ;
-
+    @OneToMany(mappedBy = "timeSlot")
+    private List<CourtSchedule> courtSchedules;
 }
