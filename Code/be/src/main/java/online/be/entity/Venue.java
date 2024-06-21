@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 @ToString
 public class Venue {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long venueId;
