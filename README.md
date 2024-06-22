@@ -9,7 +9,7 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 | Member | Task |
 |------------|----------|
 | Ngân       | - Forgot Password  <br> - Register for an Account  <br> -  |
-| Thịnh      | - Login  <br> - Register Venue Information  <br> Update Venue Information|
+| Thịnh      | - Login  <br> - Register Venue Information  <br> - Update Venue Information|
 | Trung      | - Create TimeSlot  <br> - Set Price  <br> - Register new Venue |
 
 ## Front-End (FE)
