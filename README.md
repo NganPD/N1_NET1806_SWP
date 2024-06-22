@@ -6,7 +6,7 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 
 ## Back-End (BE)
 
-| Thành viên | Nhiệm vụ |
+| Member | Task |
 |------------|----------|
 | Ngân       | - Forgot Password  <br> - Register  <br> -  |
 | Thịnh      | - Login  <br> - Register Venue Information  <br> Update Venue Information|
@@ -14,7 +14,7 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 
 ## Front-End (FE)
 
-| Thành viên | Nhiệm vụ |
+| Member | Task |
 |------------|----------|
 | Sơn        | - Register an Account  <br> - Login <br> -Forgot Password|
 | Nam        | - Update Venue Information  <br> - Register new Venue  <br> - Create TimeSlot |
