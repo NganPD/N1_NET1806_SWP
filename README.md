@@ -9,9 +9,9 @@ For Sprint 1:
 
 | Member | Task |
 |------------|----------|
-| Ngân       | UC-15, UC-1, UC-21|
-| Thịnh      | UC-5, UC-19, UC-26|
-| Trung      |  UC-21.a, UC-21.b, UC-21.c |
+| Ngân       | UC-15, UC-1|
+| Thịnh      | UC-5, UC-19|
+| Trung      |  UC-21.a, UC-21.b|
 
 ## Front-End (FE)
 
