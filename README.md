@@ -2,15 +2,20 @@ Introduction:This project aims to build a convenient and effective online badmin
 
 Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcqxJcEkXljYg6GCDU6MwSg/edit?usp=sharing
 
-Sprint 1:
-BE - Ngân - Forgot Password, Assign Roles to User, Update Acccount Information
+# Project Team Assignments
 
-BE - Thịnh - Login, Register Venue Information, Assign Venue to Manager, Assign Court to Staff
+## Back-End (BE)
 
-BE - Trung - Remove Venue, Create Court, Add New Venue
+| Thành viên | Nhiệm vụ |
+|------------|----------|
+| Ngân       | - Forgot Password  <br> - Register  <br> -  |
+| Thịnh      | - Login  <br> - Register Venue Information  <br> Update Venue Information|
+| Trung      | - Create TimeSlot  <br> - Set Price  <br> - Register new Venue |
 
-BE - Cường - Register an Account, Update Venue Information, Create TimeSlots, Set Pricing for Time Slots
+## Front-End (FE)
 
-FE - Sơn - Register an Account, Register an Account, Login
+| Thành viên | Nhiệm vụ |
+|------------|----------|
+| Sơn        | - Register an Account  <br> - Login <br> -Forgot Password|
+| Nam        | - Update Venue Information  <br> - Register new Venue  <br> - Create TimeSlot |
 
-FE - Nam - Change Password, Forget Password, Register Venue Information
