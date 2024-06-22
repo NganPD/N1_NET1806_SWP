@@ -4,18 +4,19 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 
 # Project Team Assignments
 
+For Sprint 1:
 ## Back-End (BE)
 
 | Member | Task |
 |------------|----------|
-| Ngân       | - Forgot Password  <br> - Register for an Account  <br> -  |
-| Thịnh      | - Login  <br> - Register Venue Information  <br> - Update Venue Information|
-| Trung      | - Create TimeSlot  <br> - Set Price  <br> - Register new Venue |
+| Ngân       | UC-15, UC-1, UC-21|
+| Thịnh      | UC-5, UC-19, UC-26|
+| Trung      |  UC-21.a, UC-21.b, UC-21.c |
 
 ## Front-End (FE)
 
 | Member | Task |
 |------------|----------|
-| Sơn        | - Register an Account  <br> - Login <br> -Forgot Password|
-| Nam        | - Update Venue Information  <br> - Register new Venue  <br> - Create TimeSlot |
+| Sơn        | UC-1, UC-5, UC15|
+| Nam        | UC-19, UC21.c, UC-26|
 
