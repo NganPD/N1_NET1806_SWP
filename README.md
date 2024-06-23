@@ -11,7 +11,7 @@ For Sprint 1:
 |------------|----------|
 | Ngân       | UC-15, UC-1|
 | Thịnh      | UC-5, UC-19|
-| Trung      |  UC-21.a, UC-21.b|
+| Trung      |  UC-21.a|
 
 ## Front-End (FE)
 
