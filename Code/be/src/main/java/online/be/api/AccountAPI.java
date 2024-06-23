@@ -36,4 +36,12 @@ public class AccountAPI {
         accountService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/account/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity deleteAccount(@PathVariable long id){
+        Account deletedAccount = accountService.deleteById(id);
+        return ResponseEntity.ok(deletedAccount);
+    }
+
 }

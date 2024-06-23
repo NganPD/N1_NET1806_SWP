@@ -3,9 +3,10 @@ package online.be.service;
 import online.be.entity.Account;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
+import online.be.exception.BadRequestException;
 import online.be.model.EmailDetail;
 import online.be.model.Request.AccountRequest;
-import online.be.repository.AccountRepository;
+import online.be.repository.AccountRepostory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ import static java.rmi.server.LogStream.log;
 @Service
 public class AccountService implements UserDetailsService {
     @Autowired
-    AccountRepository accountRepository;
+    AccountRepostory accountRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -30,11 +31,17 @@ public class AccountService implements UserDetailsService {
     EmailService emailService;
 
     public Account createAccount(AccountRequest accountRequest) {
+        //kiểm tra xem là tài khoản đã tồn tại hay chưa
+        Account existingAccount = accountRepository.findAccountByEmail(accountRequest.getEmail());
+        if(existingAccount != null){
+            throw new AuthException("Account is exist!");
+        }
         Account account = new Account();
         account.setFullName(accountRequest.getFullName());
         account.setEmail(accountRequest.getEmail());
         account.setPhone(accountRequest.getPhone());
         account.setPassword(passwordEncoder.encode(accountRequest.getPassword()));
+        account.setActive(true);
         switch (accountRequest.getRole().toUpperCase()) {
             case "MANAGER":
                 account.setRole(Role.MANAGER);
@@ -47,14 +54,15 @@ public class AccountService implements UserDetailsService {
             account = accountRepository.save(account);
         }catch (DataIntegrityViolationException e){
             System.out.println(e.getMessage());
-            if(e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr")) throw new AuthException("duplicate email");
+            if(e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr"))
+                throw new AuthException("duplicate email");
             else{ throw new AuthException("duplicate phone");}
         }
         try {
             EmailDetail emailDetail = new EmailDetail();
             emailDetail.setRecipient(account.getEmail());
             emailDetail.setSubject("You are invited to system!");
-            emailDetail.setMsgBody("aaa");
+            emailDetail.setMsgBody("Welcome to our platform. Your account has been successfully created.");
             emailDetail.setFullName(accountRequest.getFullName());
             emailDetail.setButtonValue("Login to system");
             emailDetail.setLink("http://goodminton.online/");
@@ -66,12 +74,12 @@ public class AccountService implements UserDetailsService {
         return account;
     }
 
-    public void deleteById(long id) {
-        Optional<Account> account = accountRepository.findById(id);
-        if(account.isEmpty()){
-            throw new RuntimeException("Account Id is not existed.");
-        }
-        accountRepository.deleteById(id);
+    public Account deleteById(long id) {
+        Account account = accountRepository.findById(id).orElseThrow(
+                ()-> new BadRequestException("Account does not exist!")
+        );
+        account.setActive(false);
+        return accountRepository.save(account);
     }
 
     @Override

@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import online.be.enums.BookingType;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class Booking {
     private long bookingId;
 
     @Column(name = "booking_date", nullable = false)
-    private String bookingDate;
+    private LocalDate bookingDate;
 
     @Column(name = "hours", nullable = false)
     private double totalHours;
@@ -33,23 +35,23 @@ public class Booking {
     @Column(name = "bookingType", nullable = false)
     private BookingType bookingType;
 
-    @Column(name = "checkin_date")
+    @Column(nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime checkinDate;
 
-    @Column(name = "checkout_date")
+    @Column(nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime checkoutDate;
 
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_Id", nullable = false)
     private Account account;
-
-    @OneToOne
-    @JoinColumn(name = "bookingHistoryId", nullable = false)
-    private BookingHistory bookingHistory;
 
     @OneToMany(mappedBy = "booking")
     private List<BookingDetail> bookingDetailList;
 
+    @OneToOne
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
     // Other properties or methods if needed
 }

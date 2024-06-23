@@ -4,24 +4,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class PaymentAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentAccountID;
+    private long paymentAccountId;
 
-    @Column(name = "payment_name", nullable = false)
+    @Column(nullable = false)
     private String paymentName;
 
-    @Column(name = "account_holder_name", nullable = false)
+    @Column(nullable = false)
     private String accountHolderName;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "venue_id", nullable = false)
+    @ToString.Exclude
     private Venue venue;
 }

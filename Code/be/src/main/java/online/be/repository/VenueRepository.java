@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -23,18 +24,22 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
 //        List<Venue> findByOpeningHours(String openingHour);
         //tìm kiêm sân theo available slot
 
-//        @Query("SELECT DISTINCT v FROM Venue v " +
-//                "JOIN v.courts c " +
-//                "JOIN c.timeslots ts " +
-//                "WHERE ts.startTime >= :startDateTime " +
-//                "AND ts.endTime <= :endDateTime " +
-//                "AND ts.status = true")
-//        List<Venue> findVenueWithAvailableSlots(@Param("startDateTime") LocalDateTime startDateTime,
-//                                                @Param("endDateTime") LocalDateTime endDateTime);
+        @Query("SELECT DISTINCT v FROM Venue v " +
+                "JOIN v.timeSlots ts " +
+                "WHERE ts.status = true " +
+                "AND ts.startTime <= :startTime " +
+                "AND ts.endTime >= :endTime")
+        List<Venue> findVenueWithAvailableSlots(@Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
 
 //        //tim kiem theo dia chi
 //        @Query("select v from Venue v " +
 //                "where v.address like %?1% ")
 //        List<Venue> findVenueWithLocation(String address);
+
+        Venue findByName(String venueName);
+
+        @Query("SELECT v FROM Venue v WHERE v.operatingHours = :operatingHours")
+        List<Venue> findByOperatingHours(@Param("operatingHours") String operatingHours);
+
 
 }

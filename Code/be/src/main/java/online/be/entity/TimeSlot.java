@@ -1,19 +1,19 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
 public class TimeSlot {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long slotID;
@@ -21,11 +21,13 @@ public class TimeSlot {
     @Column(nullable = false)
     private int duration; // in minutes
 
+    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
+    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Column(nullable = false)
     private double price;
@@ -33,11 +35,11 @@ public class TimeSlot {
     @Column(nullable = false)
     private boolean status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
-    @OneToMany(mappedBy = "timeSlot")
+    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private List<CourtSchedule> courtSchedules;
 }

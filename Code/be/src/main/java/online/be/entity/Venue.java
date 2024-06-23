@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,36 +18,39 @@ public class Venue {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long venueId;
 
-    @Column(name = "venue_name", nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name = "address", nullable = false)
+    @Column(nullable = false)
     private String address;
 
-    @Column(name = "venue_status", nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
-    @Column(name = "operating_hours", nullable = false)
+    @Column(nullable = false)
     private String operatingHours;
 
-    @Column(name = "closing_hours", nullable = false)
+    @Column(nullable = false)
     private String closingHours;
 
-    @Column(name = "description", nullable = false)
+    @Column(nullable = false)
     private String description;
 
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
 
-    @OneToOne
-    @JoinColumn(name = "manager_id", nullable = false)
-    private Account manager;
-
     @OneToMany(mappedBy = "venue")
-    private List<PaymentAccount> paymentAccounts;
+    private List<TimeSlot> timeSlots;
 
-    @OneToMany(mappedBy = "venue")
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
 
+    @ManyToOne
+    @JoinColumn(name = "managerId")
+    private Account manager;
+
+    @ManyToMany(mappedBy = "venue")
+    @JsonIgnore
+    private List<Court> assignedCourts;
 }

@@ -26,14 +26,14 @@ public class BookingDetail {
     @Column(name = "endTime", nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = false)
+    @JsonIgnore
     private Booking booking;
 
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "court_id", nullable = false)
+    @JsonIgnore
     private Court court;
 
     // Other properties or methods if needed

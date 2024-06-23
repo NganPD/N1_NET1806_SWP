@@ -7,7 +7,6 @@ import online.be.enums.CourtStatus;
 public class UpdateCourtRequest {
     private Long courtId;
     private String courtName;
-    private CourtType courtType;
     private String description;
     private CourtStatus status;
     private String amenities;

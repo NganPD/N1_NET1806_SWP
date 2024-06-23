@@ -15,10 +15,13 @@ public class CourtSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @Column(name = "date")
+    @Column(nullable = false)
     private LocalDate date;
+
+    @Column(nullable = false)
+    private boolean available; //booked or available
 
     @ManyToOne
     @JsonIgnore

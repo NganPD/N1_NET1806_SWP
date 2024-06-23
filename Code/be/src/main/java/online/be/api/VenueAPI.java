@@ -2,11 +2,15 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Venue;
-import online.be.model.Request.VenueRequest;
+import online.be.model.Request.CreateVenueRequest;
+import online.be.model.Request.UpdateVenueRequest;
 import online.be.service.VenueService;
+import org.hibernate.sql.Update;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -21,8 +25,8 @@ public class VenueAPI {
     }
 
     @PostMapping
-    public ResponseEntity<Venue> createVenue(@RequestBody VenueRequest venueRequest){
-        Venue createdVenue = venueService.createVenue(venueRequest);
+    public ResponseEntity<Venue> createVenue(@RequestBody CreateVenueRequest createVenueRequest){
+        Venue createdVenue = venueService.createVenue(createVenueRequest);
         return ResponseEntity.ok().body(createdVenue);
     }
 
@@ -39,19 +43,21 @@ public class VenueAPI {
     }
 
     @PutMapping("/{venueId}")
-    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId,@RequestBody VenueRequest venueRequest){
-        Venue updatedVenue = venueService.updateVenue(venueId, venueRequest);
+    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId, @RequestBody UpdateVenueRequest updateVenueRequest){
+        Venue updatedVenue = venueService.updateVenue(venueId, updateVenueRequest);
         return ResponseEntity.ok().body(updatedVenue);
     }
 
     //lay theo availableslot
-//    @GetMapping("/search-venues-availableslots")
-//    public ResponseEntity findVenuesWithAvailableSlots(
-//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDateTime,
-//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDateTime){
-//        List<Venue> venues = venueService.getVenueWithAvailableSlots(startDateTime,endDateTime);
-//        return ResponseEntity.ok(venues);
-//    }
+    @GetMapping("/search-venues-availableslots")
+    public ResponseEntity<List<Venue>> findVenuesWithAvailableSlots(
+            @RequestParam String startTime, @RequestParam String endTime
+    ){
+        LocalTime start = LocalTime.parse(startTime);
+        LocalTime end = LocalTime.parse(endTime);
+        List<Venue> venues = venueService.getVenueWithAvailableSlots(start, end);
+        return ResponseEntity.ok(venues);
+    }
 
     //lấy theo tên
 //    @GetMapping("/search-venues-name")
@@ -65,6 +71,13 @@ public class VenueAPI {
         venueService.deleteVenue(venueId);
         return ResponseEntity.noContent().build();//204
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Venue>> searchVenues(@RequestParam String operatingHours){
+        List<Venue> venues = venueService.searchVenuesByOperatingHours(operatingHours);
+        return ResponseEntity.ok(venues);
+    }
+
 
 
 

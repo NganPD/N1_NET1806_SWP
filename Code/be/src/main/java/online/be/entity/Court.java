@@ -19,7 +19,7 @@ public class Court {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long courtId;
 
-    @Column(name = "court_name", nullable = false)
+    @Column( nullable = false)
     private String courtName;
 
     @Column(name = "court_status", nullable = false)
@@ -33,7 +33,6 @@ public class Court {
     private String description;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
@@ -43,7 +42,7 @@ public class Court {
     @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BookingDetail> bookingDetails;
 
-    @OneToMany(mappedBy = "court")
-    private List<StaffCourt> accountCourts;
+    @OneToMany(mappedBy = "court",cascade = CascadeType.ALL)
+    private List<StaffCourt> staffCourts;
 
 }
