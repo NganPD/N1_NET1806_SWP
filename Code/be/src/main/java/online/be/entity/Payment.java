@@ -1,76 +1,42 @@
-<<<<<<< HEAD
-//package online.be.entity;
-//
-//import jakarta.persistence.*;
-//import lombok.Getter;
-//import lombok.Setter;
-//import lombok.ToString;
-//import online.be.enums.PaymentStatus;
-//
-//import java.time.LocalDate;
-//import java.time.LocalDateTime;
-//
-//@Entity
-//@Getter
-//@Setter
-//@ToString
-//public class Payment {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private long paymentId;
-//
-//    @Column(nullable = false)
-//    private String paymentMethod;
-//
-//    @Column
-//    private double Amount;
-//
-//    @Enumerated(EnumType.STRING)
-//    private PaymentStatus status;
-//
-//    @Column(nullable = false)
-//    private LocalDate paymentDate;
-//
-//    @OneToOne
-//    @JoinColumn(name = "booking_Id")
-//    private Booking booking;
-//
-//}
-=======
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import online.be.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentId;
+    private Long paymentId;
 
     @Column(nullable = false)
     private String paymentMethod;
 
-    @Column
-    private double Amount;
+    @Column(nullable = false)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate paymentDate;
 
     @OneToOne
-    @JoinColumn(name = "booking_Id")
+    @JoinColumn(name = "booking_id")
+    @JsonIgnore
     private Booking booking;
 
 }
->>>>>>> origin/feat/AccountManagerAPI

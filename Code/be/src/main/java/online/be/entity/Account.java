@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,33 +27,35 @@ public class Account implements UserDetails {
     @Column
     private String fullName;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String phone;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(unique = true)
-    private Boolean isActive;
+    @Column(nullable = false, unique = true)
+    private boolean isActive;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-<<<<<<< HEAD
-    @OneToOne
-    @JoinColumn(name = "venue_id")
-    private Venue venue;
-
-    @ManyToOne
-    @JoinColumn(name = "court_id")
-    private Court court;
-=======
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
-    Set<Booking> bookings;
->>>>>>> origin/feat/AccountManagerAPI
+    private List<Booking> bookings;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_venue_id")
+    @JsonIgnore
+    private Venue assignedVenue;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<StaffCourt> staffCourts;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

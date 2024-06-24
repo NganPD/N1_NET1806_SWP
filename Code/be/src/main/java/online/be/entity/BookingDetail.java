@@ -1,67 +1,40 @@
-<<<<<<< HEAD
-//package online.be.entity;
-//
-//import jakarta.persistence.*;
-//import lombok.Getter;
-//import lombok.Setter;
-//import lombok.ToString;
-//import org.springframework.boot.autoconfigure.web.WebProperties;
-//
-//@Entity
-//@Getter
-//@Setter
-//@ToString
-//public class BookingDetail {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long bookingDetailId;
-//
-//    @Column
-//    private Double totalPrice;
-//
-//    @Column
-//    private Double totalHours;
-//
-//    @Column
-//    private Double unitPrice;
-//
-=======
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.boot.autoconfigure.web.WebProperties;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class BookingDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long bookingDetailId;
+    private long bookingDetailId;
 
-    @Column
-    private Double totalPrice;
+    @Column(name="price", nullable = false)
+    private double price;
 
-    @Column
-    private Double totalHours;
+    @Column(name = "startTime", nullable = false)
+    private LocalDateTime startTime;
 
->>>>>>> origin/feat/AccountManagerAPI
-//    @OneToOne
-//    @JoinColumn(name = "booking_id", nullable = false)
-//    private Booking booking;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "timeSlot_id", nullable = false)
-//    private TimeSlot timeSlot;
-<<<<<<< HEAD
-//
-//
-//}
-=======
+    @Column(name = "endTime", nullable = false)
+    private LocalDateTime endTime;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
+    @JsonIgnore
+    private Booking booking;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "court_id", nullable = false)
+    @JsonIgnore
+    private Court court;
+
+    // Other properties or methods if needed
 }
->>>>>>> origin/feat/AccountManagerAPI

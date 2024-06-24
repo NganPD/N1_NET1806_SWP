@@ -30,4 +30,9 @@ public class APIHandleException {
     public ResponseEntity<Object> handleBadRequestException(BadRequestException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(NoDataFoundException.class)
+    public ResponseEntity<String> handleNoDataFoundException(NoDataFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

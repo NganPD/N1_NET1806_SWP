@@ -1,33 +1,36 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalTime;
 
 @Entity
 @Getter
 @Setter
-@ToString
 public class CourtSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long courtScheduleID;
-
-    @Column(nullable = false)
-    private String status;
+    private long id;
 
     @Column(nullable = false)
     private LocalDate date;
 
-    @OneToOne
+    @Column(nullable = false)
+    private boolean available; //booked or available
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "time_slot_id", nullable = false)
+    private TimeSlot timeSlot;
+
+    @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;
 
-    @OneToMany(mappedBy = "courtSchedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TimeSlot> timeSlots;
 }

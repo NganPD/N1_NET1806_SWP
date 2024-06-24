@@ -1,30 +1,39 @@
 package online.be.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.FormatFeature;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@ToString
-public class PaymentAccount {
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentAccountId;
+    private long id;
+
+    @Column()
+    private String comment;
 
     @Column(nullable = false)
-    private String paymentName;
+    private int rating;
 
     @Column(nullable = false)
-    private String accountHolderName;
+    private LocalDateTime createdDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+    private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "venue_id", nullable = false)
-    @ToString.Exclude
     private Venue venue;
+
 }

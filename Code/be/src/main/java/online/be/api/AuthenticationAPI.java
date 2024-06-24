@@ -68,19 +68,4 @@ public class AuthenticationAPI {
         return ResponseEntity.ok(authenticationService.getAllAccount());
     }
 
-    @PatchMapping("lock-account")
-    public void lockAccount(@PathVariable long id){
-        authenticationService.lockAccount(id);
-    }
-
-    @PatchMapping("unlock-account")
-    public void unlockAccount(@PathVariable long id){
-        authenticationService.unlockAccount(id);
-    }
-
-    @PostMapping("update-account")
-    public ResponseEntity updateAccount(@RequestBody UpdatedAccountRequest accountRequest){
-        Account account = authenticationService.updateAccount(accountRequest);
-        return ResponseEntity.ok(account);
-    }
 }

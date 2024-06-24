@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,51 +12,45 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@ToString
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long venueId;
 
-    @Column(name = "venue_name", nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name="address", nullable = false)
+    @Column(nullable = false)
     private String address;
 
-    @Column(name ="venue_status",nullable = false)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
-    @Column(name="operating_hours", nullable = false)
+    @Column(nullable = false)
     private String operatingHours;
 
-    @Column(name="closing_hours", nullable = false)
+    @Column(nullable = false)
     private String closingHours;
 
-    @Column(name = "description", nullable = false)
+    @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "venue")
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
-<<<<<<< HEAD
 
-    @OneToOne
-    @JoinColumn(name="courtScheduleId", nullable = false)
-    private CourtSchedule courtSchedule;
+    @OneToMany(mappedBy = "venue")
+    private List<TimeSlot> timeSlots;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews;
+
+    @ManyToOne
+    @JoinColumn(name = "managerId")
     private Account manager;
 
-    @OneToOne
-    @JoinColumn(name = "payment_account_id", nullable = false)
-    private PaymentAccount paymentAccount;
-=======
-//
-//    @OneToOne
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private Account account;
-//
-//    @OneToMany(mappedBy = "venue")
-//    private List<TimeSlot> slots;
->>>>>>> origin/feat/AccountManagerAPI
+    @ManyToMany(mappedBy = "venue")
+    @JsonIgnore
+    private List<Court> assignedCourts;
 }

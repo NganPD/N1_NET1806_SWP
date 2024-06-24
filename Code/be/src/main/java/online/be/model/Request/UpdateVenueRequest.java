@@ -1,18 +1,17 @@
 package online.be.model.Request;
 
 import lombok.Data;
-import online.be.entity.Account;
-import online.be.entity.Court;
+import online.be.enums.VenueStatus;
 
 import java.util.List;
 
 @Data
-public class VenueRequest {
+public class UpdateVenueRequest {
     private String venueName;
     private String address;
+    private VenueStatus venueStatus;
     private String operatingHours;
     private String closingHours;
-    private String image;
     private String description;
-    private Long paymentAccountId;
+    private List<Long> assignedCourts;
 }

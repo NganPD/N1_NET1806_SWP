@@ -8,6 +8,9 @@ import java.util.List;
 
 @Repository
 public interface CourtRepository extends JpaRepository<Court, Long> {
-    List<Court> findCourtsByVenueId(long venueId);
-    List<Court> findCourtByType(String courtType);
+//    List<Court> findCourtsByVenueId(long venueId);
+//
+//@Query("SELECT c FROM Court c WHERE c.courtType = :courtType")
+//List<Court> findCourtByCourtType(@Param("courtType") String courtType);
+
 }
