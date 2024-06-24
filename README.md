@@ -10,20 +10,27 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 
 ## Sprint 1 (Set Up)
 
-| Sprint  | Use Case ID | Use Case Description                                                                                         |
-|---------|-------------|--------------------------------------------------------------------------------------------------------------|
-| Sprint 1| UC-01       | Register for an Account (Guest: register a new account for Customer)                                          |
-|         | UC-02       | Search Venues based on location, operating hours, and available time slots (Guest)                            |
-|         | UC-05       | Login (All Users: log in to the system)                                                                       |
-|         | UC-06       | Log out (All Users: log out of the system)                                                                    |
-|         | UC-15       | Forgot password (All Users: reset password via email link)                                                    |
-|         | UC-25.a     | Create Account (System Admin: create user accounts)                                                           |
-|         | UC-25.b     | Update Account (System Admin: update user accounts)                                                           |
-|         | UC-25.c     | Delete Account (System Admin: delete user accounts)                                                           |
-|         | UC-25.d     | Lock/Unlock Account (System Admin: lock or unlock user accounts)                                              |
-|         | UC-19       | Register Venue Information (Court Manager: register information about the venue)                              |
-|         | UC-20       | Update Venue Information (Court Manager: update information about the venue)                                  |
-|         | UC-26       | Register new Venue (System Admin: register a new venue in the system)                                         |
+# Sprint Planning Table
+
+| Sprint  | Use Case ID     | Use Case Description             |
+|---------|-----------------|----------------------------------|
+| Sprint 1 (Set Up) | UC-01          | Register for an Account          |
+|         | UC-05          | Login                            |
+|         | UC-06          | Log out                          |
+|         | UC-15          | Forgot password                  |
+|         | UC-19          | Register Venue Information       |
+|         | UC-20          | Update Venue Information         |
+|         | UC-21          | Manage Schedule                  |
+|         | UC-21.a        | Create TimeSlot                  |                      |
+|         | UC-21.b        | Update Schedule state            |
+|         | UC-23.a        | Add Payment Information          |
+|         | UC-23.b        | Track Transaction                |
+|         | UC-25.a        | Create Account                   |
+|         | UC-25.b        | Update Account                   |
+|         | UC-25.c        | Delete Account                   |
+|         | UC-25.d        | Lock/Unlock account              |
+|         | UC-26          | Register new Venue               |
+|         | UC-27          | Update System Settings           |
 
 ## Sprint 2 (Business Flow)
 
