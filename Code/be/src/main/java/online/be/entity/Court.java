@@ -17,6 +17,7 @@ public class Court {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "court_id")
     private long courtId;
 
     @Column( nullable = false)
@@ -34,6 +35,7 @@ public class Court {
 
     @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
+    @JsonIgnore
     private Venue venue;
 
     @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

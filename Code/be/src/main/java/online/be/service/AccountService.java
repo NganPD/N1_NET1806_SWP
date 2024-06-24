@@ -20,7 +20,7 @@ import java.util.Optional;
 import static java.rmi.server.LogStream.log;
 
 @Service
-public class AccountService implements UserDetailsService {
+public class AccountService {
     @Autowired
     AccountRepostory accountRepository;
 
@@ -82,8 +82,4 @@ public class AccountService implements UserDetailsService {
         return accountRepository.save(account);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
-    }
 }
