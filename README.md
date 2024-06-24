@@ -26,7 +26,6 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 |         | UC-25.d        | Lock/Unlock account              |
 |         | UC-26          | Register new Venue               |
 |         | UC-27          | Update System Settings           |
-
 | Sprint 2 (Business Flow) | UC-02          | Search Venues                    |
 |         | UC-03          | View Venue Details               |
 |         | UC-04          | View All Venues                  |
@@ -47,12 +46,10 @@ Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcq
 |         | UC-22.c        | Handle Booking Cancellation      |
 |         | UC-24          | Check-Court Status               |
 |         | UC-28          | Monitor System Activity          |
-
 | Sprint 3 (Report) | UC-17          | Update Court State               |
 |         | UC-22.b        | Confirm Booking                  |
 |         | UC-23.b        | Track Transaction                |
 |         | UC-28          | Monitor System Activity          |
-
 | Sprint 4 (Dashboard) | UC-12          | View the calendar with available time slots  |
 |         | UC-14          | Rate court                       |
 |         | UC-16          | Check-in for Customers           |
