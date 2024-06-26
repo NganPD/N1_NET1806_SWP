@@ -17,10 +17,10 @@ public class Court {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "court_id")
+//    @Column(name = "court_id")
     private long courtId;
 
-    @Column( nullable = false)
+    @Column(name = "court_name", nullable = false)
     private String courtName;
 
     @Column(name = "court_status", nullable = false)

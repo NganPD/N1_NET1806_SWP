@@ -9,13 +9,8 @@ import online.be.model.Request.AccountRequest;
 import online.be.repository.AccountRepostory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 import static java.rmi.server.LogStream.log;
 
@@ -69,7 +64,7 @@ public class AccountService {
             emailService.sendMailTemplate(emailDetail);
         } catch (Exception e) {
             String msg = e.getMessage();
-            log(msg);
+            throw new RuntimeException(msg);
         }
         return account;
     }

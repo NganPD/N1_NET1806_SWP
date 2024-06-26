@@ -44,17 +44,9 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     EmailService emailService;
 
-
     public Account register(RegisterRequest registerRequest) {
         //registerRequest: thông tin ngừoi dùng yêu cầu
-        Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
-        if (existingAccount != null) {
-            if (!existingAccount.isActive()) {
-                throw new BadRequestException("Tài khoản đã được đăngkysys va dang bi khoa");
-            } else {
-                throw new AuthException("Duplicate email");
-            }
-        }
+
         // xử lý logic register
         Account account = new Account();
         account.setPhone(registerRequest.getPhone());
@@ -74,7 +66,6 @@ public class AuthenticationService implements UserDetailsService {
             }
 
         }
-
         try {
             EmailDetail emailDetail = new EmailDetail();
             emailDetail.setRecipient(account.getEmail());
@@ -90,7 +81,7 @@ public class AuthenticationService implements UserDetailsService {
         }
 
         // nhờ repo => save xuống db
-        return account;
+        return authenticationRepository.save(account);
     }
 
     public AccountResponse login(LoginRequest loginRequest) {
@@ -157,11 +148,7 @@ public class AuthenticationService implements UserDetailsService {
     public void forgotPasswordRequest(String email) {
         Account account = authenticationRepository.findAccountByEmail(email);
         if (account == null) {
-            try {
-                throw new BadRequestException("Account not found!");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);// Tự handle exception để front end hiểu.
-            }
+            throw new BadRequestException("Account not found!");
         }
 
         EmailDetail emailDetail = new EmailDetail();
@@ -174,11 +161,26 @@ public class AuthenticationService implements UserDetailsService {
         emailService.sendMailTemplate(emailDetail);
     }
 
+
     public Account resetPassword(ResetPasswordRequest resetPasswordRequest) {
         Account account = getCurrentAccount();
+        // Kiểm tra account có phải là instance của Account không
+        if (!(account instanceof Account)) {
+            throw new ClassCastException("Đối tượng không phải là Account");
+        }
         account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         return authenticationRepository.save(account);
     }
+
+    public Account getCurrentAccount() {
+        Object currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();// lấy đối tượng tài khoản hiện tại từ session hoặc context
+        if (currentAccount instanceof Account) {
+            return (Account) currentAccount;
+        } else {
+            throw new ClassCastException("Đối tượng không phải là Account");
+        }
+    }
+
 
     public List<Account> getAllAccount() {
         return authenticationRepository.findAll();
@@ -187,10 +189,6 @@ public class AuthenticationService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return authenticationRepository.findAccountByEmail(email);
-    }
-
-    public Account getCurrentAccount() {
-        return (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     public Account updateAccount(UpdatedAccountRequest updatedAccountRequest) {

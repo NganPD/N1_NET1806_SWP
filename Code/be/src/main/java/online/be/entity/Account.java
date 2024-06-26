@@ -36,7 +36,7 @@ public class Account implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private boolean isActive;
 
     @Enumerated(EnumType.STRING)
