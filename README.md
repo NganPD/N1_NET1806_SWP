@@ -66,11 +66,28 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 | UC-31           | Manager generate reports                                   |
 | UC-32           | Manager delete court                                       |
 | UC-33           | Manager register booking type information                  |
+| UC-34           | Manager handles walk-in booking                            I
 
 
 # Sprint Planning Table
 ## Sprint 1 (Set up)
-
+| Use Case ID | Use Case Description                      |
+|-------------|-------------------------------------------|
+| UC-01       | Register for an Account                   |
+| UC-05       | Login                                     |
+| UC-06       | Logout                                    |
+| UC-015       | Customer Forgot Password                  |
+| UC-25.a     | Create account for staff and manager      |
+| UC-25.b     | Update account information                |
+| UC-25.c     | Delete account                            |
+| UC-25.d     | Lock/Unlock account                       |
+| UC-19       | Manager registers venue information       |
+| UC-23.a       | Add payment information to the venue      |
+| UC-20     | Manager updates venue information         |
+| UC-26       | System admin registers new venue          |
+| UC-3       | Manager deletes court                     |
+| UC-21.a       | Create a time slot and set the price      |
+| UC-33      | Manager register booking type information |
 
 
 ## Sprint 2 (Business Flow)
@@ -97,7 +114,7 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 | UC-22       | Manager/Staff Can View the Booking List         |
 | UC-23       | Manager Confirms Booking                        |
 | UC-24       | Manager Handles Booking Cancellation            |
-| UC-25       | Manager Handles Walk-in Booking                 |
+| UC-30       | Manager Handles Walk-in Booking                 |
 
 
 ## Sprint 3 (Report)
@@ -107,21 +124,24 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 For Sprint 1:
 ## Back-End (BE)
 
-| Member | Task |
-|------------|----------|
-| Ngân       | UC-15, UC-1|
-| Thịnh      | UC-5, UC-19|
-| Trung      |  UC-21.a|
+### Backend Developers
 
-## Front-End (FE)
+| STT | BE Developer   | Use Cases                                     |
+|-----|----------------|-----------------------------------------------|
+| 1   | Thịnh | UC-05, UC-19, UC-20, UC-23.a |
+| 2   | Ngân | UC-01, UC-15, UC-25.a, UC-25.b                     |
+| 3   | Trung | UC-21.a, UC-25.c, UC-25.d, UC-33                     |
 
-| Member | Task |
-|------------|----------|
-| Sơn        | UC-1, UC-5, UC15|
-| Nam        | UC-19, UC21.c, UC-26|
+### Frontend Developers
+
+| STT | FE Developer   | Use Cases                                     |
+|-----|----------------|-----------------------------------------------|
+| 1   |  | UC-01, UC-05, UC-06, UC-15                           |
+| 2   |  | UC-33, UC-19, UC-20, UC-2 |
+
 
 For Sprint 2
-## Phân Chia Công Việc Viết Test Case
+
 
 ### Backend Developers
 
@@ -129,7 +149,7 @@ For Sprint 2
 |-----|----------------|-----------------------------------------------|
 | 1   | Thịnh | UC-08.a, UC-08.b, UC-08.c, UC-09, UC-10, UC-11, UC-12 |
 | 2   | Ngân | UC-13, UC-16, UC-27, UC-28                     |
-| 3   | Trung | UC-22, UC-23, UC-24, UC-25                     |
+| 3   | Trung | UC-22, UC-23, UC-24, UC-34                     |
 
 ### Frontend Developers
 
