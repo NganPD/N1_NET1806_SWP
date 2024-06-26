@@ -2,15 +2,56 @@ Introduction:This project aims to build a convenient and effective online badmin
 
 Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcqxJcEkXljYg6GCDU6MwSg/edit?usp=sharing
 
-# Project Team Assignments
+# Use Case List
+## Use Cases
+
+| Use Case        | Description                                                |
+|-----------------|------------------------------------------------------------|
+| UC-01           | Register for an Account                                    |
+| UC-02           | Search Venues                                              |
+| UC-03           | View venue details                                         |
+| UC-04           | View all venues                                            |
+| UC-05           | Login                                                      |
+| UC-06           | Logout                                                     |
+| UC-07           | View reviews and ratings                                   |
+| UC-08           | Book a venue                                               |
+| UC-08.a         | Book fixed schedule                                        |
+| UC-08.b         | Book daily schedule                                        |
+| UC-08.c         | Book flexible schedule                                     |
+| UC-09           | Customer make a payment                                    |
+| UC-10           | View Booking History                                       |
+| UC-11           | Modify Booking                                             |
+| UC-12           | Cancel Booking                                             |
+| UC-13           | Customer Check-in at Venue                                 |
+| UC-15           | Customer Forgot Password                                   |
+| UC-16           | Staff Check-in for Customer                                |
+| UC-17           | Staff updates court status                                 |
+| UC-19           | Manager register venue information                         |
+| UC-20           | Manager update venue information                           |
+| UC-21           | Manager manages schedule                                   |
+| UC-21.a         | Create time slot and set the price                         |
+| UC-21.b         | Update schedule state                                      |
+| UC-22           | Manager/Staff can view booking list                        |
+| UC-23           | Manager confirm booking                                    |
+| UC-23.a         | Add payment information to the venue                       |
+| UC-23.b         | Track transaction                                          |
+| UC-24           | Manager handle booking cancellation                        |
+| UC-25           | System Admin can manage user accounts                      |
+| UC-25.a         | Create account for staff and manager                       |
+| UC-25.b         | Update account information                                 |
+| UC-25.c         | Delete account                                             |
+| UC-25.d         | Lock/Unlock account                                        |
+| UC-26           | System admin register new venue (dashboard integration)    |
+| UC-27           | System Admin Monitor System Activity                       |
+| UC-27           | Court Staff check court schedule                           |
+| UC-28           | Staff find a court to check-in for customers                |
+| UC-31           | Manager add court information                              |
+| UC-31           | Manager generate reports                                   |
+| UC-32           | Manager delete court                                       |
 
 
 # Sprint Planning Table
-# Sprint Planning Table
-
-## Sprint 1 (Set Up)
-
-# Sprint Planning Table
+## Sprint 1 (Set up)
 
 | Sprint  | Use Case ID     | Use Case Description             |
 |---------|-----------------|----------------------------------|
