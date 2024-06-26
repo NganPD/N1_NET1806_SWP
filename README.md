@@ -1,4 +1,4 @@
-#Introduction:
+# Introduction:
 Badminton Court Booking Platform is a platform designed to streamline the management and booking of sports facilities specific to badminton. The system serves the following parties: guests, customers, court administrators, court staff, and system administrators, providing a seamless and efficient experience for all users. This project aims to improve the accessibility, convenience and efficiency of scheduling, thereby improving user satisfaction and operational management.
 
 Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcqxJcEkXljYg6GCDU6MwSg/edit?usp=sharing
