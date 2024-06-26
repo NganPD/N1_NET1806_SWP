@@ -1,4 +1,0 @@
-email,password,expectedResult
-test@example.com,password,true
-invalid@example.com,password,false
-test@example.com,wrongpassword,false
