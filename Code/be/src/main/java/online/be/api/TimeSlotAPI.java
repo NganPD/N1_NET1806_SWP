@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -65,5 +66,16 @@ public class TimeSlotAPI {
     @GetMapping("/start/{start}/end/{end}")
     public ResponseEntity<List<TimeSlot>> getTimeSlotsByStartTimeBetween(@PathVariable LocalTime start, @PathVariable LocalTime end) {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
+    }
+
+    @GetMapping("/venue/{venueId}/court/{courtId}/excludeDate")
+    public ResponseEntity<List<TimeSlot>> getTimeSlotsByVenueAndCourtExcludingDate(
+            @PathVariable Long venueId,
+            @PathVariable Long courtId,
+            @RequestParam("date") LocalDate date) {
+
+        List<TimeSlot> timeSlots = timeSlotService.getTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+
+        return ResponseEntity.ok().body(timeSlots);
     }
 }

@@ -4,6 +4,7 @@ import online.be.entity.CourtSchedule;
 import online.be.entity.TimeSlot;
 import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
+import online.be.exception.ResourceNotFoundException;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.repository.CourtScheduleRepository;
 import online.be.repository.TimeSlotRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +43,7 @@ public class TimeSlotService {
         List<TimeSlot> existingSlots = timeSlotRepository.findByVenueVenueId(timeSlotRequest.getVenueId());
         for(TimeSlot slot : existingSlots){
             if(timeSlotRequest.getStartTime().isBefore(slot.getStartTime())
-                && timeSlotRequest.getEndTime().isAfter(slot.getStartTime())){
+                    && timeSlotRequest.getEndTime().isAfter(slot.getStartTime())){
                 throw new BadRequestException("The time slot overlaps with an existing time slot");
             }
         }
@@ -64,7 +66,7 @@ public class TimeSlotService {
     // Cập nhật thông tin TimeSlot
     public TimeSlot updateTimeSlot(long timeSlotId, TimeSlotRequest timeSlotRequest) {
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(()-> new BadRequestException("Time slot cannot be found by ID: " + timeSlotId));
+                .orElseThrow(()-> new ResourceNotFoundException("Time slot cannot be found by ID: " + timeSlotId));
 
 //        timeSlot.setDuration(timeSlotRequest.getDuration());
         timeSlot.setStartTime(timeSlotRequest.getStartTime());
@@ -73,7 +75,7 @@ public class TimeSlotService {
         timeSlot.setStatus(timeSlot.isStatus());
 
         Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
-                .orElseThrow(()-> new BadRequestException("The venue cannot be found by ID: "+ timeSlotRequest.getVenueId()));
+                .orElseThrow(()-> new ResourceNotFoundException("The venue cannot be found by ID: "+ timeSlotRequest.getVenueId()));
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
@@ -90,17 +92,38 @@ public class TimeSlotService {
     // Read TimeSlot by ID
     public TimeSlot getTimeSlotById(long timeSlotId) {
         return timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(() -> new BadRequestException("TimeSlot cannot found by ID: " + timeSlotId));
+                .orElseThrow(() -> new ResourceNotFoundException("TimeSlot cannot found by ID: " + timeSlotId));
     }
 
-    // Read all TimeSlot
     public List<TimeSlot> getAllTimeSlots() {
-        return timeSlotRepository.findAll();
+        try {
+            List<TimeSlot> timeSlots = timeSlotRepository.findAll();
+            if (timeSlots.isEmpty()) {
+                throw new ResourceNotFoundException("No time slots found");
+            }
+            return timeSlots;
+        } catch (Exception e) {
+            // Log the exception if necessary
+            throw new RuntimeException("An error occurred while fetching time slots: " + e.getMessage(), e);
+        }
     }
+
 
     // Xoá một TimeSlot
     public void deleteTimeSlot(Long timeSlotId) {
+        if (!timeSlotRepository.existsById(timeSlotId)) {
+            throw new ResourceNotFoundException("TimeSlot with id " + timeSlotId + " not found");
+        }
         timeSlotRepository.deleteById(timeSlotId);
-    }//Tự tạo hiển thị không có slot
+    }
 
+    // Get TimeSlots by Venue and Exclude Court on Date
+    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
+        try {
+            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+        } catch (Exception e) {
+            // Log the exception if needed
+            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
+        }
+    }
 }
