@@ -136,8 +136,8 @@ For Sprint 1:
 
 | STT | FE Developer   | Use Cases                                     |
 |-----|----------------|-----------------------------------------------|
-| 1   |  | UC-01, UC-05, UC-06, UC-15                           |
-| 2   |  | UC-33, UC-19, UC-20, UC-2 |
+| 1   | Nam  | UC-01, UC-05, UC-06, UC-15                           |
+| 2   | Son | UC-33, UC-19, UC-20, UC-2 |
 
 
 For Sprint 2
