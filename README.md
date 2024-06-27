@@ -66,8 +66,8 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 | UC-31           | Manager generate reports                                   |
 | UC-32           | Manager delete court                                       |
 | UC-33           | Manager register booking type information                  |
-| UC-34           | Manager handles walk-in booking                            I
-
+| UC-34           | Manager handles walk-in booking                            |
+| UC-35           | Reset Password                                             |
 
 # Sprint Planning Table
 ## Sprint 1 (Set up)
@@ -76,18 +76,19 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 | UC-01       | Register for an Account                   |
 | UC-05       | Login                                     |
 | UC-06       | Logout                                    |
-| UC-015       | Customer Forgot Password                  |
+| UC-15       | Customer Forgot Password                  |
 | UC-25.a     | Create account for staff and manager      |
 | UC-25.b     | Update account information                |
 | UC-25.c     | Delete account                            |
 | UC-25.d     | Lock/Unlock account                       |
 | UC-19       | Manager registers venue information       |
-| UC-23.a       | Add payment information to the venue      |
-| UC-20     | Manager updates venue information         |
+| UC-23.a     | Add payment information to the venue      |
+| UC-20       | Manager updates venue information         |
 | UC-26       | System admin registers new venue          |
-| UC-3       | Manager deletes court                     |
-| UC-21.a       | Create a time slot and set the price      |
-| UC-33      | Manager register booking type information |
+| UC-3        | Manager deletes court                     |
+| UC-21.a     | Create a time slot and set the price      |
+| UC-33       | Manager register booking type information |
+| UC-35       | Reset Password                            |
 
 
 ## Sprint 2 (Business Flow)
@@ -98,9 +99,9 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 | UC-03       | View Venue Details                              |
 | UC-04       | View All Venues                                 |
 | UC-07       | View Reviews and Ratings                        |
-| UC-08.a       | Book Fixed Schedule                             |
-| UC-08.b       | Book Single Day                                 |
-| UC-08.c       | Book Flexible Schedule                          |
+| UC-08.a     | Book Fixed Schedule                             |
+| UC-08.b     | Book Single Day                                 |
+| UC-08.c     | Book Flexible Schedule                          |
 | UC-09       | Customer Makes a Payment                        |
 | UC-10       | View Booking History                            |
 | UC-11       | Modify Booking                                  |
@@ -129,7 +130,7 @@ For Sprint 1:
 | STT | BE Developer   | Use Cases                                     |
 |-----|----------------|-----------------------------------------------|
 | 1   | Thịnh | UC-05, UC-19, UC-20, UC-23.a |
-| 2   | Ngân | UC-01, UC-15, UC-25.a, UC-25.b                     |
+| 2   | Ngân | UC-01, UC-15, UC-25.a, UC-25.b, UC-35                     |
 | 3   | Trung | UC-21.a, UC-25.c, UC-25.d, UC-33                     |
 
 ### Frontend Developers
