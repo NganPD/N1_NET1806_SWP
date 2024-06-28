@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import online.be.enums.BookingStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,26 +17,29 @@ import java.time.LocalDateTime;
 public class BookingDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long bookingDetailId;
+    private long id;
 
-    @Column(name="price", nullable = false)
+    @Column(nullable = false)
     private double price;
 
-    @Column(name = "startTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "endTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private LocalDate date;
+
+    @Column(nullable = false)
+    private BookingStatus status;
+
+    @ManyToOne
     @JoinColumn(name = "booking_id", nullable = false)
-    @JsonIgnore
     private Booking booking;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "court_id", nullable = false)
-    @JsonIgnore
-    private Court court;
+    @ManyToOne
+    @JoinColumn(name = "schedule_id", nullable = false)
+    private CourtSchedule courtSchedule;
 
-    // Other properties or methods if needed
 }

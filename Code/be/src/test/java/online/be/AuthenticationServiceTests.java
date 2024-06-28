@@ -119,5 +119,6 @@ public class AuthenticationServiceTests {
         });
 
         assertEquals("Account not found", thrown.getMessage());
+        System.out.println("Account not found");
     }
 }

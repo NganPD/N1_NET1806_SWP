@@ -1,5 +1,6 @@
 package online.be.exception;
 
+import online.be.entity.Venue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,5 +35,15 @@ public class APIHandleException {
     @ExceptionHandler(NoDataFoundException.class)
     public ResponseEntity<String> handleNoDataFoundException(NoDataFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(VenueException.class)
+    public ResponseEntity<String> handleVenueException(VenueException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BookingException.class)
+    public ResponseEntity<String> handleBookingException (BookingException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

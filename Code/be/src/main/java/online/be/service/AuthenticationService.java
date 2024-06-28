@@ -7,7 +7,7 @@ import online.be.entity.Account;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
-import online.be.model.*;
+import online.be.model.EmailDetail;
 import online.be.model.Request.*;
 import online.be.model.Response.AccountResponse;
 import online.be.model.Response.LoginGoogleResponse;
@@ -29,50 +29,45 @@ import java.util.List;
 public class AuthenticationService implements UserDetailsService {
 
     @Autowired
-    AuthenticationManager authenticationManager;
-
-    // xử lý logic
-    @Autowired
-    AuthenticationRepository authenticationRepository;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private AuthenticationRepository authenticationRepository;
 
     @Autowired
-    TokenService tokenService;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    EmailService emailService;
+    private TokenService tokenService;
 
+    @Autowired
+    private EmailService emailService;
 
     public Account register(RegisterRequest registerRequest) {
-        //registerRequest: thông tin ngừoi dùng yêu cầu
         Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
         if (existingAccount != null) {
             if (!existingAccount.isActive()) {
-                throw new BadRequestException("Tài khoản đã được đăngkysys va dang bi khoa");
+                throw new BadRequestException("The account has been locked, please contact the admin to unlock the account.");
             } else {
                 throw new AuthException("Duplicate email");
             }
         }
-        // xử lý logic register
         Account account = new Account();
         account.setPhone(registerRequest.getPhone());
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         account.setRole(Role.CUSTOMER);
+        account.setActive(true);
         account.setEmail(registerRequest.getEmail());
         account.setFullName(registerRequest.getFullName());
 
         try {
             account = authenticationRepository.save(account);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getMessage());
             if (e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr"))
                 throw new AuthException("duplicate email");
-            else {
+            else{
                 throw new AuthException("duplicate phone");
             }
-
         }
 
         try {
@@ -85,17 +80,13 @@ public class AuthenticationService implements UserDetailsService {
             emailDetail.setLink("http://goodminton.online/");
             emailService.sendMailTemplate(emailDetail);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             e.printStackTrace();
         }
 
-        // nhờ repo => save xuống db
         return account;
     }
 
     public AccountResponse login(LoginRequest loginRequest) {
-
-
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
@@ -104,7 +95,8 @@ public class AuthenticationService implements UserDetailsService {
         } catch (Exception e) {
             throw new AuthException("Wrong Username or Password");
         }
-        // => account chuẩn
+
+        //=> account chuẩn
         Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
         if (account == null) {
             throw new AuthException("Account not found");
@@ -131,6 +123,7 @@ public class AuthenticationService implements UserDetailsService {
                 account = new Account();
                 account.setFullName(firebaseToken.getName());
                 account.setEmail(firebaseToken.getEmail());
+                account.setActive(true);
                 account.setRole(Role.CUSTOMER);
                 authenticationRepository.save(account);
             }
@@ -139,17 +132,15 @@ public class AuthenticationService implements UserDetailsService {
             accountResponse.setId(account.getId());
             accountResponse.setRole(account.getRole());
 
-            //sinh ra token và gán vảo response
             String token = tokenService.generateToken(account);
             accountResponse.setToken(token);
 
         } catch (FirebaseAuthException ex) {
-            ex.printStackTrace();// Tự handle exception để front end hiểu.
+            ex.printStackTrace();
             throw new AuthException("Firebase Authentication failed. Please try again later");
-        }catch(Exception e){
-            //các ngoại lệ khác
+        } catch(Exception e) {
             e.printStackTrace();
-            throw new AuthException("An unexpected error occured! Please try again later");
+            throw new AuthException("An unexpected error occurred! Please try again later");
         }
         return accountResponse;
     }
@@ -157,11 +148,7 @@ public class AuthenticationService implements UserDetailsService {
     public void forgotPasswordRequest(String email) {
         Account account = authenticationRepository.findAccountByEmail(email);
         if (account == null) {
-            try {
-                throw new BadRequestException("Account not found!");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);// Tự handle exception để front end hiểu.
-            }
+            throw new BadRequestException("Account not found!");
         }
 
         EmailDetail emailDetail = new EmailDetail();
@@ -200,7 +187,6 @@ public class AuthenticationService implements UserDetailsService {
         account.setEmail(updatedAccountRequest.getEmail());
         account.setFullName(updatedAccountRequest.getFullname());
         account.setRole(updatedAccountRequest.getRole());
-        //save
         return authenticationRepository.save(account);
     }
 
@@ -212,7 +198,6 @@ public class AuthenticationService implements UserDetailsService {
         authenticationRepository.save(account);
     }
 
-    //khoa account lai neu muon xoa thi chi co the chinh status
     public void lockAccount(Long accountId) {
         Account account = authenticationRepository.findById(accountId).orElseThrow(
                 () -> new BadRequestException("Account not found!")
@@ -228,6 +213,5 @@ public class AuthenticationService implements UserDetailsService {
         account.setActive(true);
         authenticationRepository.save(account);
     }
-
 
 }

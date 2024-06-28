@@ -22,9 +22,7 @@ public class PaymentAccount {
     @Column(nullable = false)
     private String accountHolderName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
-    @ToString.Exclude
     private Venue venue;
 }

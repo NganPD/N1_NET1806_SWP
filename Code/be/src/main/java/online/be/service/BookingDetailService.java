@@ -7,8 +7,6 @@
 //@Service
 //public class BookingDetailService {
 //
-//    @Autowired
-//    BookingDetailRepostiory bookingDetailRepostiory;
 //
 //
 //

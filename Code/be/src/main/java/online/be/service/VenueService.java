@@ -5,7 +5,9 @@ import online.be.entity.Court;
 import online.be.entity.Venue;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
+import online.be.exception.BookingException;
 import online.be.exception.NoDataFoundException;
+import online.be.exception.VenueException;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
 import online.be.repository.AccountRepostory;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -39,12 +42,28 @@ public class VenueService {
     public Venue createVenue(CreateVenueRequest createVenueRequest) {
         //kiểm tra format tên của venue
         if (!Pattern.matches("^[a-zA-Z\\s]+$", createVenueRequest.getVenueName())) {
-            throw new RuntimeException("Venue name contains invalid characters. Only letters and spaces are allowed.");
+            throw new VenueException("Venue name contains invalid characters. Only letters and spaces are allowed.");
         }
         //kiểm tra xem sân tồn tại bên trong hệ thống chưa
         Venue existingVenue = venueRepository.findByName(createVenueRequest.getVenueName());
         if (existingVenue != null) {
-            throw new DataIntegrityViolationException("Duplicate venue");
+            throw new VenueException("Duplicate venue");
+        }
+        //check the hour
+        if (createVenueRequest.getOperatingHours().isBefore(LocalTime.MIN) || createVenueRequest.getOperatingHours().isAfter(LocalTime.MAX)) {
+            throw new DateTimeException("Invalid value for HourOfDay (valid values 0 - 23): ");
+        }
+        //check the hour and minute
+        if (createVenueRequest.getClosingHours().isBefore(LocalTime.MIN) || createVenueRequest.getClosingHours().isAfter(LocalTime.MAX)) {
+            throw new DateTimeException( "Closing hours must be between 00:00 and 23:59.");
+        }
+        //the closing hours cannot be before operating hours
+        if (createVenueRequest.getClosingHours().isBefore(createVenueRequest.getOperatingHours())) {
+            throw new DateTimeException("Closing hours cannot be before operating hours.");
+        }
+        //the closing hours cannot be the same as operating hours
+        if (createVenueRequest.getClosingHours().equals(createVenueRequest.getOperatingHours())) {
+            throw new DateTimeException("Closing hours cannot be the same as operating hours.");
         }
         //nếu venue chưa tồn tại trong hệ thống
         Venue venue = new Venue();
@@ -55,22 +74,23 @@ public class VenueService {
         venue.setClosingHours(createVenueRequest.getClosingHours());
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
 
-        //Nếu có chỉ định manager, thì add id manager vào venue
-        if (createVenueRequest.getManagerId() != null) {
-            Account manager = accountRepostory.findById(createVenueRequest.getManagerId())
-                    .orElseThrow(() -> new BadRequestException("Manager account not found"));
-            venue.setManager(manager);
-        }
+//        //Nếu có chỉ định manager, thì add id manager vào venue
+//        if (createVenueRequest.getManagerId() != null) {
+//            Account manager = accountRepostory.findById(createVenueRequest.getManagerId())
+//                    .orElseThrow(() -> new BadRequestException("Manager account not found"));
+//            venue.setManager(manager);
+//        }
         //save venue informtion down to database
         try {
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getMessage());
-            throw new BadRequestException("Failed to register venue");
+            throw new VenueException("Failed to register venue");
         }
         return venue;
 
     }//Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
+
 
     // Lấy venue bằng ID
     public Venue getVenueById(long venueId) {
@@ -78,7 +98,7 @@ public class VenueService {
         Venue venue = venueRepository.findById(venueId).get();
         if (venue == null) {
             try {
-                throw new BadRequestException("Venue not found");
+                throw new VenueException("Venue not found");
             } catch (BadRequestException e) {
                 throw new RuntimeException(e);
             }
@@ -96,7 +116,7 @@ public class VenueService {
     public Venue updateVenue(long venueId, UpdateVenueRequest updateVenueRequest) {
         //kiem tra ten venue
         if (!Pattern.matches("^[a-zA-Z\\s]+$", updateVenueRequest.getVenueName())) {
-            throw new RuntimeException("Venue name contains invalid characters. Only letters and spaces are allowed.");
+            throw new VenueException("Venue name contains invalid characters. Only letters and spaces are allowed.");
         }
         // Find venue by ID
         Venue venue = venueRepository.findById(venueId)
@@ -118,7 +138,7 @@ public class VenueService {
             // Lưu và trả về venue đã được cập nhật
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Failed to save venue information: " + e.getMessage());
+            throw new VenueException("Failed to save venue information: " + e.getMessage());
         }
         return venue;
     }
@@ -133,8 +153,8 @@ public class VenueService {
     }
 
     //search by name
-    public List<Venue> searchvenues(String keywords) {
-        List<Venue> venueList = venueRepository.searchVenue(keywords);
+    public List<Venue> searchVenuesByKeyword(String keywords) {
+        List<Venue> venueList = venueRepository.findVenueByKeywords(keywords);
         if (venueList.isEmpty()) {
             throw new NoDataFoundException("0 search");
         } else {
@@ -143,8 +163,9 @@ public class VenueService {
     }
 
     //search by operating hours
-    public List<Venue> searchVenuesByOperatingHours(String operaingHours) {
-        return venueRepository.findByOperatingHours(operaingHours);
+    public List<Venue> searchVenuesByOperatingHours(String operatingHoursStr) {
+        LocalTime operatingHours = LocalTime.parse(operatingHoursStr);
+        return venueRepository.findByOperatingHours(operatingHours);
     }
 
     //
@@ -158,6 +179,9 @@ public class VenueService {
 ////    }
 //
     //search by Location
+    public List<Venue> searchVenuesByAddress(String address){
+        return venueRepository.findByAddress(address);
+    }
     //search by available slots
     public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
         List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);

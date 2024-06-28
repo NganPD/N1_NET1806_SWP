@@ -15,11 +15,11 @@ public class StaffCourt {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "court_id")
+    @ManyToOne
+    @JoinColumn(name = "court_id", nullable = false)
     private Court court;
 }

@@ -26,8 +26,6 @@ public class CourtService {
 
     //tạo court
     public Court createCourt(CreateCourtRequest courtRequest) {
-        //Validate input parameters
-        validateCreateCourtRequest(courtRequest);
         //Find the venue ỏ throw exception if not found
         Venue existingVenue = venueRepository.findById(courtRequest.getVenueId())
                 .orElseThrow(()-> new BadRequestException("The venue does not exist"));
@@ -36,7 +34,6 @@ public class CourtService {
         Court court = new Court();
         court.setCourtName(courtRequest.getCourtName());
         court.setStatus(courtRequest.getStatus());
-        court.setAmenities(courtRequest.getAmenities());
         court.setDescription(courtRequest.getDescription());
 
         court.setVenue(existingVenue);
@@ -44,13 +41,6 @@ public class CourtService {
     }
     //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
-    private void validateCreateCourtRequest(CreateCourtRequest createCourtRequest){
-        //Validate court name is not empty
-        if(createCourtRequest.getCourtName() == null ||
-        createCourtRequest.getCourtName().isEmpty()){
-            throw new IllegalArgumentException("Court name must not be blank");
-        }
-    }
     //lấy court dựa trên id
     public Court getCourtById(long courtId) {
         Court court = courtRepository.findById(courtId).get();
@@ -72,7 +62,6 @@ public class CourtService {
 
         existingCourt.setCourtName(courtRequest.getCourtName());
         existingCourt.setStatus(courtRequest.getStatus());
-        existingCourt.setAmenities(courtRequest.getAmenities());
         existingCourt.setDescription(courtRequest.getDescription());
 
         return courtRepository.save(existingCourt);

@@ -31,7 +31,7 @@ public class VenueAPI {
     }
 
     @GetMapping("/{venueId}")
-    public ResponseEntity<Venue> getVenueById(@RequestBody long venueId){
+    public ResponseEntity<Venue> getVenueById(@PathVariable long venueId){
         Venue venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
@@ -49,8 +49,8 @@ public class VenueAPI {
     }
 
     //lay theo availableslot
-    @GetMapping("/search-venues-availableslots")
-    public ResponseEntity<List<Venue>> findVenuesWithAvailableSlots(
+    @GetMapping("/search-availableSlots")
+    public ResponseEntity searchVenuesWithAvailableSlots(
             @RequestParam String startTime, @RequestParam String endTime
     ){
         LocalTime start = LocalTime.parse(startTime);
@@ -60,11 +60,18 @@ public class VenueAPI {
     }
 
     //lấy theo tên
-//    @GetMapping("/search-venues-name")
-//    public ResponseEntity searchVenues(@RequestParam("keyword") String keyword){
-//        List<Venue> venues = venueService.searchvenues(keyword);
-//        return ResponseEntity.ok(venues);
-//    }
+    @GetMapping("/search-keyword")
+    public ResponseEntity searchVenuesByKeyword(@RequestParam String keyword){
+        List<Venue> venues = venueService.searchVenuesByKeyword(keyword);
+        return ResponseEntity.ok(venues);
+    }
+
+    //get venue by address
+    @GetMapping("/search-address")
+    public ResponseEntity searchVenuesByAddress(@RequestParam String address){
+        List<Venue> venues = venueService.searchVenuesByAddress(address);
+        return ResponseEntity.ok(venues);
+    }
 
     @DeleteMapping("/{venueId}")
     public ResponseEntity<Void> deleteVenue(@PathVariable Long venueId){
@@ -72,13 +79,10 @@ public class VenueAPI {
         return ResponseEntity.noContent().build();//204
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Venue>> searchVenues(@RequestParam String operatingHours){
+    @GetMapping("/search-operatingHour")
+    public ResponseEntity searchVenuesByOperatingHour(@RequestParam String operatingHours){
         List<Venue> venues = venueService.searchVenuesByOperatingHours(operatingHours);
         return ResponseEntity.ok(venues);
     }
-
-
-
 
 }

@@ -17,30 +17,26 @@ public class Court {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long courtId;
+    private Long courtId;
 
-    @Column( nullable = false)
+    @Column( nullable = false, unique = true)
     private String courtName;
 
     @Column(name = "court_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private CourtStatus status;
 
-    @Column(name = "amenities")
-    private String amenities;
 
     @Column(name = "description")
     private String description;
 
     @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
+    @JsonIgnore
     private Venue venue;
 
     @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CourtSchedule> courtSchedules;
-
-    @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<BookingDetail> bookingDetails;
 
     @OneToMany(mappedBy = "court",cascade = CascadeType.ALL)
     private List<StaffCourt> staffCourts;

@@ -36,10 +36,10 @@ public class TimeSlot {
     private boolean status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private List<CourtSchedule> courtSchedules;
 }

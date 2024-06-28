@@ -6,6 +6,7 @@ import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
 import online.be.model.EmailDetail;
 import online.be.model.Request.AccountRequest;
+import online.be.model.Response.AccountResponse;
 import online.be.repository.AccountRepostory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,15 +21,16 @@ import java.util.Optional;
 import static java.rmi.server.LogStream.log;
 
 @Service
-public class AccountService implements UserDetailsService {
-    @Autowired
-    AccountRepostory accountRepository;
+public class AccountService{
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private AccountRepostory accountRepository;
 
     @Autowired
-    EmailService emailService;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     public Account createAccount(AccountRequest accountRequest) {
         //kiểm tra xem là tài khoản đã tồn tại hay chưa
@@ -42,12 +44,15 @@ public class AccountService implements UserDetailsService {
         account.setPhone(accountRequest.getPhone());
         account.setPassword(passwordEncoder.encode(accountRequest.getPassword()));
         account.setActive(true);
-        switch (accountRequest.getRole().toUpperCase()) {
-            case "MANAGER":
+        switch (accountRequest.getRole()) {
+            case MANAGER:
                 account.setRole(Role.MANAGER);
                 break;
-            case "STAFF":
+            case STAFF:
                 account.setRole(Role.STAFF);
+                break;
+            case ADMIN:
+                account.setRole(Role.ADMIN);
                 break;
         }
         try {
@@ -82,8 +87,32 @@ public class AccountService implements UserDetailsService {
         return accountRepository.save(account);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
-    }
+//    public Account createAdminAccount (AccountRequest accountRequest){
+//        //kiểm tra xem email đã tồn tại hay chưa
+//
+//        Account existingAccount = accountRepository.findAccountByEmail(accountRequest.getEmail());
+//        if(existingAccount != null){
+//            throw new BadRequestException("Email is already in use");
+//        }
+//
+//        Account admin = new Account();
+//        admin.setFullName(accountRequest.getFullName());
+//        admin.setEmail(accountRequest.getEmail());
+//        admin.setPhone(accountRequest.getPhone());
+//        admin.setPassword(passwordEncoder.encode(accountRequest.getPassword()));
+//        admin.setActive(true); // Mặc định tài khoản admin là active
+//        admin.setRole(Role.ADMIN); // Đặt vai trò của tài khoản là ADMIN
+//
+//        // Lưu thông tin admin xuống cơ sở dữ liệu
+//        try {
+//            admin = accountRepository.save(admin);
+//        } catch (DataIntegrityViolationException e) {
+//            if(e.getMessage().contains("account.UK_dgdnj692f2g5ebicy1xyc2l3w")){
+//                throw new AuthException("Duplicate Phone Number");
+//            }
+//        }
+//
+//        return admin;
+//    }
+
 }

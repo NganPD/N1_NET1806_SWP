@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import online.be.enums.VenueStatus;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -28,11 +30,16 @@ public class Venue {
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
-    @Column(nullable = false)
-    private String operatingHours;
+    @Column()
+    private String services;
 
+    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
-    private String closingHours;
+    private LocalTime operatingHours;
+
+    @JsonFormat(pattern = "HH:mm")
+    @Column(nullable = false)
+    private LocalTime closingHours;
 
     @Column(nullable = false)
     private String description;

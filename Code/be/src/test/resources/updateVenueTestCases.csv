@@ -1,0 +1,3 @@
+venueId,venueName,address,description,operatingHours,closingHours,venueStatus,assignedCourts,expectedException,expectedMessage
+1,Updated Venue,456 Updated Street,An updated test venue,9:00,19:00,ACTIVE,,BadRequestException,Venue not found with id: 1
+2,Updated Venue,456 Updated Street,An updated test venue,9:00,19:00,ACTIVE,,VenueException,Failed to save venue information: Error

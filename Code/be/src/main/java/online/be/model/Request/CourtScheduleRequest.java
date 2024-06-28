@@ -10,7 +10,7 @@ public class CourtScheduleRequest {
 
     private String date;
 
-    private Long courtId;
+    private long courtId;
 
     private List<Long> timeSlotsId;
 }
