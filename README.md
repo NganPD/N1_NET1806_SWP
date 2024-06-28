@@ -121,7 +121,7 @@ For Sprint 1:
 | 1   | Thịnh (BE) | UC-05 (BE), UC-19|
 | 2   | Ngân (BE) | UC-01, UC-15, UC-25.a                     |
 | 3   | Trung (BE) | UC-21.a,UC-33                     |
-| 4   | Nam (FE)  | UC-05(LE)                                                     |
+| 4   | Nam (FE)  | UC-06                                                     |
 | 5   | Sơn (FE)  |                                                       |
 
 
