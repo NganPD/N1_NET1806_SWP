@@ -56,8 +56,4 @@ public class Venue {
     @ManyToOne
     @JoinColumn(name = "managerId")
     private Account manager;
-
-    @ManyToMany(mappedBy = "venue")
-    @JsonIgnore
-    private List<Court> assignedCourts;
 }

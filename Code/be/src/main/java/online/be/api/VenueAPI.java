@@ -31,26 +31,26 @@ public class VenueAPI {
     }
 
     @GetMapping("/{venueId}")
-    public ResponseEntity<Venue> getVenueById(@PathVariable long venueId){
+    public ResponseEntity getVenueById(@RequestBody long venueId){
         Venue venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
 
     @GetMapping
-    public ResponseEntity<List<Venue> > getAllVenue(){
+    public ResponseEntity getAllVenue(){
         List<Venue> venues = venueService.getAllVenues();
         return ResponseEntity.ok().body(venues);
     }
 
     @PutMapping("/{venueId}")
-    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId, @RequestBody UpdateVenueRequest updateVenueRequest){
+    public ResponseEntity updateVenue(@PathVariable long venueId, @RequestBody UpdateVenueRequest updateVenueRequest){
         Venue updatedVenue = venueService.updateVenue(venueId, updateVenueRequest);
         return ResponseEntity.ok().body(updatedVenue);
     }
 
     //lay theo availableslot
-    @GetMapping("/search-availableSlots")
-    public ResponseEntity searchVenuesWithAvailableSlots(
+    @GetMapping("/search-venues-availableslots")
+    public ResponseEntity findVenuesWithAvailableSlots(
             @RequestParam String startTime, @RequestParam String endTime
     ){
         LocalTime start = LocalTime.parse(startTime);
@@ -74,15 +74,19 @@ public class VenueAPI {
     }
 
     @DeleteMapping("/{venueId}")
-    public ResponseEntity<Void> deleteVenue(@PathVariable Long venueId){
+    public ResponseEntity deleteVenue(@PathVariable Long venueId){
         venueService.deleteVenue(venueId);
         return ResponseEntity.noContent().build();//204
     }
+
 
     @GetMapping("/search-operatingHour")
     public ResponseEntity searchVenuesByOperatingHour(@RequestParam String operatingHours){
         List<Venue> venues = venueService.searchVenuesByOperatingHours(operatingHours);
         return ResponseEntity.ok(venues);
     }
+
+
+
 
 }

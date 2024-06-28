@@ -36,21 +36,22 @@ public class Account implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private boolean isActive;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
+    private List<Booking> bookings;
+
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
 
 
-    @ManyToOne
-    @JoinColumn(name = "assigned_venue_id")
-    private Venue assignedVenue;
+    @OneToMany(mappedBy ="manager" )
+    private List<Venue> assignedVenue;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<StaffCourt> staffCourts;
 

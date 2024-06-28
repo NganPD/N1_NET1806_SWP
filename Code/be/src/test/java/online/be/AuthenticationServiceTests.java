@@ -1,33 +1,43 @@
 package online.be;
 
+import com.google.firebase.auth.FirebaseAuth;
 import online.be.entity.Account;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
-import online.be.model.Request.LoginRequest;
-import online.be.model.Response.AccountResponse;
-import online.be.repository.AccountRepostory;
+import online.be.exception.BadRequestException;
+import online.be.model.EmailDetail;
+import online.be.model.Request.RegisterRequest;
+import online.be.model.Request.ResetPasswordRequest;
 import online.be.repository.AuthenticationRepository;
 import online.be.service.AuthenticationService;
+import online.be.service.EmailService;
 import online.be.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTests {
+    @InjectMocks
+    private AuthenticationService authenticationService;
 
-    private static final Logger log = LoggerFactory.getLogger(AuthenticationServiceTests.class);
     @Mock
     private AuthenticationManager authenticationManager;
 
@@ -35,90 +45,171 @@ public class AuthenticationServiceTests {
     private AuthenticationRepository authenticationRepository;
 
     @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
     private TokenService tokenService;
 
-    @InjectMocks
-    private AuthenticationService authenticationService;
+    @Mock
+    private EmailService emailService;
 
-    private Account account;
-    private String token;
+    @Mock
+    private FirebaseAuth firebaseAuth;
 
     @BeforeEach
     void setUp() {
-        account = new Account();
-        account.setEmail("test@example.com");
-        account.setPhone("1234567890");
-        account.setFullName("Test User");
-        account.setPassword("Password");
-        account.setRole(Role.CUSTOMER);
-        account.setId(1L);
-
-        token = "mockToken";
+        MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testLogin_AuthenticationFailure() {
-        // Arrange
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("test@example.com");
-        loginRequest.setPassword("wrong password");
+    @ParameterizedTest
+    @CsvFileSource(resources = "/forgot_password.csv", numLinesToSkip = 1)
+    void testForgotPasswordRequest_SuccessfulSendRequest(
+            long id, String fullName, String email, String phone, String password, String role
+    ) {
+        // Create the Account object using data from CSV
+        Account account = new Account();
+        account.setId(id);
+        account.setFullName(fullName);
+        account.setEmail(email);
+        account.setPhone(phone);
+        account.setPassword(password);
+        account.setRole(Role.valueOf(role));
 
-        // Mock authentication failure
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new AuthException("Wrong Username or Password"));
+        // Mock the repository to return the account
+        when(authenticationRepository.findAccountByEmail(email)).thenReturn(account);
 
-        // Act and assert
-        AuthException exception = assertThrows(AuthException.class, () ->
-                authenticationService.login(loginRequest));
+        // Mock the token service to return a token
+        when(tokenService.generateToken(any(Account.class))).thenReturn("result");
 
-        assertEquals("Wrong Username or Password", exception.getMessage());
+        // Run the test
+        authenticationService.forgotPasswordRequest(email);
 
-        // Verify interactions
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(authenticationRepository, never()).findAccountByEmail(anyString());
-        verify(tokenService, never()).generateToken(any(Account.class));
-        System.out.println("Wrong Username or Password");
-    }
-    @Test
-    void testLogin_AuthenticationSuccess(){
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("test@example.com");
-        loginRequest.setPassword("Password");
+        // Verify emailService interaction
+        verify(emailService, times(1)).sendMailTemplate(any(EmailDetail.class));
 
-        when(authenticationRepository.findAccountByEmail(loginRequest.getEmail())).thenReturn(account);
-        when(tokenService.generateToken(account)).thenReturn(token);
-
-        //Act
-        AccountResponse accountResponse = authenticationService.login(loginRequest);
-
-        //Assert
-        assertNotNull(accountResponse);
-        assertEquals(accountResponse.getEmail(), account.getEmail());
-        assertEquals(accountResponse.getFullName(), account.getFullName());
-        assertEquals(accountResponse.getPhone(), account.getPhone());
-        assertEquals(accountResponse.getToken(), token);
-        assertEquals(accountResponse.getRole(), account.getRole());
-        assertEquals(accountResponse.getId(), account.getId());
-
-        verify(authenticationRepository, times(1)).findAccountByEmail(loginRequest.getEmail());
-        verify(tokenService, times(1)).generateToken(account);
-        System.out.println("Login Successfully");
+        // Reset the mock for the next iteration
+        reset(authenticationRepository);
+        reset(emailService);
     }
 
-    @Test
-    public void testLogin_AccountNotFound(){
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("nonexistent@example.com");
-        loginRequest.setPassword("password");
+    @ParameterizedTest
+    @CsvFileSource(resources = "/forgot_password_not_found.csv", numLinesToSkip = 1)
+    void testForgotPassword_EmailNotFound(String email) {
+        // Mock the repository to return null
+        when(authenticationRepository.findAccountByEmail(email)).thenReturn(null);
 
-        when(authenticationRepository.findAccountByEmail("nonexistent@example.com"))
-                .thenReturn(null);
-
-        AuthException thrown = assertThrows(AuthException.class, ()->{
-            authenticationService.login(loginRequest);
+        // Run the test and verify exception
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            authenticationService.forgotPasswordRequest(email);
         });
 
+<<<<<<< HEAD
         assertEquals("Account not found", thrown.getMessage());
         System.out.println("Account not found");
+=======
+        assertEquals("Account not found!", exception.getMessage());
+
+        // Verify no interaction with emailService
+        verify(emailService, times(0)).sendMailTemplate(any(EmailDetail.class));
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/reset_password.csv", numLinesToSkip = 1)
+    void testResetPassword_SuccessfulPasswordChange(String email, String oldPassword, String newPassword) {
+        // Create the Account object
+        Account account = new Account();
+        account.setEmail(email);
+        account.setPassword(passwordEncoder.encode(oldPassword));
+
+        // Mock the security context to return the current account
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(account);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Mock the repository to return the account
+        when(authenticationRepository.save(any(Account.class))).thenReturn(account);
+
+        // Mock the password encoder
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword");
+
+        // Create the ResetPasswordRequest
+        ResetPasswordRequest resetPasswordRequest = new ResetPasswordRequest();
+        resetPasswordRequest.setPassword(newPassword);
+
+        // Run the test
+        Account updatedAccount = authenticationService.resetPassword(resetPasswordRequest);
+
+        // Verify password change
+        assertEquals("encodedNewPassword", updatedAccount.getPassword());
+
+        // Verify repository interaction
+        verify(authenticationRepository, times(1)).save(any(Account.class));
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/register_success.csv", numLinesToSkip = 1)
+    void testRegister_SuccessfulRegistration(String email, String fullName, String password, String phone) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail(email);
+        registerRequest.setFullName(fullName);
+        registerRequest.setPassword(password);
+        registerRequest.setPhone(phone);
+
+        Account account = new Account();
+        account.setEmail(registerRequest.getEmail());
+        account.setFullName(registerRequest.getFullName());
+        account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        account.setPhone(registerRequest.getPhone());
+        account.setRole(Role.CUSTOMER);
+
+        when(authenticationRepository.save(any(Account.class))).thenReturn(account);
+
+        Account registeredAccount = authenticationService.register(registerRequest);
+
+        assertEquals(registerRequest.getEmail(), registeredAccount.getEmail());
+        assertEquals(registerRequest.getFullName(), registeredAccount.getFullName());
+        verify(emailService, times(1)).sendMailTemplate(any(EmailDetail.class));
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/register_duplicate_email.csv", numLinesToSkip = 1)
+    void testRegister_DuplicateEmail(String email, String fullName, String password, String phone) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail(email);
+        registerRequest.setFullName(fullName);
+        registerRequest.setPassword(password);
+        registerRequest.setPhone(phone);
+
+        when(authenticationRepository.save(any(Account.class)))
+                .thenThrow(new DataIntegrityViolationException("account.UK_q0uja26qgu1atulenwup9rxyr"));
+
+        AuthException exception = assertThrows(AuthException.class, () -> {
+            authenticationService.register(registerRequest);
+        });
+
+        assertEquals("duplicate email", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/register_duplicate_phone.csv", numLinesToSkip = 1)
+    void testRegister_DuplicatePhone(String email, String fullName, String password, String phone) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail(email);
+        registerRequest.setFullName(fullName);
+        registerRequest.setPassword(password);
+        registerRequest.setPhone(phone);
+
+        when(authenticationRepository.save(any(Account.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate phone"));
+
+        AuthException exception = assertThrows(AuthException.class, () -> {
+            authenticationService.register(registerRequest);
+        });
+
+        assertEquals("duplicate phone", exception.getMessage());
+>>>>>>> 70044527bdddd3ec480bebb5094a5aabdc323643
     }
 }

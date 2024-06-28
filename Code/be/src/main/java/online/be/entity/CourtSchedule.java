@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -15,7 +15,7 @@ public class CourtSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false)
     private LocalDate date;
@@ -23,16 +23,14 @@ public class CourtSchedule {
     @Column(nullable = false)
     private boolean available; //booked or available
 
-    @JsonIgnore
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "time_slot_id", nullable = false)
     private TimeSlot timeSlot;
 
-    @JsonIgnore
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;
 
-    @OneToMany(mappedBy = "courtSchedule")
-    private List<BookingDetail> bookingDetailList;
 }

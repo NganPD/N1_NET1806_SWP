@@ -29,21 +29,25 @@ import java.util.List;
 public class AuthenticationService implements UserDetailsService {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    AuthenticationManager authenticationManager;
+
+    // xử lý logic
+    @Autowired
+    AuthenticationRepository authenticationRepository;
 
     @Autowired
-    private AuthenticationRepository authenticationRepository;
+    PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    TokenService tokenService;
 
     @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private EmailService emailService;
+    EmailService emailService;
 
     public Account register(RegisterRequest registerRequest) {
+        //registerRequest: thông tin ngừoi dùng yêu cầu
+
+        // xử lý logic register
         Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
         if (existingAccount != null) {
             if (!existingAccount.isActive()) {
@@ -65,9 +69,10 @@ public class AuthenticationService implements UserDetailsService {
         } catch (DataIntegrityViolationException e) {
             if (e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr"))
                 throw new AuthException("duplicate email");
-            else{
+            else {
                 throw new AuthException("duplicate phone");
             }
+
         }
 
         try {
@@ -80,13 +85,17 @@ public class AuthenticationService implements UserDetailsService {
             emailDetail.setLink("http://goodminton.online/");
             emailService.sendMailTemplate(emailDetail);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
 
+        // nhờ repo => save xuống db
         return account;
     }
 
     public AccountResponse login(LoginRequest loginRequest) {
+
+
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
@@ -95,8 +104,7 @@ public class AuthenticationService implements UserDetailsService {
         } catch (Exception e) {
             throw new AuthException("Wrong Username or Password");
         }
-
-        //=> account chuẩn
+        // => account chuẩn
         Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
         if (account == null) {
             throw new AuthException("Account not found");
@@ -132,15 +140,17 @@ public class AuthenticationService implements UserDetailsService {
             accountResponse.setId(account.getId());
             accountResponse.setRole(account.getRole());
 
+            //sinh ra token và gán vảo response
             String token = tokenService.generateToken(account);
             accountResponse.setToken(token);
 
         } catch (FirebaseAuthException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace();// Tự handle exception để front end hiểu.
             throw new AuthException("Firebase Authentication failed. Please try again later");
-        } catch(Exception e) {
+        }catch(Exception e){
+            //các ngoại lệ khác
             e.printStackTrace();
-            throw new AuthException("An unexpected error occurred! Please try again later");
+            throw new AuthException("An unexpected error occured! Please try again later");
         }
         return accountResponse;
     }
@@ -163,9 +173,23 @@ public class AuthenticationService implements UserDetailsService {
 
     public Account resetPassword(ResetPasswordRequest resetPasswordRequest) {
         Account account = getCurrentAccount();
+        // Kiểm tra account có phải là instance của Account không
+        if (!(account instanceof Account)) {
+            throw new ClassCastException("Đối tượng không phải là Account");
+        }
         account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         return authenticationRepository.save(account);
     }
+
+    public Account getCurrentAccount() {
+        Object currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();// lấy đối tượng tài khoản hiện tại từ session hoặc context
+        if (currentAccount instanceof Account) {
+            return (Account) currentAccount;
+        } else {
+            throw new ClassCastException("Đối tượng không phải là Account");
+        }
+    }
+
 
     public List<Account> getAllAccount() {
         return authenticationRepository.findAll();
@@ -176,9 +200,6 @@ public class AuthenticationService implements UserDetailsService {
         return authenticationRepository.findAccountByEmail(email);
     }
 
-    public Account getCurrentAccount() {
-        return (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
 
     public Account updateAccount(UpdatedAccountRequest updatedAccountRequest) {
         Account account = authenticationRepository.findById(updatedAccountRequest.getAccountId())
@@ -187,6 +208,7 @@ public class AuthenticationService implements UserDetailsService {
         account.setEmail(updatedAccountRequest.getEmail());
         account.setFullName(updatedAccountRequest.getFullname());
         account.setRole(updatedAccountRequest.getRole());
+        //save
         return authenticationRepository.save(account);
     }
 
@@ -198,6 +220,7 @@ public class AuthenticationService implements UserDetailsService {
         authenticationRepository.save(account);
     }
 
+    //khoa account lai neu muon xoa thi chi co the chinh status
     public void lockAccount(Long accountId) {
         Account account = authenticationRepository.findById(accountId).orElseThrow(
                 () -> new BadRequestException("Account not found!")
@@ -213,5 +236,6 @@ public class AuthenticationService implements UserDetailsService {
         account.setActive(true);
         authenticationRepository.save(account);
     }
+
 
 }
