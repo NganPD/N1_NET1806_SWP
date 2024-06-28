@@ -25,32 +25,32 @@ public class VenueAPI {
     }
 
     @PostMapping
-    public ResponseEntity<Venue> createVenue(@RequestBody CreateVenueRequest createVenueRequest){
+    public ResponseEntity createVenue(@RequestBody CreateVenueRequest createVenueRequest){
         Venue createdVenue = venueService.createVenue(createVenueRequest);
         return ResponseEntity.ok().body(createdVenue);
     }
 
     @GetMapping("/{venueId}")
-    public ResponseEntity<Venue> getVenueById(@RequestBody long venueId){
+    public ResponseEntity getVenueById(@RequestBody long venueId){
         Venue venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
 
     @GetMapping
-    public ResponseEntity<List<Venue> > getAllVenue(){
+    public ResponseEntity getAllVenue(){
         List<Venue> venues = venueService.getAllVenues();
         return ResponseEntity.ok().body(venues);
     }
 
     @PutMapping("/{venueId}")
-    public ResponseEntity<Venue> updateVenue(@PathVariable long venueId, @RequestBody UpdateVenueRequest updateVenueRequest){
+    public ResponseEntity updateVenue(@PathVariable long venueId, @RequestBody UpdateVenueRequest updateVenueRequest){
         Venue updatedVenue = venueService.updateVenue(venueId, updateVenueRequest);
         return ResponseEntity.ok().body(updatedVenue);
     }
 
     //lay theo availableslot
     @GetMapping("/search-venues-availableslots")
-    public ResponseEntity<List<Venue>> findVenuesWithAvailableSlots(
+    public ResponseEntity findVenuesWithAvailableSlots(
             @RequestParam String startTime, @RequestParam String endTime
     ){
         LocalTime start = LocalTime.parse(startTime);
@@ -67,13 +67,13 @@ public class VenueAPI {
 //    }
 
     @DeleteMapping("/{venueId}")
-    public ResponseEntity<Void> deleteVenue(@PathVariable Long venueId){
+    public ResponseEntity deleteVenue(@PathVariable Long venueId){
         venueService.deleteVenue(venueId);
         return ResponseEntity.noContent().build();//204
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Venue>> searchVenues(@RequestParam String operatingHours){
+    public ResponseEntity searchVenues(@RequestParam String operatingHours){
         List<Venue> venues = venueService.searchVenuesByOperatingHours(operatingHours);
         return ResponseEntity.ok(venues);
     }

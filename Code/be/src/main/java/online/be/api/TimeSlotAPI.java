@@ -5,6 +5,7 @@ import online.be.entity.TimeSlot;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,11 @@ public class TimeSlotAPI {
     public ResponseEntity<TimeSlot> getTimeSlotById(@PathVariable long timeSlotId) {
         TimeSlot timeSlot = timeSlotService.getTimeSlotById(timeSlotId);
         return ResponseEntity.ok().body(timeSlot);
+    }
+
+    @GetMapping("/{id}/{date}")
+    public ResponseEntity getAvailableTimeSlotCountForVenueOnDate(@PathVariable Long id, @RequestParam("date") LocalDate date) {
+        return ResponseEntity.ok(timeSlotService.getAvailableTimeSlotCountForVenueOnDate(id, date));
     }
 
     // Tạo mới một TimeSlot
@@ -68,13 +74,12 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 
-    @GetMapping("/venue/{venueId}/court/{courtId}/excludeDate")
-    public ResponseEntity<List<TimeSlot>> getTimeSlotsByVenueAndCourtExcludingDate(
+    @GetMapping("/venue/{venueId}/excludeDate/{date}")
+    public ResponseEntity<List<TimeSlot>> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(
             @PathVariable Long venueId,
-            @PathVariable Long courtId,
-            @RequestParam("date") LocalDate date) {
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        List<TimeSlot> timeSlots = timeSlotService.getTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+        List<TimeSlot> timeSlots = timeSlotService.getAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
 
         return ResponseEntity.ok().body(timeSlots);
     }

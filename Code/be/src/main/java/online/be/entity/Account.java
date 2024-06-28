@@ -49,10 +49,8 @@ public class Account implements UserDetails {
     private List<Review> reviews;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_venue_id")
-    @JsonIgnore
-    private Venue assignedVenue;
+    @OneToMany(mappedBy ="manager" )
+    private List<Venue> assignedVenue;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<StaffCourt> staffCourts;
