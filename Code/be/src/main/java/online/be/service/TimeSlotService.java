@@ -1,6 +1,5 @@
 package online.be.service;
 
-import online.be.entity.CourtSchedule;
 import online.be.entity.TimeSlot;
 import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
@@ -9,7 +8,6 @@ import online.be.model.Request.TimeSlotRequest;
 import online.be.repository.CourtScheduleRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +15,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TimeSlotService {
@@ -74,8 +71,8 @@ public class TimeSlotService {
         timeSlot.setPrice(timeSlotRequest.getPrice());
         timeSlot.setStatus(timeSlot.isStatus());
 
-        Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
-                .orElseThrow(()-> new ResourceNotFoundException("The venue cannot be found by ID: "+ timeSlotRequest.getVenueId()));
+        venueRepository.findById(timeSlotRequest.getVenueId())
+                .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
@@ -118,12 +115,30 @@ public class TimeSlotService {
     }
 
     // Get TimeSlots by Venue and Exclude Court on Date
-    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
+    public List<TimeSlot> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(Long venueId, LocalDate date) {
         try {
-            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+            return timeSlotRepository.findAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
         } catch (Exception e) {
             // Log the exception if needed
             throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
         }
     }
+
+    public long getAvailableTimeSlotCountForVenueOnDate(Long venueId, LocalDate date) {
+        try {
+            List<TimeSlot> list = timeSlotRepository.findAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
+
+            // Check if list is null (if findAvailableTimeSlotsWithAtLeastOneCourtInVenue can return null)
+            if (list == null) {
+                return 0;
+            }
+
+            // Return the size of the list directly
+            return list.size();
+        } catch (Exception e) {
+            // Log the exception if needed
+            throw new RuntimeException("Failed to fetch time slots by venue and court for date: " + date, e);
+        }
+    }
+
 }

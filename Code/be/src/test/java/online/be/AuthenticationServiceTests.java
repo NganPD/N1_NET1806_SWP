@@ -3,8 +3,10 @@ package online.be;
 import com.google.firebase.auth.FirebaseAuth;
 import online.be.entity.Account;
 import online.be.enums.Role;
+import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
 import online.be.model.EmailDetail;
+import online.be.model.Request.RegisterRequest;
 import online.be.model.Request.ResetPasswordRequest;
 import online.be.repository.AuthenticationRepository;
 import online.be.service.AuthenticationService;
@@ -19,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -57,6 +60,7 @@ public class AuthenticationServiceTests {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
     @ParameterizedTest
     @CsvFileSource(resources = "/forgot_password.csv", numLinesToSkip = 1)
     void testForgotPasswordRequest_SuccessfulSendRequest(
@@ -87,10 +91,10 @@ public class AuthenticationServiceTests {
         reset(authenticationRepository);
         reset(emailService);
     }
-    @Test
-    void testForgotPassword_EmailNotFound() {
-        String email = "nonexistent@example.com";
 
+    @ParameterizedTest
+    @CsvFileSource(resources = "/forgot_password_not_found.csv", numLinesToSkip = 1)
+    void testForgotPassword_EmailNotFound(String email) {
         // Mock the repository to return null
         when(authenticationRepository.findAccountByEmail(email)).thenReturn(null);
 
@@ -105,13 +109,9 @@ public class AuthenticationServiceTests {
         verify(emailService, times(0)).sendMailTemplate(any(EmailDetail.class));
     }
 
-
-    @Test
-    void testResetPassword_SuccessfulPasswordChange() {
-        String email = "user@example.com";
-        String oldPassword = "oldPassword";
-        String newPassword = "newPassword";
-
+    @ParameterizedTest
+    @CsvFileSource(resources = "/reset_password.csv", numLinesToSkip = 1)
+    void testResetPassword_SuccessfulPasswordChange(String email, String oldPassword, String newPassword) {
         // Create the Account object
         Account account = new Account();
         account.setEmail(email);
@@ -143,5 +143,68 @@ public class AuthenticationServiceTests {
 
         // Verify repository interaction
         verify(authenticationRepository, times(1)).save(any(Account.class));
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/register_success.csv", numLinesToSkip = 1)
+    void testRegister_SuccessfulRegistration(String email, String fullName, String password, String phone) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail(email);
+        registerRequest.setFullName(fullName);
+        registerRequest.setPassword(password);
+        registerRequest.setPhone(phone);
+
+        Account account = new Account();
+        account.setEmail(registerRequest.getEmail());
+        account.setFullName(registerRequest.getFullName());
+        account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        account.setPhone(registerRequest.getPhone());
+        account.setRole(Role.CUSTOMER);
+
+        when(authenticationRepository.save(any(Account.class))).thenReturn(account);
+
+        Account registeredAccount = authenticationService.register(registerRequest);
+
+        assertEquals(registerRequest.getEmail(), registeredAccount.getEmail());
+        assertEquals(registerRequest.getFullName(), registeredAccount.getFullName());
+        verify(emailService, times(1)).sendMailTemplate(any(EmailDetail.class));
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/register_duplicate_email.csv", numLinesToSkip = 1)
+    void testRegister_DuplicateEmail(String email, String fullName, String password, String phone) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail(email);
+        registerRequest.setFullName(fullName);
+        registerRequest.setPassword(password);
+        registerRequest.setPhone(phone);
+
+        when(authenticationRepository.save(any(Account.class)))
+                .thenThrow(new DataIntegrityViolationException("account.UK_q0uja26qgu1atulenwup9rxyr"));
+
+        AuthException exception = assertThrows(AuthException.class, () -> {
+            authenticationService.register(registerRequest);
+        });
+
+        assertEquals("duplicate email", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/register_duplicate_phone.csv", numLinesToSkip = 1)
+    void testRegister_DuplicatePhone(String email, String fullName, String password, String phone) {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail(email);
+        registerRequest.setFullName(fullName);
+        registerRequest.setPassword(password);
+        registerRequest.setPhone(phone);
+
+        when(authenticationRepository.save(any(Account.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate phone"));
+
+        AuthException exception = assertThrows(AuthException.class, () -> {
+            authenticationService.register(registerRequest);
+        });
+
+        assertEquals("duplicate phone", exception.getMessage());
     }
 }

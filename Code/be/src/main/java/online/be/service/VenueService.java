@@ -112,7 +112,7 @@ public class VenueService {
         //If assigned courts are updated, handle the assignment
         if (updateVenueRequest.getAssignedCourts() != null) {
             List<Court> courts = courtRepository.findAllById(updateVenueRequest.getAssignedCourts());
-            venue.setAssignedCourts(courts);
+            venue.setCourts(courts);
         }
         try {
             // Lưu và trả về venue đã được cập nhật
