@@ -119,10 +119,10 @@ For Sprint 1:
 | STT | Developer   | Use Cases                                     |
 |-----|----------------|-----------------------------------------------|
 | 1   | Thịnh (BE) | UC-05 (BE), UC-25.a|
-| 2   | Ngân (BE) | UC-01, UC-15, UC-35                     |
+| 2   | Ngân (BE) |  UC-15, UC-35                     |
 | 3   | Trung (BE) | UC-21.a,UC-33                     |
 | 4   | Nam (FE)  | UC-06                                                     |
-| 5   | Sơn (FE)  |                                                       |
+| 5   | Sơn (FE)  | UC-01                                                      |
 
 
 
