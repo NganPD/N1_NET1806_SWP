@@ -25,6 +25,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
 
     List<TimeSlot> findByVenueVenueId(long venueId);
 
+
     @Query("SELECT DISTINCT ts FROM TimeSlot ts " +
             "WHERE ts.venue.id = :venueId " +
             "AND ts.slotID NOT IN (" +
@@ -35,6 +36,19 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     List<TimeSlot> findTimeSlotsByVenueAndCourtExcludingDate(
             @Param("venueId") Long venueId,
             @Param("courtId") Long courtId,
+
+    @Query("SELECT ts FROM TimeSlot ts " +
+            "WHERE ts.venue.id = :venueId " +
+            "AND ts.slotID NOT IN (" +
+            "   SELECT cs.timeSlot.slotID FROM CourtSchedule cs " +
+            "   WHERE cs.date = :date " +
+            "   AND cs.court.venue.id = :venueId " +
+            "   GROUP BY cs.timeSlot.slotID " +
+            "   HAVING COUNT(cs.court.id) = (SELECT COUNT(c.id) FROM Court c WHERE c.venue.id = :venueId)" +
+            ")")
+    List<TimeSlot> findAvailableTimeSlotsWithAtLeastOneCourtInVenue(
+            @Param("venueId") Long venueId,
+
             @Param("date") LocalDate date
     );
 }

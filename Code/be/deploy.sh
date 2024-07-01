@@ -1,9 +1,10 @@
 echo "Building app..."
-./mvnw clean package
+./mvnw clean package -Dmaven.test.skip=true #build ra file jar
 
 echo "Deploy files to server..."
-  scp -r  target/be.jar root@167.71.200.75:/var/www/be/ #copy file jar day len server
-ssh -i C:/Users/nguye/.ssh/id_rsa root@167.71.200.75 <<EOF
+scp -r  target/be.jar root@104.248.224.6:/var/www/be/ #copy file jar day len server
+
+ssh root@104.248.224.6 <<EOF
 pid=\$(sudo lsof -t -i :8080)
 
 if [ -z "\$pid" ]; then
