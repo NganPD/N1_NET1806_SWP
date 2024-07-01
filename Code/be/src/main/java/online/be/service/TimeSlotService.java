@@ -71,8 +71,13 @@ public class TimeSlotService {
         timeSlot.setPrice(timeSlotRequest.getPrice());
         timeSlot.setStatus(timeSlot.isStatus());
 
+
+        Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
+                .orElseThrow(()-> new ResourceNotFoundException("The venue cannot be found by ID: "+ timeSlotRequest.getVenueId()));
+
         venueRepository.findById(timeSlotRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
+
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
@@ -114,6 +119,7 @@ public class TimeSlotService {
         timeSlotRepository.deleteById(timeSlotId);
     }
 
+
     // Get TimeSlots by Venue and Exclude Court on Date
     public List<TimeSlot> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(Long venueId, LocalDate date) {
         try {
@@ -141,4 +147,14 @@ public class TimeSlotService {
         }
     }
 
+
+    // Get TimeSlots by Venue and Exclude Court on Date
+    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
+        try {
+            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+        } catch (Exception e) {
+            // Log the exception if needed
+            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
+        }
+    }
 }
