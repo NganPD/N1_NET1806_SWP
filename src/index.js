@@ -29,6 +29,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import CourtStaffCheckin from "./components/CourtStaff/ManageCourtCheckin";
 import CourtStaffLayout from "./layouts/CourtStaffLayout";
+import { GlobalStateProvider } from "./components/context/GlobalStateContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

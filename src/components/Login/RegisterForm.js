@@ -1,64 +1,88 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
-import {  selectUser } from "../../redux/features/counterSlice";
+import { selectUser } from "../../redux/features/counterSlice";
 import api from "../../config/axios";
-import {  toast } from 'react-toastify';
-
+import Swal from "sweetalert2";
 
 const RegisterForm = () => {
-  const [username, setUsername] = useState("");
+  const [fullName, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [confirmPassword, setConfirmPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState(""); // Thêm state cho số điện thoại
- 
-    //lưu redux bằng useDispatch
-    const dispatch = useDispatch()
-    // lấy user trong redux
-    const useSelect = useSelector(selectUser)
-    // sau khi đăng nhập xong muốn người dùng ở trang nào thì dùng navigate
-    const navigate = useNavigate()
-   
-   
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [passwordError, setPasswordError] = useState(""); // State for password validation error
+
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const navigate = useNavigate();
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const res = await api.post("/register", {
+  //       fullName,
+  //       email,
+  //       password,
+  //       phone: phoneNumber,
+  //     });
+  //     toast.success("Sign up successfully");
+  //     setTimeout(() => {
+  //       navigate("/");
+  //     }, 2000); // Adjust the timeout duration (2000ms = 2 seconds) as needed
+  //   } catch (error) {
+  //     toast.error("Failed to register. Please try again.");
+  //     console.log(error);
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Xử lý đăng ký tại đây
-    console.log("Username:", username);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    // console.log("Confirm Password:", value.confirmPassword);
-    console.log("Phone Number:", phoneNumber); // In số điện thoại ra console
-    
+
     try {
       const res = await api.post("/register", {
-        username:username,
-        email: email,
-        password: password,
-        // confirmPassword:confirmPassword,
-        phoneNumber:phoneNumber
-      })
-      
-     toast.success('Sign up successfully')
-      
-      navigate("/")
-
+        fullName,
+        email,
+        password,
+        phone: phoneNumber,
+      });
+      Swal.fire({
+        icon: "success",
+        title: "Sign up successfully",
+        showConfirmButton: false,
+        timer: 2000,
+      }).then(() => {
+        navigate("/");
+      });
     } catch (error) {
-      console.log(error)
+      Swal.fire({
+        icon: "error",
+        title: "Failed to register",
+        text: "Please try again.",
+      });
+      console.log(error);
     }
   };
 
-
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    // Password validation logic
+    if (e.target.value.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+    } else if (!/[A-Z]/.test(e.target.value)) {
+      setPasswordError("Password must contain at least one uppercase letter");
+    } else {
+      setPasswordError("");
+    }
+  };
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-gray-100 bg-cover bg-center"
       style={{
         backgroundImage:
           "url('https://www.shutterstock.com/image-photo/badminton-sport-equipments-rackets-shuttlecocks-600nw-2302308577.jpg')",
       }}
+      className="flex items-center justify-center min-h-screen bg-gray-100 bg-cover bg-center"
     >
       <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">
@@ -69,9 +93,9 @@ const RegisterForm = () => {
             <input
               type="text"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              id="username"
+              id="fullName"
               placeholder="Tên đăng nhập"
-              value={username}
+              value={fullName}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
@@ -94,32 +118,24 @@ const RegisterForm = () => {
               id="password"
               placeholder="Mật khẩu"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               required
             />
+            {passwordError && (
+              <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+            )}
           </div>
-          {/* <div className="mb-4">
-            <input
-              type="password"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              id="confirmPassword"
-              placeholder="Xác nhận mật khẩu"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div> */}
           <div className="mb-4">
             <input
               type="tel"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              id="phoneNumber"
+              id="phone"
               placeholder="Số điện thoại (không bắt buộc)"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
-          <button 
+          <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
           >

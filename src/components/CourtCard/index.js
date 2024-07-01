@@ -7,14 +7,14 @@ const CourtCard = ({ court }) => {
   const navigate = useNavigate();
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
-  console.log("user", user)
+  console.log("user", user);
   const handleViewDetails = () => {
-    if(!user){
-      navigate("/login");
-    }else{
-      navigate("/court-details", { state: { court } });
-    }
- 
+    // if(!user){
+    //   navigate("/login");
+    // }else{
+    //   navigate("/court-details", { state: { court } });
+    // }
+    navigate("/court-details", { state: { court } });
   };
 
   return (

@@ -3,11 +3,23 @@ import { NavLink, Link } from "react-router-dom";
 import { FaSearch, FaShoppingCart } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/counterSlice";
+import Swal from "sweetalert2";
 
 const Header = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
-  console.log("user", user)
+  console.log("user", user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    Swal.fire({
+      icon: "success",
+      title: "Logout successfully!",
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  };
+
   return (
     <header className="bg-white shadow-md">
       <div className="bg-blue-600 py-2">
@@ -66,31 +78,31 @@ const Header = () => {
               Về chúng tôi
             </NavLink>
           </nav>
-          {
-            user != null ? <h2 style={{
-              cursor: "pointer"
-            }} onClick={() => {
-              dispatch(logout())
-
-            }}>
+          {user ? (
+            <h2
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={handleLogout}
+            >
               Logout
-            </h2> : (
-              <div className="flex items-center space-x-4">
-                <Link
-                  to="/register"
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600"
-                >
-                  Đăng ký
-                </Link>
-                <Link
-                  to="/login"
-                  className="bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-yellow-500 hover:text-white"
-                >
-                  Đăng nhập
-                </Link>
-              </div>
-            )
-          }
+            </h2>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/register"
+                className="bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600"
+              >
+                Đăng ký
+              </Link>
+              <Link
+                to="/login"
+                className="bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-yellow-500 hover:text-white"
+              >
+                Đăng nhập
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>

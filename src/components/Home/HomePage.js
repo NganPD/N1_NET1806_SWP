@@ -98,7 +98,6 @@ const HomePage = (props) => {
           <h1 className="text-5xl font-bold text-white">
             Welcome to Badminton Club - Đặt sân nhanh chóng và dễ dàng
           </h1>
-
         </div>
       </section>
 

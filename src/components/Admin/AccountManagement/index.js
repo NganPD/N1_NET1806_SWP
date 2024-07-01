@@ -24,7 +24,7 @@ const AccountManagement = () => {
     const handleDelete = async (id) => {
         console.log(`Attempting to delete account with id: ${id}`);
         try {
-            const response = await api.delete(`/account/${id}`);
+            const response = await api.delete(`/account/account/${id}`);
             console.log("Delete response:", response);
             setAccounts(accounts.filter((account) => account.id !== id));
         } catch (error) {
