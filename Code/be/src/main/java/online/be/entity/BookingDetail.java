@@ -1,6 +1,5 @@
 package online.be.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +39,10 @@ public class BookingDetail {
 
     @ManyToOne
     @JoinColumn(name = "schedule_id", nullable = false)
-    private CourtSchedule courtSchedule;
+    private TimeSlotPrice timeSlotPrice;
+
+    @ManyToOne
+    @JoinColumn(name = "court_id")
+    private Court court;
 
 }

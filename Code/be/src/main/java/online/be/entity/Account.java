@@ -55,6 +55,9 @@ public class Account implements UserDetails {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<StaffCourt> staffCourts;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<PaymentAccount> paymentAccountList;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.toString()));

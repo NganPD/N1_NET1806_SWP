@@ -35,8 +35,8 @@ public class CourtAPI {
     }
 
     @PutMapping("/{courtId}")
-    public ResponseEntity updateCourt(@RequestBody UpdateCourtRequest updateCourtRequest){
-        Court updatedCourt = courtService.updateCourt(updateCourtRequest);
+    public ResponseEntity updateCourt(@RequestBody UpdateCourtRequest updateCourtRequest, @PathVariable long courtId){
+        Court updatedCourt = courtService.updateCourt(updateCourtRequest, courtId);
         return ResponseEntity.ok().body(updatedCourt);
     }
 

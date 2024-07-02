@@ -56,8 +56,8 @@ public class CourtService {
     }
 
     //update Court
-    public Court updateCourt(UpdateCourtRequest courtRequest) {
-        Court existingCourt = courtRepository.findById(courtRequest.getCourtId())
+    public Court updateCourt(UpdateCourtRequest courtRequest, long courtId) {
+        Court existingCourt = courtRepository.findById(courtId)
                 .orElseThrow(()-> new RuntimeException("Court not found "));
 
         existingCourt.setCourtName(courtRequest.getCourtName());
@@ -73,6 +73,7 @@ public class CourtService {
         Court court = courtRepository.findById(courtId)
                 .orElseThrow(()->new RuntimeException("Court not found with Id: " + courtId));
         court.setStatus(CourtStatus.INACTIVE);
+        courtRepository.save(court);
     }
 }
 

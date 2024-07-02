@@ -27,11 +27,13 @@ public class Review {
     private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id", nullable = false)
+    @JsonIgnore
     private Venue venue;
 
 }

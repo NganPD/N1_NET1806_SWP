@@ -1,26 +1,19 @@
 package online.be.service;
 
-import online.be.entity.Account;
-import online.be.entity.Booking;
-import online.be.entity.BookingDetail;
-import online.be.entity.CourtSchedule;
+import online.be.entity.*;
 import online.be.enums.BookingStatus;
 import online.be.enums.PaymentStatus;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
-import online.be.model.Request.BookingDetailRequest;
-import online.be.model.Request.BookingRequest;
+import online.be.model.Request.CreateBookingRequest;
 import online.be.model.Request.UpdateBookingRequest;
 import online.be.model.Response.BookingResponse;
-import online.be.repository.AuthenticationRepository;
-import online.be.repository.BookingRepository;
-import online.be.repository.CourtScheduleRepository;
+import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,60 +26,91 @@ public class BookingService {
     AuthenticationRepository authenticationRepository;
 
     @Autowired
-    CourtScheduleRepository courtScheduleRepository;
+    VenueRepository venueRepository;
+
+    @Autowired
+    BookingDetailRepostiory bookingDetailRepostiory;
+
+    @Autowired
+    TimeSlotRepository timeSlotRepository;
+
+    @Autowired
+    CourtRepository courtRepository;
 
 
-    public Booking createBooking(BookingRequest bookingRequest){
-        //kiem tra id nguoi dung
-        Account account = authenticationRepository.findById(bookingRequest.getAccountId())
-                .orElseThrow(() -> new BadRequestException("Account not found"));
-        Booking booking = new Booking();
-        booking.setAccount(account);
-        booking.setBookingType(bookingRequest.getBookingType());
-        booking.setBookingDate(LocalDate.now());
-        booking.setStatus(BookingStatus.PENDING);
-        booking.setPaymentStatus(PaymentStatus.UNPAID);
+//    public BookingResponse createBooking(CreateBookingRequest createBookingRequest) {
+//        try {
+//            //validate input data
+//            //check court availability
+//            List<TimeSlotPrice> timeSlotPrices = courtScheduleRepository.findByCourtIdAndDateAndStartTimeAndEndTimeAndAvailable(
+//                    createBookingRequest.getCourtId(), createBookingRequest.getDate(), createBookingRequest.getStartTime(),
+//                    createBookingRequest.getEndTime(), true);
+//
+//            if (timeSlotPrices.isEmpty()) {
+//                throw new BookingException("Court is not available this time");
+//            }
+//
+//            //check booking type
+//            TimeSlotPrice timeSlotPrice = timeSlotPrices.get(0);
+//            if (timeSlotPrice.getBookingType() != createBookingRequest.getBookingType()) {
+//                throw new BadRequestException("Booking type is not allowed for this time slot");
+//            }
+//            double duration = Duration.between(createBookingRequest.getStartTime(), createBookingRequest.getEndTime()).toHours();
+//            //price
+//            double price = 100000;
+//            //create the new booking entity
+//            Booking booking = new Booking();
+//            booking.setBookingType(createBookingRequest.getBookingType());
+//            booking.setBookingDate(LocalDate.now());
+//            booking.setPaymentStatus(PaymentStatus.PENDING);
+//            booking.setStatus(BookingStatus.PENDING);
+//            booking.setAccount(booking.getAccount());
+//            booking.setTotalHours(duration);
+//            booking.setTotalPrice(price);
+//            booking = bookingRepo.save(booking);
+//
+//            //create the booking detail entity
+//            BookingDetail bookingDetail = new BookingDetail();
+//            bookingDetail.setPrice(price);
+//            bookingDetail.setDate(createBookingRequest.getDate());
+//            bookingDetail.setStatus(BookingStatus.PENDING);
+//            bookingDetail.setBooking(booking);
+//            bookingDetail.setTimeSlotPrice(timeSlotPrice);
+//
+//            bookingDetailRepostiory.save(bookingDetail);
+//
+//            //generate payment URL
+//            String paymentUrl =
+//        }
+//        //Sửa lại createBooking theo luồng yêu cầu của FunctionalRequirement
+//        //Nên dùng try catch khi cố tạo một đối tượng mới để handle lỗi
+//    }
 
-        List<BookingDetail> bookingDetails = new ArrayList<>();
-        for (BookingDetailRequest request : bookingRequest.getBookingDetailRequests()){
-            BookingDetail detail = new BookingDetail();
-            detail.setBooking(booking);
-            detail.setCourtSchedule(courtScheduleRepository.findById(request.getScheduleId())
-                    .orElseThrow(()-> new BadRequestException("Schedule not found")));
-            bookingDetails.add(detail);
-        }
-        booking.setBookingDetailList(bookingDetails);
-        return bookingRepo.save(booking);
-    }
-    //Sửa lại createBooking theo luồng yêu cầu của FunctionalRequirement
-    //Nên dùng try catch khi cố tạo một đối tượng mới để handle lỗi
 
-    public Booking getBookingById(long bookingId){
+    public Booking getBookingById(long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(()-> new BookingException("This booking ID does not exist"));
-            return booking;
+                .orElseThrow(() -> new BookingException("This booking ID does not exist"));
+        return booking;
     }
 
-    public List<Booking> getAllBooking(){
+    public List<Booking> getAllBooking() {
         return bookingRepo.findAll();
     }
 
 
-
-    public List<Booking> getAllBookings(){
+    public List<Booking> getAllBookings() {
         return bookingRepo.findAll();
     }//Tự tạo hiển thị khi không có Booking
 
-    public Booking updateBooking(UpdateBookingRequest updateBookingRequest, Long bookingId){
+    public Booking updateBooking(UpdateBookingRequest updateBookingRequest, Long bookingId) {
         Booking booking = getBookingById(bookingId);
-
 
 
         return bookingRepo.save(booking);
     }
     //Chưa try-catch và xử lý lỗi không tồn tại
 
-    public void deleteBooking(Long bookingId){
+    public void deleteBooking(Long bookingId) {
         bookingRepo.deleteById(bookingId);
     }
     //Tự tạo hiển thị không có Booking

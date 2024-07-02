@@ -2,6 +2,7 @@ package online.be.service;
 
 import online.be.entity.Account;
 import online.be.entity.Court;
+import online.be.entity.PaymentAccount;
 import online.be.entity.Venue;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
@@ -16,10 +17,12 @@ import online.be.repository.PaymentAccountRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -38,40 +41,42 @@ public class VenueService {
     @Autowired
     AccountRepostory accountRepostory;
 
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
     // Tạo một venue mới
     public Venue createVenue(CreateVenueRequest createVenueRequest) {
         //kiểm tra format tên của venue
         if (!Pattern.matches("^[a-zA-Z\\s]+$", createVenueRequest.getVenueName())) {
             throw new VenueException("Venue name contains invalid characters. Only letters and spaces are allowed.");
         }
-        //kiểm tra xem sân tồn tại bên trong hệ thống chưa
-        Venue existingVenue = venueRepository.findByName(createVenueRequest.getVenueName());
-        if (existingVenue != null) {
-            throw new VenueException("Duplicate venue");
-        }
-        //check the hour
-        if (createVenueRequest.getOperatingHours().isBefore(LocalTime.MIN) || createVenueRequest.getOperatingHours().isAfter(LocalTime.MAX)) {
-            throw new DateTimeException("Invalid value for HourOfDay (valid values 0 - 23): ");
-        }
-        //check the hour and minute
-        if (createVenueRequest.getClosingHours().isBefore(LocalTime.MIN) || createVenueRequest.getClosingHours().isAfter(LocalTime.MAX)) {
-            throw new DateTimeException( "Closing hours must be between 00:00 and 23:59.");
-        }
-        //the closing hours cannot be before operating hours
-        if (createVenueRequest.getClosingHours().isBefore(createVenueRequest.getOperatingHours())) {
-            throw new DateTimeException("Closing hours cannot be before operating hours.");
-        }
-        //the closing hours cannot be the same as operating hours
-        if (createVenueRequest.getClosingHours().equals(createVenueRequest.getOperatingHours())) {
-            throw new DateTimeException("Closing hours cannot be the same as operating hours.");
-        }
+//        //kiểm tra xem sân tồn tại bên trong hệ thống chưa
+//        Venue existingVenue = venueRepository.findByName(createVenueRequest.getVenueName());
+//        if (existingVenue != null) {
+//            throw new VenueException("Duplicate venue");
+//        }
+//        //check the hour
+//        if (createVenueRequest.getOperatingHours().isBefore(LocalTime.MIN) || createVenueRequest.getOperatingHours().isAfter(LocalTime.MAX)) {
+//            throw new DateTimeException("Invalid value for HourOfDay (valid values 0 - 23): ");
+//        }
+//        //check the hour and minute
+//        if (createVenueRequest.getClosingHours().isBefore(LocalTime.MIN) || createVenueRequest.getClosingHours().isAfter(LocalTime.MAX)) {
+//            throw new DateTimeException( "Closing hours must be between 00:00 and 23:59.");
+//        }
+//        //the closing hours cannot be before operating hours
+//        if (createVenueRequest.getClosingHours().isBefore(createVenueRequest.getOperatingHours())) {
+//            throw new DateTimeException("Closing hours cannot be before operating hours.");
+//        }
+//        //the closing hours cannot be the same as operating hours
+//        if (createVenueRequest.getClosingHours().equals(createVenueRequest.getOperatingHours())) {
+//            throw new DateTimeException("Closing hours cannot be the same as operating hours.");
+//        }
         //nếu venue chưa tồn tại trong hệ thống
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
         venue.setAddress(createVenueRequest.getAddress());
         venue.setDescription(createVenueRequest.getDescription());
-        venue.setOperatingHours(createVenueRequest.getOperatingHours());
-        venue.setClosingHours(createVenueRequest.getClosingHours());
+        venue.setOperatingHours(LocalTime.parse(createVenueRequest.getOperatingHours(), timeFormatter));
+        venue.setClosingHours(LocalTime.parse(createVenueRequest.getClosingHours(), timeFormatter));
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
 
 //        //Nếu có chỉ định manager, thì add id manager vào venue
@@ -125,8 +130,8 @@ public class VenueService {
         venue.setName(updateVenueRequest.getVenueName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
-        venue.setOperatingHours(updateVenueRequest.getOperatingHours());
-        venue.setClosingHours(updateVenueRequest.getClosingHours());
+        venue.setOperatingHours(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
+        venue.setClosingHours(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
 
         //If assigned courts are updated, handle the assignment
@@ -150,6 +155,7 @@ public class VenueService {
                 .orElseThrow(() -> new BadRequestException("Venue not found with ID: " + venueId));
         //Tự handle lỗi để front end nhận được
         existingVenue.setVenueStatus(VenueStatus.INACTIVE);
+        venueRepository.save(existingVenue);//lưu thay đổi
     }
 
     //search by name
@@ -189,6 +195,10 @@ public class VenueService {
             throw new NoDataFoundException("0 search");
         }
         return venues;
+    }
+
+    public PaymentAccount getPaymentAccountByVenueId(long venueId){
+        return paymentAccountRepository.findByVenue_VenueId(venueId);
     }
 }
 

@@ -84,9 +84,4 @@ public class AccountService {
         account.setActive(false);
         return accountRepository.save(account);
     }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
-    }
 }

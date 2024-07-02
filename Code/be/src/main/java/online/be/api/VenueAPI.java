@@ -31,7 +31,7 @@ public class VenueAPI {
     }
 
     @GetMapping("/{venueId}")
-    public ResponseEntity getVenueById(@RequestBody long venueId){
+    public ResponseEntity getVenueById(@PathVariable long venueId){
         Venue venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
@@ -74,7 +74,7 @@ public class VenueAPI {
     }
 
     @DeleteMapping("/{venueId}")
-    public ResponseEntity deleteVenue(@PathVariable Long venueId){
+    public ResponseEntity deleteVenue(@PathVariable long venueId){
         venueService.deleteVenue(venueId);
         return ResponseEntity.noContent().build();//204
     }

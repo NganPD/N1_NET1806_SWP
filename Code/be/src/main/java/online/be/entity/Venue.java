@@ -56,4 +56,7 @@ public class Venue {
     @ManyToOne
     @JoinColumn(name = "managerId")
     private Account manager;
+
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
+    private List<PaymentAccount> paymentInforList;
 }

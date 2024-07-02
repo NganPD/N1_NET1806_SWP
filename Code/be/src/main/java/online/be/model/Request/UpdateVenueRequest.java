@@ -11,8 +11,8 @@ public class UpdateVenueRequest {
     private String venueName;
     private String address;
     private VenueStatus venueStatus;
-    private LocalTime operatingHours;
-    private LocalTime closingHours;
+    private String operatingHours;
+    private String closingHours;
     private String description;
     private List<Long> assignedCourts;
 }

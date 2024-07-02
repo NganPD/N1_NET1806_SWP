@@ -39,9 +39,6 @@ public class Court {
     private Venue venue;
 
     @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CourtSchedule> courtSchedules;
-
-    @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BookingDetail> bookingDetails;
 
     @OneToMany(mappedBy = "court",cascade = CascadeType.ALL)

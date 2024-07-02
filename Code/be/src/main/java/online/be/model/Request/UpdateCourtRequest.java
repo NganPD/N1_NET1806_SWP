@@ -5,7 +5,6 @@ import online.be.enums.CourtStatus;
 
 @Data
 public class UpdateCourtRequest {
-    private Long courtId;
     private String courtName;
     private String description;
     private CourtStatus status;

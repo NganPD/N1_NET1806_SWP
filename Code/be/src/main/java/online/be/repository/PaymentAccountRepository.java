@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentAccountRepository extends JpaRepository<PaymentAccount, Long> {
+    PaymentAccount findByVenue_VenueId(long venueId);
 }
