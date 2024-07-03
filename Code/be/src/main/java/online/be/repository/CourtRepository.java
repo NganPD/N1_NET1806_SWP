@@ -11,14 +11,4 @@ import java.util.List;
 
 @Repository
 public interface CourtRepository extends JpaRepository<Court, Long> {
-
-    @Query("SELECT c FROM Court c" +
-            "WHERE c.venue.venueId = :venueId" +
-            "AND c.courtId NOT IN " +
-            "(SELECT bd.court.courtId FROM BookingDetail bd " +
-            "JOIN TimeSlot ts ON bd.timeSlot.slotID " +
-            "WHERE ts.slotID = :timeslotId" +
-            "AND bd.status = 'CONFIRMED')")
-    List<Court> findAvailableCourtsForTimeSlot(@Param("venueId") Long venueId,
-                                      @Param("timeSlotId") Long timeSlotId);
 }

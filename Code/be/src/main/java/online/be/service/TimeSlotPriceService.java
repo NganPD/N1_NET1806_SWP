@@ -36,7 +36,7 @@ public class TimeSlotPriceService {
 
         //create and return the response
         TimeSlotPriceResponse response = new TimeSlotPriceResponse();
-        response.setTimeSlotId(createdSlotPrice.getTimeSlot().getSlotID());
+        response.setTimeSlotId(createdSlotPrice.getTimeSlot().getId());
         response.setBookingType(createdSlotPrice.getBookingType());
         response.setPrice(createdSlotPrice.getPrice());
         return response;
@@ -58,7 +58,7 @@ public class TimeSlotPriceService {
 
         //return the response
         TimeSlotPriceResponse response = new TimeSlotPriceResponse();
-        response.setTimeSlotId(updateTimeSlotPrice.getTimeSlot().getSlotID());
+        response.setTimeSlotId(updateTimeSlotPrice.getTimeSlot().getId());
         response.setBookingType(updateTimeSlotPrice.getBookingType());
         response.setPrice(updateTimeSlotPrice.getPrice());
 

@@ -25,7 +25,7 @@ public class Payment {
     private String paymentMethod;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private double amount;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;

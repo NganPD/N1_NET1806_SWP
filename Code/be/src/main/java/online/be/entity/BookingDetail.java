@@ -31,12 +31,7 @@ public class BookingDetail {
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    @ManyToOne
-    @JoinColumn(name = "court_id")
-    private Court court;
-
     @OneToOne
-    @JoinColumn(name = "time_slot_id")
-    private TimeSlot timeSlot;
-
+    @JoinColumn(name = "courtTimeSlot_id", nullable = false)
+    private CourtTimeSlot courtTimeSlot;
 }

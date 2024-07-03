@@ -21,12 +21,9 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
         List<Venue> findVenueByKeywords(String keywords);
 
         //tìm kiêm sân theo available slot
-        @Query("SELECT DISTINCT v FROM Venue v " +
-                "JOIN v.timeSlots ts " +
-                "WHERE ts.status = true " +
-                "AND ts.startTime <= :startTime " +
-                "AND ts.endTime >= :endTime")
-        List<Venue> findVenueWithAvailableSlots(@Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+
+//        @Query("SELECT v FROM Venue v WHERE v.startTime <= :startTime AND v.endTime >= :endTime")
+//        List<Venue> findVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime);
 
         List<Venue> findByAddress(String address);
 

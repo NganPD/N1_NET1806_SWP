@@ -48,16 +48,16 @@ public class VenueAPI {
         return ResponseEntity.ok().body(updatedVenue);
     }
 
-    //lay theo availableslot
-    @GetMapping("/search-venues-availableslots")
-    public ResponseEntity findVenuesWithAvailableSlots(
-            @RequestParam String startTime, @RequestParam String endTime
-    ){
-        LocalTime start = LocalTime.parse(startTime);
-        LocalTime end = LocalTime.parse(endTime);
-        List<Venue> venues = venueService.getVenueWithAvailableSlots(start, end);
-        return ResponseEntity.ok(venues);
-    }
+//    //lay theo availableslot
+//    @GetMapping("/search-venues-availableslots")
+//    public ResponseEntity findVenuesWithAvailableSlots(
+//            @RequestParam String startTime, @RequestParam String endTime
+//    ){
+//        LocalTime start = LocalTime.parse(startTime);
+//        LocalTime end = LocalTime.parse(endTime);
+//        List<Venue> venues = venueService.getVenueWithAvailableSlots(start, end);
+//        return ResponseEntity.ok(venues);
+//    }
 
     //lấy theo tên
     @GetMapping("/search-keyword")

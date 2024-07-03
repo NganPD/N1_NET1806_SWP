@@ -62,12 +62,6 @@ public class TimeSlotAPI {
         return ResponseEntity.noContent().build();
     }
 
-    // Lấy danh sách TimeSlot theo độ dài
-    @GetMapping("/duration/{duration}")
-    public ResponseEntity<List<TimeSlot>> getTimeSlotsByDuration(@PathVariable int duration) {
-        return ResponseEntity.ok(timeSlotService.findByDuration(duration));
-    }
-
     // Lấy danh sách TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     @GetMapping("/start/{start}/end/{end}")
     public ResponseEntity<List<TimeSlot>> getTimeSlotsByStartTimeBetween(@PathVariable LocalTime start, @PathVariable LocalTime end) {

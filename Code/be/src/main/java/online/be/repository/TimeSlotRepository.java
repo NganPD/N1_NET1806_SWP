@@ -16,26 +16,22 @@ import java.util.Optional;
 
 @Repository
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
-
-    // Tìm các TimeSlot theo độ dài
-    List<TimeSlot> findByDuration(int duration);
-
     //Lấy danh sách tất cả các TimeSlot
     List<TimeSlot> findAll();
 
     // Tìm các TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     List<TimeSlot> findByStartTimeBetween(LocalTime start, LocalTime end);
 
-    List<TimeSlot> findByVenueVenueId(long venueId);
+    List<TimeSlot> findByVenueId(long venueId);
 
-    @Query("SELECT ts FROM TimeSlot ts" +
-            "WHERE ts.venue.courtId = :courtId" +
-            "AND ts.date = :date" +
-            "AND ts.startTime <= :startTime" +
-            "AND ts.endTime >= :endTime" +
-            "AND ts.availableStatus = true" +
-            "AND ts.availableCourts > 0")
-    List<TimeSlot> findAvailableTimeSlotsByCourtIdAndDate(Long courtId, LocalDate date, LocalTime startTime, LocalTime endTime);
+//    @Query("SELECT ts FROM TimeSlot ts" +
+//            "WHERE ts.venue.courtId = :courtId" +
+//            "AND ts.date = :date" +
+//            "AND ts.startTime <= :startTime" +
+//            "AND ts.endTime >= :endTime" +
+//            "AND ts.availableStatus = true" +
+//            "AND ts.availableCourts > 0")
+//    List<TimeSlot> findAvailableTimeSlotsByCourtIdAndDate(Long courtId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
 //            "WHERE ts.venue.id = :venueId " +
 //            "AND ts.slotID NOT IN (" +

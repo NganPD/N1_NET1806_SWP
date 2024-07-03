@@ -16,10 +16,7 @@ import java.util.List;
 public class TimeSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long slotID;
-
-    @Column(nullable = false)
-    private int duration; // in minutes
+    private long id;
 
     @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
@@ -30,13 +27,7 @@ public class TimeSlot {
     private LocalTime endTime;
 
     @Column(nullable = false)
-    private double price;
-
-    @Column(nullable = false)
     private boolean availableStatus;
-
-    @Column(nullable = false)
-    private int availableCourts;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
@@ -45,7 +36,6 @@ public class TimeSlot {
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private List<TimeSlotPrice> timeSlotPrices;
 
-    @OneToOne
-    @JoinColumn(name = "booking_detail_id")
-    private BookingDetail bookingDetail;
+    @OneToMany(mappedBy = "timeSlot")
+    private List<CourtTimeSlot> courtTimeSlots;
 }

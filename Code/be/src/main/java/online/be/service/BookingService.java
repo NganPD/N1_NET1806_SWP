@@ -44,80 +44,38 @@ public class BookingService {
     TimeSlotPriceRepository timeSlotPriceRepository;
 
 
-//    public BookingResponse createBooking(CreateBookingRequest createBookingRequest) {
-//        try {
-//            //validate input data
-//            //check court availability
-//            List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlotsByCourtIdAndDate(
-//                    createBookingRequest.getCourtId(), createBookingRequest.getDate(), createBookingRequest.getStartTime(),
-//            createBookingRequest.getEndTime());
-//            if(timeSlots.isEmpty()){
-//                throw new BookingException("Court is not available at this time");
-//            }
-//            //check booking type and price
-//
-//            //check account
-//            Account account = authenticationRepository.findById(createBookingRequest.getUserId())
-//                    .orElseThrow(()-> new BookingException("Account not found"));
-//            //create the new booking entity
-//            int totalHours = createBookingRequest.getEndTime().getHour() - createBookingRequest.getStartTime().getHour();
-//            int totalMinutes = createBookingRequest.getEndTime().getMinute() - createBookingRequest.getStartTime().getMinute();
-//            double totalTimes = totalHours + totalMinutes;
-//            Booking booking = new Booking();
-//            booking.setBookingType(createBookingRequest.getBookingType());
-//            booking.setBookingDate(LocalDate.now());
-//            booking.setPaymentStatus(PaymentStatus.PENDING);
-//            booking.setStatus(BookingStatus.PENDING);
-//            booking.setAccount(booking.getAccount());
-//            booking.setTotalTimes(totalTimes);
-//            booking.setTotalPrice();
-//            booking = bookingRepo.save(booking);
-//
-//            //create the booking detail entity
-//            BookingDetail bookingDetail = new BookingDetail();
-//            bookingDetail.setPrice(bookingDetail.getPrice());
-//            bookingDetail.setDate(createBookingRequest.getDate());
-//            bookingDetail.setStatus(BookingStatus.PENDING);
-//            bookingDetail.setBooking(booking);
-//            bookingDetail.setTimeSlotPrice(timeSlotPrice);
-//
-//            bookingDetailRepostiory.save(bookingDetail);
-//
-//            //generate payment URL
-//            String paymentUrl =
+//    public BookingResponse bookDailySchedule(DailyScheduleBookingRequest dailyScheduleBookingRequest){
+//        //check whether user login or not
+//        Account customer = authenticationRepository.findById(dailyScheduleBookingRequest.getAccountId())
+//                .orElseThrow(()-> new BadRequestException("User has not authenticated yet"));
+//        //check venue availability
+//        List<Court> availableCourts = courtRepository.findAvailableCourtsForTimeSlot(dailyScheduleBookingRequest.getVenueId(),
+//                dailyScheduleBookingRequest.getTimeSlotId());
+//        if(availableCourts.isEmpty()){
+//            throw new BookingException("No available courts for the selected timeslot");
 //        }
-//        //Sửa lại createBooking theo luồng yêu cầu của FunctionalRequirement
-//        //Nên dùng try catch khi cố tạo một đối tượng mới để handle lỗi
+//        //reference price
+//        TimeSlotPrice timeSlotPrice = timeSlotPriceRepository.findByTimeSlotAndBookingType(dailyScheduleBookingRequest.getTimeSlotId(),
+//                BookingType.ONE_DAY);
+//        if (timeSlotPrice == null) {
+//            throw new RuntimeException("No price found for the selected time slot and booking type.");
+//        }
+//        //Logic for booking daily schedule
+//        //create a new booking entity
+//        Booking booking = new Booking();
+//        //set court
+//        booking.setBookingDate(dailyScheduleBookingRequest.getBookingDate());
+//        booking.setBookingType(BookingType.ONE_DAY);
+//        booking.setStatus(BookingStatus.PENDING);
+//        booking.setAccount(customer);
+//        booking = bookingRepo.save(booking);
+//        //create booking detail entity
+//        BookingDetail bookingDetail = new BookingDetail();
+//        bookingDetail.setBooking(booking);
+//        bookingDetail.setDate(LocalDate.now());
+//        bookingDetail.setPrice(timeSlotPrice.getPrice());
+//        bookingDetail.setTimeSlot();
 //    }
-
-    public BookingResponse bookDailySchedule(DailyScheduleBookingRequest dailyScheduleBookingRequest){
-        //check whether user login or not
-        Account customer = authenticationRepository.findById(dailyScheduleBookingRequest.getAccountId())
-                .orElseThrow(()-> new BadRequestException("User has not authenticated yet"));
-        //check venue availability
-        List<Court> availableCourts = courtRepository.findAvailableCourtsForTimeSlot(dailyScheduleBookingRequest.getVenueId(),
-                dailyScheduleBookingRequest.getTimeSlotId());
-        if(availableCourts.isEmpty()){
-            throw new BookingException("No available courts for the selected timeslot");
-        }
-        //reference price
-        TimeSlotPrice timeSlotPrice = timeSlotPriceRepository.findByTimeSlotAndBookingType(dailyScheduleBookingRequest.getTimeSlotId(),
-                BookingType.ONE_DAY);
-        //Logic for booking daily schedule
-        //create a new booking entity
-        Booking booking = new Booking();
-        //set court
-        booking.setBookingDate(dailyScheduleBookingRequest.getBookingDate());
-        booking.setBookingType(BookingType.ONE_DAY);
-        booking.setStatus(BookingStatus.PENDING);
-        booking.setAccount(customer);
-        booking = bookingRepo.save(booking);
-        //create booking detail entity
-        BookingDetail bookingDetail = new BookingDetail();
-        bookingDetail.setBooking(booking);
-        bookingDetail.setPrice(timeSlotPrice.getPrice());
-        bookingDetail
-    }
 
     public Booking getBookingById(long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)

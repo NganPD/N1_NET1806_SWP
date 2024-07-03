@@ -5,7 +5,6 @@ import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
 import online.be.exception.ResourceNotFoundException;
 import online.be.model.Request.TimeSlotRequest;
-import online.be.repository.CourtScheduleRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,9 @@ public class TimeSlotService {
         if (timeSlotRequest.getStartTime() == null || timeSlotRequest.getEndTime() == null) {
             throw new BadRequestException("Start time and end time are required");
         }
+
+        LocalTime startTime = LocalTime.parse(timeSlotRequest.getStartTime());
+        LocalTime endTime = LocalTime.parse(timeSlotRequest.getEndTime());
 //        //validate time range
 //        if(timeSlotRequest.getStartTime().isAfter(timeSlotRequest.getEndTime())){
 //            throw new BadRequestException("Start time must be before end time");
@@ -48,33 +50,25 @@ public class TimeSlotService {
 //
 
         //check the overlapping time slots
-        List<TimeSlot> existingSlots = timeSlotRepository.findByVenueVenueId(timeSlotRequest.getVenueId());
+        List<TimeSlot> existingSlots = timeSlotRepository.findByVenueId(timeSlotRequest.getVenueId());
         for(TimeSlot slot : existingSlots){
-            if(timeSlotRequest.getStartTime().isBefore(slot.getStartTime())
-                    && timeSlotRequest.getEndTime().isAfter(slot.getStartTime())){
+            if(startTime.isBefore(slot.getStartTime())
+                    && endTime.isAfter(slot.getStartTime())){
                 throw new BadRequestException("The time slot overlaps with an existing time slot");
             }
         }
         //calculate duration
-        long durationMinutes = Duration.between(timeSlotRequest.getStartTime(), timeSlotRequest.getEndTime()).toMinutes();
-        //check the venue is exist or not
-        Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
-                .orElseThrow(()-> new BadRequestException("The venue cannot be found by ID" + timeSlotRequest.getVenueId()));
-
+        long durationMinutes = Duration.between(startTime, endTime).toMinutes();
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
-        timeSlot.setPrice(timeSlotRequest.getPrice());
         timeSlot.setAvailableStatus(timeSlotRequest.isStatus());
 
         //Set venue
+        //check whether the venue exist or not
         Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
                 .orElseThrow(()-> new BadRequestException("The venue cannot be found by ID" + timeSlotRequest.getVenueId()));
         timeSlot.setVenue(venue);
-
-        //calculate and set duration
-        int duration = (int) Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
-        timeSlot.setDuration(duration);
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
@@ -86,20 +80,11 @@ public class TimeSlotService {
 //        timeSlot.setDuration(timeSlotRequest.getDuration());
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
-        timeSlot.setPrice(timeSlotRequest.getPrice());
         timeSlot.setAvailableStatus(timeSlot.isAvailableStatus());
-
-        int duration = (int) Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
-        timeSlot.setDuration(duration);
         venueRepository.findById(timeSlotRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
-
-    // Tìm các TimeSlot theo độ dài
-    public List<TimeSlot> findByDuration(int duration) {
-        return timeSlotRepository.findByDuration(duration);
-    }//Tự tạo hiển thị không có slot
 
     // Tìm các TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     public List<TimeSlot> findByStartTimeBetween(LocalTime start, LocalTime end) {
@@ -176,14 +161,14 @@ public class TimeSlotService {
         return timeSlot.isAvailableStatus();
     }
 
-
-    // Get TimeSlots by Venue and Exclude Court on Date
-    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
-        try {
-            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
-        } catch (Exception e) {
-            // Log the exception if needed
-            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
-        }
-    }
+//
+//    // Get TimeSlots by Venue and Exclude Court on Date
+//    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
+//        try {
+//            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+//        } catch (Exception e) {
+//            // Log the exception if needed
+//            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
+//        }
+//    }
 }
