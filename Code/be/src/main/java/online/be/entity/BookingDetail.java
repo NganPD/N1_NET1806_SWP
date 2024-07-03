@@ -22,12 +22,6 @@ public class BookingDetail {
     private double price;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false)
     private LocalDate date;
 
     @Column(nullable = false)
@@ -38,11 +32,11 @@ public class BookingDetail {
     private Booking booking;
 
     @ManyToOne
-    @JoinColumn(name = "schedule_id", nullable = false)
-    private TimeSlotPrice timeSlotPrice;
-
-    @ManyToOne
     @JoinColumn(name = "court_id")
     private Court court;
+
+    @OneToOne
+    @JoinColumn(name = "time_slot_id")
+    private TimeSlot timeSlot;
 
 }

@@ -28,7 +28,7 @@ public class Booking {
     private LocalDate bookingDate;
 
     @Column( nullable = false)
-    private double totalHours;
+    private double totalTimes;
 
     @Column(nullable = false)
     private double totalPrice;
@@ -42,14 +42,7 @@ public class Booking {
     private LocalDateTime checkinDate;
 
     @Column(nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime checkoutDate;
-
-    @Column(nullable = false)
     private BookingStatus status;
-
-    @Column(nullable = false)
-    private PaymentStatus paymentStatus;
 
     @ManyToOne
     @JoinColumn(name = "user_Id", nullable = false)

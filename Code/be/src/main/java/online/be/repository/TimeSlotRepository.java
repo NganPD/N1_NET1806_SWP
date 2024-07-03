@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,15 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
 
     List<TimeSlot> findByVenueVenueId(long venueId);
 
-//    @Query("SELECT ts FROM TimeSlot ts " +
+    @Query("SELECT ts FROM TimeSlot ts" +
+            "WHERE ts.venue.courtId = :courtId" +
+            "AND ts.date = :date" +
+            "AND ts.startTime <= :startTime" +
+            "AND ts.endTime >= :endTime" +
+            "AND ts.availableStatus = true" +
+            "AND ts.availableCourts > 0")
+    List<TimeSlot> findAvailableTimeSlotsByCourtIdAndDate(Long courtId, LocalDate date, LocalTime startTime, LocalTime endTime);
+
 //            "WHERE ts.venue.id = :venueId " +
 //            "AND ts.slotID NOT IN (" +
 //            "   SELECT cs.timeSlot.slotID FROM CourtSchedule cs " +

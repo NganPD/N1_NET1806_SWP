@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -32,7 +33,10 @@ public class TimeSlot {
     private double price;
 
     @Column(nullable = false)
-    private boolean status;
+    private boolean availableStatus;
+
+    @Column(nullable = false)
+    private int availableCourts;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
@@ -40,4 +44,8 @@ public class TimeSlot {
 
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private List<TimeSlotPrice> timeSlotPrices;
+
+    @OneToOne
+    @JoinColumn(name = "booking_detail_id")
+    private BookingDetail bookingDetail;
 }

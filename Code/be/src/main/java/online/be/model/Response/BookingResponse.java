@@ -10,14 +10,12 @@ import java.time.LocalDateTime;
 
 @Data
 public class BookingResponse {
-    private Long bookingId;
+    private long bookingId;
     private LocalDate bookingDate;
     private double totalHours;
     private double totalPrice;
     private BookingType bookingType;
     private LocalDateTime checkInDate;
-    private LocalDateTime checkOutDate;
     private BookingStatus bookingStatus;
-    private PaymentStatus paymentStatus;
     private String paymentUrl;
 }

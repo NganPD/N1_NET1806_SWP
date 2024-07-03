@@ -11,6 +11,8 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TimeSlotPriceService {
 
@@ -20,7 +22,7 @@ public class TimeSlotPriceService {
     @Autowired
     TimeSlotRepository timeSlotRepository;
 
-    private TimeSlotPriceResponse createTimeSlot(Long timeSlotId, TimeSlotPriceRequest request){
+    public TimeSlotPriceResponse createTimeSlot(Long timeSlotId, TimeSlotPriceRequest request){
         //check the timeslot id exist or not
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
                 .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
@@ -40,15 +42,32 @@ public class TimeSlotPriceService {
         return response;
     }
 
-//    private TimeSlotPriceResponse updateTimeSlotPrice(long timeSlotId, long timeSlotPriceId, TimeSlotPrice timeSlotPrice){
-//        //check the timeslot id
-//        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-//                .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
-//        //check the time slot price id
-//        TimeSlotPrice existingTimeSlotPrice = timeSlotPriceRepository.findById(timeSlotPriceId)
-//                .orElseThrow(()-> new BadRequestException("The time slot price id does not exist"));
-//
-//        existingTimeSlotPrice.setTimeSlot(existingTimeSlotPrice/ge);
-//    }
+    public TimeSlotPriceResponse updateTimeSlotPrice(long timeSlotId, long timeSlotPriceId, TimeSlotPrice timeSlotPrice){
+        //check the timeslot id
+        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+                .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
+        //check the time slot price id
+        TimeSlotPrice existingTimeSlotPrice = timeSlotPriceRepository.findById(timeSlotPriceId)
+                .orElseThrow(()-> new BadRequestException("The time slot price id does not exist"));
+
+        existingTimeSlotPrice.setTimeSlot(timeSlot);
+        existingTimeSlotPrice.setBookingType(timeSlotPrice.getBookingType());
+        existingTimeSlotPrice.setPrice(timeSlotPrice.getPrice());
+
+        TimeSlotPrice updateTimeSlotPrice = timeSlotPriceRepository.save(existingTimeSlotPrice);
+
+        //return the response
+        TimeSlotPriceResponse response = new TimeSlotPriceResponse();
+        response.setTimeSlotId(updateTimeSlotPrice.getTimeSlot().getSlotID());
+        response.setBookingType(updateTimeSlotPrice.getBookingType());
+        response.setPrice(updateTimeSlotPrice.getPrice());
+
+        return response;
+    }
+
+    public List<TimeSlotPrice> getAllSlotPrice(){
+        return timeSlotPriceRepository.findAll();
+    }
+
 
 }

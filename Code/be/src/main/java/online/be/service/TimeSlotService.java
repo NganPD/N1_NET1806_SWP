@@ -51,7 +51,7 @@ public class TimeSlotService {
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
         timeSlot.setPrice(timeSlotRequest.getPrice());
-        timeSlot.setStatus(timeSlotRequest.isStatus());
+        timeSlot.setAvailableStatus(timeSlotRequest.isStatus());
 
         //Set venue
         Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
@@ -73,7 +73,7 @@ public class TimeSlotService {
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
         timeSlot.setPrice(timeSlotRequest.getPrice());
-        timeSlot.setStatus(timeSlot.isStatus());
+        timeSlot.setAvailableStatus(timeSlot.isAvailableStatus());
 
         int duration = (int) Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
         timeSlot.setDuration(duration);
@@ -146,5 +146,20 @@ public class TimeSlotService {
 //            throw new RuntimeException("Failed to fetch time slots by venue and court for date: " + date, e);
 //        }
 //    }
+
+    //update trang thai cua timeslot khi dat lich thanh cong
+    public TimeSlot updateTimeSlotAvailability(long timeSlotId, boolean isAvailable){
+        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+                .orElseThrow(()-> new BadRequestException("Time slot not found"));
+        timeSlot.setAvailableStatus(isAvailable);
+        return timeSlotRepository.save(timeSlot);
+    }
+
+    //kiem tra timeslot con trong hay khong
+    public boolean isTimeSlotAvailable(long timeSlotId){
+        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+                .orElseThrow(()-> new BadRequestException("Time slot not found"));
+        return timeSlot.isAvailableStatus();
+    }
 
 }

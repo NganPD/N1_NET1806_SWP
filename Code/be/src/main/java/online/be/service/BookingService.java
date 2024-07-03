@@ -2,16 +2,19 @@ package online.be.service;
 
 import online.be.entity.*;
 import online.be.enums.BookingStatus;
+import online.be.enums.BookingType;
 import online.be.enums.PaymentStatus;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
 import online.be.model.Request.CreateBookingRequest;
+import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.UpdateBookingRequest;
 import online.be.model.Response.BookingResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,41 +40,42 @@ public class BookingService {
     @Autowired
     CourtRepository courtRepository;
 
+    @Autowired
+    TimeSlotPriceRepository timeSlotPriceRepository;
+
 
 //    public BookingResponse createBooking(CreateBookingRequest createBookingRequest) {
 //        try {
 //            //validate input data
 //            //check court availability
-//            List<TimeSlotPrice> timeSlotPrices = courtScheduleRepository.findByCourtIdAndDateAndStartTimeAndEndTimeAndAvailable(
+//            List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlotsByCourtIdAndDate(
 //                    createBookingRequest.getCourtId(), createBookingRequest.getDate(), createBookingRequest.getStartTime(),
-//                    createBookingRequest.getEndTime(), true);
-//
-//            if (timeSlotPrices.isEmpty()) {
-//                throw new BookingException("Court is not available this time");
+//            createBookingRequest.getEndTime());
+//            if(timeSlots.isEmpty()){
+//                throw new BookingException("Court is not available at this time");
 //            }
+//            //check booking type and price
 //
-//            //check booking type
-//            TimeSlotPrice timeSlotPrice = timeSlotPrices.get(0);
-//            if (timeSlotPrice.getBookingType() != createBookingRequest.getBookingType()) {
-//                throw new BadRequestException("Booking type is not allowed for this time slot");
-//            }
-//            double duration = Duration.between(createBookingRequest.getStartTime(), createBookingRequest.getEndTime()).toHours();
-//            //price
-//            double price = 100000;
+//            //check account
+//            Account account = authenticationRepository.findById(createBookingRequest.getUserId())
+//                    .orElseThrow(()-> new BookingException("Account not found"));
 //            //create the new booking entity
+//            int totalHours = createBookingRequest.getEndTime().getHour() - createBookingRequest.getStartTime().getHour();
+//            int totalMinutes = createBookingRequest.getEndTime().getMinute() - createBookingRequest.getStartTime().getMinute();
+//            double totalTimes = totalHours + totalMinutes;
 //            Booking booking = new Booking();
 //            booking.setBookingType(createBookingRequest.getBookingType());
 //            booking.setBookingDate(LocalDate.now());
 //            booking.setPaymentStatus(PaymentStatus.PENDING);
 //            booking.setStatus(BookingStatus.PENDING);
 //            booking.setAccount(booking.getAccount());
-//            booking.setTotalHours(duration);
-//            booking.setTotalPrice(price);
+//            booking.setTotalTimes(totalTimes);
+//            booking.setTotalPrice();
 //            booking = bookingRepo.save(booking);
 //
 //            //create the booking detail entity
 //            BookingDetail bookingDetail = new BookingDetail();
-//            bookingDetail.setPrice(price);
+//            bookingDetail.setPrice(bookingDetail.getPrice());
 //            bookingDetail.setDate(createBookingRequest.getDate());
 //            bookingDetail.setStatus(BookingStatus.PENDING);
 //            bookingDetail.setBooking(booking);
@@ -86,6 +90,33 @@ public class BookingService {
 //        //Nên dùng try catch khi cố tạo một đối tượng mới để handle lỗi
 //    }
 
+    public BookingResponse bookDailySchedule(DailyScheduleBookingRequest dailyScheduleBookingRequest){
+        //check whether user login or not
+        Account customer = authenticationRepository.findById(dailyScheduleBookingRequest.getAccountId())
+                .orElseThrow(()-> new BadRequestException("User has not authenticated yet"));
+        //check venue availability
+        List<Court> availableCourts = courtRepository.findAvailableCourtsForTimeSlot(dailyScheduleBookingRequest.getVenueId(),
+                dailyScheduleBookingRequest.getTimeSlotId());
+        if(availableCourts.isEmpty()){
+            throw new BookingException("No available courts for the selected timeslot");
+        }
+        //reference price
+        TimeSlotPrice timeSlotPrice = timeSlotPriceRepository.findByTimeSlotAndBookingType(dailyScheduleBookingRequest.getTimeSlotId(),
+                BookingType.ONE_DAY);
+        //Logic for booking daily schedule
+        //create a new booking entity
+        Booking booking = new Booking();
+        //set court
+        booking.setBookingDate(dailyScheduleBookingRequest.getBookingDate());
+        booking.setBookingType(BookingType.ONE_DAY);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setAccount(customer);
+        booking = bookingRepo.save(booking);
+        //create booking detail entity
+        BookingDetail bookingDetail = new BookingDetail();
+        bookingDetail.setBooking(booking);
+        bookingDetail.setPrice(timeSlotPrice.getPrice());
+    }
 
     public Booking getBookingById(long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
