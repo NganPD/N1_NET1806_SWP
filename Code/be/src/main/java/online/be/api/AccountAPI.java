@@ -18,7 +18,6 @@ public class AccountAPI {
     AccountService accountService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity createAccount(@RequestBody AccountRequest accountRequest){
         Account account = accountService.createAccount(accountRequest);
         return ResponseEntity.ok(account);
@@ -43,5 +42,4 @@ public class AccountAPI {
         Account deletedAccount = accountService.deleteById(id);
         return ResponseEntity.ok(deletedAccount);
     }
-
 }

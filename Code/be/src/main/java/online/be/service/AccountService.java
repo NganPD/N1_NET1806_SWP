@@ -9,8 +9,13 @@ import online.be.model.Request.AccountRequest;
 import online.be.repository.AccountRepostory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static java.rmi.server.LogStream.log;
 
@@ -37,12 +42,15 @@ public class AccountService {
         account.setPhone(accountRequest.getPhone());
         account.setPassword(passwordEncoder.encode(accountRequest.getPassword()));
         account.setActive(true);
-        switch (accountRequest.getRole().toUpperCase()) {
-            case "MANAGER":
+        switch (accountRequest.getRole()) {
+            case MANAGER:
                 account.setRole(Role.MANAGER);
                 break;
-            case "STAFF":
+            case STAFF:
                 account.setRole(Role.STAFF);
+                break;
+            case ADMIN:
+                account.setRole(Role.ADMIN);
                 break;
         }
         try {
@@ -76,5 +84,4 @@ public class AccountService {
         account.setActive(false);
         return accountRepository.save(account);
     }
-
 }

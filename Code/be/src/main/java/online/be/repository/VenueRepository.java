@@ -18,12 +18,9 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
         @Query("select v from Venue v " +
                 "where v.description like %?1% " +
                 "or v.name like %?1%")
-        List<Venue> searchVenue(String keywords);
-//        //tìm kiếm theo giờ mở cửa
+        List<Venue> findVenueByKeywords(String keywords);
 
-//        List<Venue> findByOpeningHours(String openingHour);
         //tìm kiêm sân theo available slot
-
         @Query("SELECT DISTINCT v FROM Venue v " +
                 "JOIN v.timeSlots ts " +
                 "WHERE ts.status = true " +
@@ -31,15 +28,11 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
                 "AND ts.endTime >= :endTime")
         List<Venue> findVenueWithAvailableSlots(@Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
 
-//        //tim kiem theo dia chi
-//        @Query("select v from Venue v " +
-//                "where v.address like %?1% ")
-//        List<Venue> findVenueWithLocation(String address);
+        List<Venue> findByAddress(String address);
 
         Venue findByName(String venueName);
 
-        @Query("SELECT v FROM Venue v WHERE v.operatingHours = :operatingHours")
-        List<Venue> findByOperatingHours(@Param("operatingHours") String operatingHours);
+        List<Venue> findByOperatingHours(@Param("operatingHours") LocalTime operatingHours);
 
 
 }

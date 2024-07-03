@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
+import online.be.enums.PaymentStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -22,17 +24,17 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long bookingId;
 
-    @Column(name = "booking_date", nullable = false)
+    @Column(nullable = false)
     private LocalDate bookingDate;
 
-    @Column(name = "hours", nullable = false)
-    private double totalHours;
+    @Column( nullable = false)
+    private double totalTimes;
 
-    @Column(name = "price", nullable = false)
+    @Column(nullable = false)
     private double totalPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "bookingType", nullable = false)
+    @Column(nullable = false)
     private BookingType bookingType;
 
     @Column(nullable = false)
@@ -40,10 +42,9 @@ public class Booking {
     private LocalDateTime checkinDate;
 
     @Column(nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime checkoutDate;
+    private BookingStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_Id", nullable = false)
     private Account account;
 
@@ -53,5 +54,4 @@ public class Booking {
     @OneToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
-    // Other properties or methods if needed
 }

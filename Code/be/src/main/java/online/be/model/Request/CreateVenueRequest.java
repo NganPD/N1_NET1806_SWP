@@ -2,6 +2,9 @@ package online.be.model.Request;
 
 import lombok.Data;
 import online.be.enums.VenueStatus;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalTime;
 
 @Data
 public class CreateVenueRequest {
@@ -11,5 +14,6 @@ public class CreateVenueRequest {
     private String operatingHours;
     private String closingHours;
     private String description;
-    private Long managerId;//reference từ account
+    private String services;
+//    private Long managerId;//reference từ account
 }

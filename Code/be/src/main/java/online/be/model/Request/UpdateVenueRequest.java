@@ -3,6 +3,7 @@ package online.be.model.Request;
 import lombok.Data;
 import online.be.enums.VenueStatus;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Data

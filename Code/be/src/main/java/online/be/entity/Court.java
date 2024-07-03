@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@ToString
 public class Court {
 
     @Id
@@ -36,9 +37,6 @@ public class Court {
     @JoinColumn(name = "venue_id", nullable = false)
     @JsonIgnore
     private Venue venue;
-
-    @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CourtSchedule> courtSchedules;
 
     @OneToMany(mappedBy = "court", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BookingDetail> bookingDetails;

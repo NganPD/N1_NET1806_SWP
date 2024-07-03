@@ -36,10 +36,10 @@ public class TimeSlotAPI {
         return ResponseEntity.ok().body(timeSlot);
     }
 
-    @GetMapping("/{id}/{date}")
-    public ResponseEntity getAvailableTimeSlotCountForVenueOnDate(@PathVariable Long id, @RequestParam("date") LocalDate date) {
-        return ResponseEntity.ok(timeSlotService.getAvailableTimeSlotCountForVenueOnDate(id, date));
-    }
+//    @GetMapping("/{id}/{date}")
+//    public ResponseEntity getAvailableTimeSlotCountForVenueOnDate(@PathVariable Long id, @RequestParam("date") LocalDate date) {
+//        return ResponseEntity.ok(timeSlotService.getAvailableTimeSlotCountForVenueOnDate(id, date));
+//    }
 
     // Tạo mới một TimeSlot
     @PostMapping
@@ -74,23 +74,32 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 
+//    @GetMapping("/venue/{venueId}/excludeDate/{date}")
+//    public ResponseEntity<List<TimeSlot>> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(
+//            @PathVariable Long venueId,
+//            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+//
+//        List<TimeSlot> timeSlots = timeSlotService.getAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
+//
+//        return ResponseEntity.ok().body(timeSlots);
+//    }
 
-    @GetMapping("/venue/{venueId}/court/{courtId}/excludeDate")
-    public ResponseEntity<List<TimeSlot>> getTimeSlotsByVenueAndCourtExcludingDate(
-            @PathVariable Long venueId,
-            @PathVariable Long courtId,
-            @RequestParam("date") LocalDate date) {
-
-        List<TimeSlot> timeSlots = timeSlotService.getTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
-
-    @GetMapping("/venue/{venueId}/excludeDate/{date}")
-    public ResponseEntity<List<TimeSlot>> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(
-            @PathVariable Long venueId,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
-        List<TimeSlot> timeSlots = timeSlotService.getAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
-
-
-        return ResponseEntity.ok().body(timeSlots);
-    }
+//    @GetMapping("/venue/{venueId}/court/{courtId}/excludeDate")
+//    public ResponseEntity<List<TimeSlot>> getTimeSlotsByVenueAndCourtExcludingDate(
+//            @PathVariable Long venueId,
+//            @PathVariable Long courtId,
+//            @RequestParam("date") LocalDate date) {
+//
+//        List<TimeSlot> timeSlots = timeSlotService.getTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+//
+//    @GetMapping("/venue/{venueId}/excludeDate/{date}")
+//    public ResponseEntity<List<TimeSlot>> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(
+//            @PathVariable Long venueId,
+//            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+//
+//        List<TimeSlot> timeSlots = timeSlotService.getAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
+//
+//
+//        return ResponseEntity.ok().body(timeSlots);
+//    }
 }

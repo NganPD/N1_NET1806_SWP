@@ -7,7 +7,7 @@ import online.be.entity.Account;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
-import online.be.model.*;
+import online.be.model.EmailDetail;
 import online.be.model.Request.*;
 import online.be.model.Response.AccountResponse;
 import online.be.model.Response.LoginGoogleResponse;
@@ -48,17 +48,25 @@ public class AuthenticationService implements UserDetailsService {
         //registerRequest: thông tin ngừoi dùng yêu cầu
 
         // xử lý logic register
+        Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
+        if (existingAccount != null) {
+            if (!existingAccount.isActive()) {
+                throw new BadRequestException("The account has been locked, please contact the admin to unlock the account.");
+            } else {
+                throw new AuthException("Duplicate email");
+            }
+        }
         Account account = new Account();
         account.setPhone(registerRequest.getPhone());
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         account.setRole(Role.CUSTOMER);
+        account.setActive(true);
         account.setEmail(registerRequest.getEmail());
         account.setFullName(registerRequest.getFullName());
 
         try {
             account = authenticationRepository.save(account);
         } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getMessage());
             if (e.getMessage().contains("account.UK_q0uja26qgu1atulenwup9rxyr"))
                 throw new AuthException("duplicate email");
             else {
@@ -66,6 +74,7 @@ public class AuthenticationService implements UserDetailsService {
             }
 
         }
+
         try {
             EmailDetail emailDetail = new EmailDetail();
             emailDetail.setRecipient(account.getEmail());
@@ -81,7 +90,7 @@ public class AuthenticationService implements UserDetailsService {
         }
 
         // nhờ repo => save xuống db
-        return authenticationRepository.save(account);
+        return account;
     }
 
     public AccountResponse login(LoginRequest loginRequest) {
@@ -122,6 +131,7 @@ public class AuthenticationService implements UserDetailsService {
                 account = new Account();
                 account.setFullName(firebaseToken.getName());
                 account.setEmail(firebaseToken.getEmail());
+                account.setActive(true);
                 account.setRole(Role.CUSTOMER);
                 authenticationRepository.save(account);
             }
@@ -161,7 +171,6 @@ public class AuthenticationService implements UserDetailsService {
         emailService.sendMailTemplate(emailDetail);
     }
 
-
     public Account resetPassword(ResetPasswordRequest resetPasswordRequest) {
         Account account = getCurrentAccount();
         // Kiểm tra account có phải là instance của Account không
@@ -190,6 +199,7 @@ public class AuthenticationService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return authenticationRepository.findAccountByEmail(email);
     }
+
 
     public Account updateAccount(UpdatedAccountRequest updatedAccountRequest) {
         Account account = authenticationRepository.findById(updatedAccountRequest.getAccountId())

@@ -36,7 +36,7 @@ public class Account implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private boolean isActive;
 
     @Enumerated(EnumType.STRING)
@@ -54,6 +54,9 @@ public class Account implements UserDetails {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<StaffCourt> staffCourts;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<PaymentAccount> paymentAccountList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

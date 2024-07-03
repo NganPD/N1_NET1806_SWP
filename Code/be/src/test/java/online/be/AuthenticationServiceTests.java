@@ -3,15 +3,10 @@ package online.be;
 import com.google.firebase.auth.FirebaseAuth;
 import online.be.entity.Account;
 import online.be.enums.Role;
-
-import online.be.exception.BadRequestException;
-import online.be.model.EmailDetail;
-
 import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
 import online.be.model.EmailDetail;
 import online.be.model.Request.RegisterRequest;
-
 import online.be.model.Request.ResetPasswordRequest;
 import online.be.repository.AuthenticationRepository;
 import online.be.service.AuthenticationService;
@@ -26,9 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.springframework.dao.DataIntegrityViolationException;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -302,6 +295,5 @@ public class AuthenticationServiceTests {
         });
 
         assertEquals("duplicate phone", exception.getMessage());
-
     }
 }

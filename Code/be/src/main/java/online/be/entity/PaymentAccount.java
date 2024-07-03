@@ -22,9 +22,16 @@ public class PaymentAccount {
     @Column(nullable = false)
     private String accountHolderName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private String bankName;
+
+    @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "venue_id", nullable = false)
-    @ToString.Exclude
+    @JoinColumn(name = "venue_id")
     private Venue venue;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnore
+    private Account owner;//thông tin của chủ tài khoản
 }

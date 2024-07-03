@@ -1,6 +1,7 @@
 package online.be.model.Request;
 
 import lombok.Data;
+import online.be.enums.Role;
 
 @Data
 public class AccountRequest {
@@ -8,5 +9,5 @@ public class AccountRequest {
     private String email;
     private String phone;
     private String password;
-    private String role;
+    private Role role;
 }

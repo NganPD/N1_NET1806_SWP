@@ -1,11 +1,12 @@
 package online.be.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import online.be.enums.BookingStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,26 +16,27 @@ import java.time.LocalDateTime;
 public class BookingDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long bookingDetailId;
+    private long id;
 
-    @Column(name="price", nullable = false)
+    @Column(nullable = false)
     private double price;
 
-    @Column(name = "startTime", nullable = false)
-    private LocalDateTime startTime;
+    @Column(nullable = false)
+    private LocalDate date;
 
-    @Column(name = "endTime", nullable = false)
-    private LocalDateTime endTime;
+    @Column(nullable = false)
+    private BookingStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "booking_id", nullable = false)
-    @JsonIgnore
     private Booking booking;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "court_id", nullable = false)
-    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "court_id")
     private Court court;
 
-    // Other properties or methods if needed
+    @OneToOne
+    @JoinColumn(name = "time_slot_id")
+    private TimeSlot timeSlot;
+
 }
