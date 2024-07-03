@@ -59,6 +59,95 @@ public class AuthenticationServiceTests {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+    }
+    @ParameterizedTest
+    @CsvFileSource(resources = "/forgot_password.csv", numLinesToSkip = 1)
+    void testForgotPasswordRequest_SuccessfulSendRequest(
+            long id, String fullName, String email, String phone, String password, String role
+    ) {
+        // Create the Account object using data from CSV
+        Account account = new Account();
+        account.setId(id);
+        account.setFullName(fullName);
+        account.setEmail(email);
+        account.setPhone(phone);
+        account.setPassword(password);
+        account.setRole(Role.valueOf(role));
+
+        // Mock the repository to return the account
+        when(authenticationRepository.findAccountByEmail(email)).thenReturn(account);
+
+        // Mock the token service to return a token
+        when(tokenService.generateToken(any(Account.class))).thenReturn("result");
+
+        // Run the test
+        authenticationService.forgotPasswordRequest(email);
+
+        // Verify emailService interaction
+        verify(emailService, times(1)).sendMailTemplate(any(EmailDetail.class));
+
+        // Reset the mock for the next iteration
+        reset(authenticationRepository);
+        reset(emailService);
+    }
+    @Test
+    void testForgotPassword_EmailNotFound() {
+        String email = "nonexistent@example.com";
+
+        // Mock the repository to return null
+        when(authenticationRepository.findAccountByEmail(email)).thenReturn(null);
+
+        // Run the test and verify exception
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            authenticationService.forgotPasswordRequest(email);
+        });
+
+        assertEquals("Account not found!", exception.getMessage());
+
+        // Verify no interaction with emailService
+        verify(emailService, times(0)).sendMailTemplate(any(EmailDetail.class));
+    }
+
+
+    @Test
+    void testResetPassword_SuccessfulPasswordChange() {
+        String email = "user@example.com";
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+
+        // Create the Account object
+        Account account = new Account();
+        account.setEmail(email);
+        account.setPassword(passwordEncoder.encode(oldPassword));
+
+        // Mock the security context to return the current account
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(account);
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Mock the repository to return the account
+        when(authenticationRepository.save(any(Account.class))).thenReturn(account);
+
+        // Mock the password encoder
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword");
+
+        // Create the ResetPasswordRequest
+        ResetPasswordRequest resetPasswordRequest = new ResetPasswordRequest();
+        resetPasswordRequest.setPassword(newPassword);
+
+        // Run the test
+        Account updatedAccount = authenticationService.resetPassword(resetPasswordRequest);
+
+        // Verify password change
+        assertEquals("encodedNewPassword", updatedAccount.getPassword());
+
+        // Verify repository interaction
+        verify(authenticationRepository, times(1)).save(any(Account.class));
+
     }
 
     @ParameterizedTest
@@ -103,10 +192,6 @@ public class AuthenticationServiceTests {
             authenticationService.forgotPasswordRequest(email);
         });
 
-<<<<<<< HEAD
-        assertEquals("Account not found", thrown.getMessage());
-        System.out.println("Account not found");
-=======
         assertEquals("Account not found!", exception.getMessage());
 
         // Verify no interaction with emailService
@@ -210,6 +295,5 @@ public class AuthenticationServiceTests {
         });
 
         assertEquals("duplicate phone", exception.getMessage());
->>>>>>> 70044527bdddd3ec480bebb5094a5aabdc323643
     }
 }

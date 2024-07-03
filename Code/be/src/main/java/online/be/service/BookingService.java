@@ -116,6 +116,7 @@ public class BookingService {
         BookingDetail bookingDetail = new BookingDetail();
         bookingDetail.setBooking(booking);
         bookingDetail.setPrice(timeSlotPrice.getPrice());
+        bookingDetail
     }
 
     public Booking getBookingById(long bookingId) {

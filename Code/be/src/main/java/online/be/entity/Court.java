@@ -17,7 +17,7 @@ public class Court {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "court_id")
+//    @Column(name = "court_id")
     private long courtId;
 
     @Column(name = "court_name", nullable = false)

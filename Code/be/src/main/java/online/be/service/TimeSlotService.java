@@ -5,6 +5,7 @@ import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
 import online.be.exception.ResourceNotFoundException;
 import online.be.model.Request.TimeSlotRequest;
+import online.be.repository.CourtScheduleRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,19 @@ public class TimeSlotService {
 //            }
 //
 
+        //check the overlapping time slots
+        List<TimeSlot> existingSlots = timeSlotRepository.findByVenueVenueId(timeSlotRequest.getVenueId());
+        for(TimeSlot slot : existingSlots){
+            if(timeSlotRequest.getStartTime().isBefore(slot.getStartTime())
+                    && timeSlotRequest.getEndTime().isAfter(slot.getStartTime())){
+                throw new BadRequestException("The time slot overlaps with an existing time slot");
+            }
+        }
+        //calculate duration
+        long durationMinutes = Duration.between(timeSlotRequest.getStartTime(), timeSlotRequest.getEndTime()).toMinutes();
+        //check the venue is exist or not
+        Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
+                .orElseThrow(()-> new BadRequestException("The venue cannot be found by ID" + timeSlotRequest.getVenueId()));
 
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
@@ -162,4 +176,14 @@ public class TimeSlotService {
         return timeSlot.isAvailableStatus();
     }
 
+
+    // Get TimeSlots by Venue and Exclude Court on Date
+    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
+        try {
+            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
+        } catch (Exception e) {
+            // Log the exception if needed
+            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
+        }
+    }
 }
