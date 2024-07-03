@@ -18,7 +18,7 @@ import java.util.List;
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long venueId;
+    private long id;
 
     @Column(nullable = false, unique = true)
     private String name;

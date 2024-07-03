@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface TimeSlotPriceRepository extends JpaRepository<TimeSlotPrice, Long> {
 
-    @Query("SELECT tsp FROM TimeSlotPrice tsp" +
-            "WHERE tsp.timeSlot.id = :timeSlotId" +
+    @Query("SELECT tsp FROM TimeSlotPrice tsp " +
+            "WHERE tsp.timeSlot.id = :timeSlotId " +
             "AND tsp.bookingType = :bookingType")
-    TimeSlotPrice findByTimeSlotAndBookingType(@Param("timeslotId") Long timeSlotId,
-                                               @Param("bookingType")BookingType bookingType);
+    TimeSlotPrice findByTimeSlotAndBookingType(@Param("timeSlotId") long timeSlotId,
+                                               @Param("bookingType") BookingType bookingType);
 }

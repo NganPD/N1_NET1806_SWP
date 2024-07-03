@@ -22,7 +22,7 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long bookingId;
+    private long id;
 
     @Column(nullable = false)
     private LocalDate bookingDate;
@@ -33,6 +33,8 @@ public class Booking {
     @Column(nullable = false)
     private double totalPrice;
 
+    @Column(nullable = true)
+    private double remainingTimes;//flexible booking
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingType bookingType;

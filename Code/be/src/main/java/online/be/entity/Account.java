@@ -53,7 +53,7 @@ public class Account implements UserDetails {
     private List<Venue> assignedVenue;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-    private List<StaffCourt> staffCourts;
+    private List<StaffVenue> staffCourts;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<PaymentAccount> paymentAccountList;

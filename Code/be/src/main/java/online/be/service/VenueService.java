@@ -188,17 +188,17 @@ public class VenueService {
     public List<Venue> searchVenuesByAddress(String address){
         return venueRepository.findByAddress(address);
     }
-    //search by available slots
-    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
-        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
-        if (venues.isEmpty()) {
-            throw new NoDataFoundException("0 search");
-        }
-        return venues;
-    }
+//    //search by available slots
+//    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
+//        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
+//        if (venues.isEmpty()) {
+//            throw new NoDataFoundException("0 search");
+//        }
+//        return venues;
+//    }
 
     public PaymentAccount getPaymentAccountByVenueId(long venueId){
-        return paymentAccountRepository.findByVenue_VenueId(venueId);
+        return paymentAccountRepository.findByVenueId(venueId);
     }
 }
 
