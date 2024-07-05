@@ -1,28 +1,29 @@
-//package online.be.api;
-//
-//import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-//import online.be.entity.Booking;
-//import online.be.enums.BookingType;
-//import online.be.model.Request.BookingRequest;
-//import online.be.model.Response.TimeSlotAvabilityResponse;
-//import online.be.service.BookingService;
-//import online.be.service.TimeSlotPriceService;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("api/booking")
-//@SecurityRequirement(name = "api")
-//public class BookingAPI {
-//    @Autowired
-//    BookingService bookingService;
-//
-//    @Autowired
-//    TimeSlotPriceService timeSlotPriceService;
-//
+package online.be.api;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import online.be.entity.Booking;
+import online.be.enums.BookingType;
+import online.be.model.Request.BookingDetailRequest;
+import online.be.model.Request.BookingRequest;
+import online.be.model.Request.DailyScheduleBookingRequest;
+import online.be.model.Response.TimeSlotAvabilityResponse;
+import online.be.service.BookingService;
+import online.be.service.TimeSlotPriceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("api/booking")
+@SecurityRequirement(name = "api")
+public class BookingAPI {
+    @Autowired
+    BookingService bookingService;
+
+    @Autowired
+    TimeSlotPriceService timeSlotPriceService;
 //    @PostMapping
 //    public ResponseEntity<Booking> createBooking(@RequestBody BookingRequest bookingRequest){
 //        Booking createdBooking = bookingService.createBooking(bookingRequest);
@@ -47,4 +48,10 @@
 //        List<TimeSlotAvabilityResponse> avabilityResponses = timeSlotPriceService.getAvailableTimeSlotForBookingType(bookingType);
 //        return ResponseEntity.ok(avabilityResponses);
 //    }
-//}
+    @PostMapping
+    public ResponseEntity<Booking> createDailyScheduleBooking(@RequestBody DailyScheduleBookingRequest bookingRequest){
+        Booking booking = bookingService.createDailyScheduleBooking(bookingRequest);
+        return ResponseEntity.ok(booking);
+    }
+
+}

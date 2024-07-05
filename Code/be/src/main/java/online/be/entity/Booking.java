@@ -19,38 +19,33 @@ import java.util.List;
 @Setter
 @ToString
 public class Booking {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
     private LocalDate bookingDate;
 
-    @Column( nullable = false)
-    private double totalTimes;
+    private int totalTimes;
 
-    @Column(nullable = false)
     private double totalPrice;
 
-    @Column(nullable = true)
-    private double remainingTimes;//flexible booking
+    private int remainingTimes;//flexible booking
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private BookingType bookingType;
 
-    @Column(nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime checkinDate;
+    private LocalDate checkInDate;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "user_Id", nullable = false)
+    @JoinColumn(name = "user_Id")
     private Account account;
 
-    @OneToMany(mappedBy = "booking")
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<BookingDetail> bookingDetailList;
 
     @OneToOne

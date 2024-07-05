@@ -1,3 +1,4 @@
+
 package online.be.service;
 
 import online.be.entity.TimeSlot;
@@ -27,6 +28,7 @@ public class TimeSlotService {
     private VenueRepository venueRepository;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
     // Lưu một TimeSlot mới hoặc cập nhật một TimeSlot đã tồn tại
     public TimeSlot createTimeSlot(TimeSlotRequest timeSlotRequest) {
         if (timeSlotRequest.getStartTime() == null || timeSlotRequest.getEndTime() == null) {
@@ -35,39 +37,30 @@ public class TimeSlotService {
 
         LocalTime startTime = LocalTime.parse(timeSlotRequest.getStartTime());
         LocalTime endTime = LocalTime.parse(timeSlotRequest.getEndTime());
-//        //validate time range
-//        if(timeSlotRequest.getStartTime().isAfter(timeSlotRequest.getEndTime())){
-//            throw new BadRequestException("Start time must be before end time");
-//        }
-//
-//        //check the overlapping time slots
-//        List<TimeSlot> existingSlots = timeSlotRepository.findByVenueVenueId(timeSlotRequest.getVenueId());
-//        for(TimeSlot slot : existingSlots){
-//            if(timeSlotRequest.getStartTime().isBefore(slot.getStartTime())
-//                    && timeSlotRequest.getEndTime().isAfter(slot.getStartTime())){
-//                throw new BadRequestException("The time slot overlaps with an existing time slot");
-//            }
-//
+        //validate time range
+        if (startTime.isAfter(endTime)) {
+            throw new BadRequestException("Start time must be before end time");
+        }
 
         //check the overlapping time slots
         List<TimeSlot> existingSlots = timeSlotRepository.findByVenueId(timeSlotRequest.getVenueId());
-        for(TimeSlot slot : existingSlots){
-            if(startTime.isBefore(slot.getStartTime())
-                    && endTime.isAfter(slot.getStartTime())){
+        for (TimeSlot slot : existingSlots) {
+            if (startTime.isBefore(slot.getStartTime())
+                    && endTime.isAfter(slot.getStartTime())) {
                 throw new BadRequestException("The time slot overlaps with an existing time slot");
             }
         }
         //calculate duration
-        long durationMinutes = Duration.between(startTime, endTime).toMinutes();
+        long duration = Duration.between(startTime, endTime).toMinutes();
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
-        timeSlot.setAvailableStatus(timeSlotRequest.isStatus());
+        timeSlot.setDuration(duration);
 
         //Set venue
         //check whether the venue exist or not
         Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
-                .orElseThrow(()-> new BadRequestException("The venue cannot be found by ID" + timeSlotRequest.getVenueId()));
+                .orElseThrow(() -> new BadRequestException("The venue cannot be found by ID" + timeSlotRequest.getVenueId()));
         timeSlot.setVenue(venue);
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
@@ -75,12 +68,13 @@ public class TimeSlotService {
     // Cập nhật thông tin TimeSlot
     public TimeSlot updateTimeSlot(long timeSlotId, TimeSlotRequest timeSlotRequest) {
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(()-> new ResourceNotFoundException("Time slot cannot be found by ID: " + timeSlotId));
+                .orElseThrow(() -> new ResourceNotFoundException("Time slot cannot be found by ID: " + timeSlotId));
 
 //        timeSlot.setDuration(timeSlotRequest.getDuration());
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
-        timeSlot.setAvailableStatus(timeSlot.isAvailableStatus());
+        long duration = Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
+        timeSlot.setDuration(duration);
         venueRepository.findById(timeSlotRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
         return timeSlotRepository.save(timeSlot);
@@ -147,19 +141,18 @@ public class TimeSlotService {
 //    }
 
     //update trang thai cua timeslot khi dat lich thanh cong
-    public TimeSlot updateTimeSlotAvailability(long timeSlotId, boolean isAvailable){
+    public TimeSlot updateTimeSlotAvailability(long timeSlotId, boolean isAvailable) {
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(()-> new BadRequestException("Time slot not found"));
-        timeSlot.setAvailableStatus(isAvailable);
+                .orElseThrow(() -> new BadRequestException("Time slot not found"));
         return timeSlotRepository.save(timeSlot);
     }
-
-    //kiem tra timeslot con trong hay khong
-    public boolean isTimeSlotAvailable(long timeSlotId){
-        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(()-> new BadRequestException("Time slot not found"));
-        return timeSlot.isAvailableStatus();
-    }
+//
+//    //kiem tra timeslot con trong hay khong
+//    public boolean isTimeSlotAvailable(long timeSlotId){
+//        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+//                .orElseThrow(()-> new BadRequestException("Time slot not found"));
+//        return timeSlot.isAvailableStatus();
+//    }
 
 //
 //    // Get TimeSlots by Venue and Exclude Court on Date

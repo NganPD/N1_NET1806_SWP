@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StaffVenue {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -18,7 +17,6 @@ public class StaffVenue {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;

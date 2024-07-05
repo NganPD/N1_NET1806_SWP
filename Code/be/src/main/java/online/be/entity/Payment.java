@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @Setter
 @ToString
 public class Payment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
@@ -34,9 +33,7 @@ public class Payment {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate paymentDate;
 
-    @OneToOne
-    @JoinColumn(name = "booking_id")
+    @OneToOne(mappedBy = "payment")
     @JsonIgnore
     private Booking booking;
-
 }

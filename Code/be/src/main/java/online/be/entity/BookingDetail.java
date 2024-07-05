@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import online.be.enums.BookingStatus;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -22,13 +20,12 @@ public class BookingDetail {
     private double price;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate checkInDate;
 
-    @Column(nullable = false)
-    private BookingStatus status;
+    private long duration;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    @JoinColumn(name = "booking_id")
     private Booking booking;
 
     @OneToOne

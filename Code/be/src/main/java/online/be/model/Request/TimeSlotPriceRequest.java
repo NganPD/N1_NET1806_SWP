@@ -7,4 +7,5 @@ import online.be.enums.BookingType;
 public class TimeSlotPriceRequest {
     private BookingType bookingType;
     private double price;
+    private double discount;
 }
