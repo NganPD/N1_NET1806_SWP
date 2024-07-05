@@ -26,16 +26,18 @@ public class TimeSlot {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    @Column(nullable = false)
-    private boolean availableStatus;
+    private long duration;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private List<TimeSlotPrice> timeSlotPrices;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "timeSlot")
     private List<CourtTimeSlot> courtTimeSlots;
 }

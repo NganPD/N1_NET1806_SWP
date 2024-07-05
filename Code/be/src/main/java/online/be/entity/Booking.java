@@ -1,59 +1,55 @@
-package online.be.entity;
+    package online.be.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import online.be.enums.BookingStatus;
-import online.be.enums.BookingType;
-import online.be.enums.PaymentStatus;
-import org.springframework.format.annotation.DateTimeFormat;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import jakarta.persistence.*;
+    import lombok.Getter;
+    import lombok.Setter;
+    import lombok.ToString;
+    import online.be.enums.BookingStatus;
+    import online.be.enums.BookingType;
+    import online.be.enums.PaymentStatus;
+    import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+    import java.time.LocalDate;
+    import java.time.LocalDateTime;
+    import java.util.List;
 
-@Entity
-@Getter
-@Setter
-@ToString
-public class Booking {
+    @Entity
+    @Getter
+    @Setter
+    @ToString
+    public class Booking {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private long id;
 
-    @Column(nullable = false)
-    private LocalDate bookingDate;
+        private LocalDate bookingDate;
 
-    @Column( nullable = false)
-    private double totalTimes;
+        private int totalTimes;
 
-    @Column(nullable = false)
-    private double totalPrice;
+        private double totalPrice;
 
-    @Column(nullable = true)
-    private double remainingTimes;//flexible booking
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BookingType bookingType;
+        private int remainingTimes;//flexible booking
 
-    @Column(nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime checkinDate;
+        @Enumerated(EnumType.STRING)
+        private BookingType bookingType;
 
-    @Column(nullable = false)
-    private BookingStatus status;
+        private LocalDate checkinDate;
 
-    @ManyToOne
-    @JoinColumn(name = "user_Id", nullable = false)
-    private Account account;
+        @Enumerated(EnumType.STRING)
+        private BookingStatus status;
 
-    @OneToMany(mappedBy = "booking")
-    private List<BookingDetail> bookingDetailList;
+        @ManyToOne
+        @JoinColumn(name = "user_Id")
+        private Account account;
 
-    @OneToOne
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
-}
+
+        @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+        @JsonIgnore
+        private List<BookingDetail> bookingDetailList;
+
+        @OneToOne
+        @JoinColumn(name = "payment_id")
+        private Payment payment;
+    }

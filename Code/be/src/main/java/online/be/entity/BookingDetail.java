@@ -24,11 +24,14 @@ public class BookingDetail {
     @Column(nullable = false)
     private LocalDate date;
 
+    private long duration;
+
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    @JoinColumn(name = "booking_id")
     private Booking booking;
 
     @OneToOne

@@ -48,14 +48,6 @@ public class AuthenticationService implements UserDetailsService {
         //registerRequest: thông tin ngừoi dùng yêu cầu
 
         // xử lý logic register
-        Account existingAccount = authenticationRepository.findAccountByEmail(registerRequest.getEmail());
-        if (existingAccount != null) {
-            if (!existingAccount.isActive()) {
-                throw new BadRequestException("The account has been locked, please contact the admin to unlock the account.");
-            } else {
-                throw new AuthException("Duplicate email");
-            }
-        }
         Account account = new Account();
         account.setPhone(registerRequest.getPhone());
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));

@@ -18,14 +18,15 @@ public class TimeSlotPrice {
     private long id;
 
     @Column(nullable = false)
-    private Double price;
+    private double price;
+
+    private double discount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingType bookingType;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "time_slot_id", nullable = false)
     private TimeSlot timeSlot;
 }

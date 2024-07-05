@@ -32,14 +32,16 @@ public class Court {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "venue_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+    @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "court",cascade = CascadeType.ALL)
     private List<StaffVenue> staffCourts;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "court")
     private List<CourtTimeSlot> courtTimeSlots;
 

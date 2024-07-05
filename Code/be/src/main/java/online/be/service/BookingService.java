@@ -1,22 +1,18 @@
 package online.be.service;
-
 import online.be.entity.*;
 import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
-import online.be.enums.PaymentStatus;
+import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
-import online.be.model.Request.CreateBookingRequest;
-import online.be.model.Request.DailyScheduleBookingRequest;
+import online.be.model.Request.FlexibleBookingRequest;
 import online.be.model.Request.UpdateBookingRequest;
 import online.be.model.Response.BookingResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
-import java.time.Duration;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,13 +31,15 @@ public class BookingService {
     BookingDetailRepostiory bookingDetailRepostiory;
 
     @Autowired
-    TimeSlotRepository timeSlotRepository;
-
-    @Autowired
     CourtRepository courtRepository;
 
     @Autowired
+    CourtTimeSlotRepository courtTimeSlotRepository;
+
+    @Autowired
     TimeSlotPriceRepository timeSlotPriceRepository;
+
+    public static final int MAX_FLEXIBLE_BOOKING_HOURS = 20;
 
 
 //    public BookingResponse bookDailySchedule(DailyScheduleBookingRequest dailyScheduleBookingRequest){
@@ -76,6 +74,37 @@ public class BookingService {
 //        bookingDetail.setPrice(timeSlotPrice.getPrice());
 //        bookingDetail.setTimeSlot();
 //    }
+
+    public BookingResponse createFlexibleBooking(FlexibleBookingRequest request){
+        Account customer = authenticationRepository.findById(request.getCustomerId())
+                .orElseThrow(()-> new BadRequestException("Customer not found"));
+        //create booking
+        Booking booking = new Booking();
+        booking.setBookingDate(request.getBookingDate());
+        booking.setBookingType(BookingType.FLEXIBLE);
+        booking.setTotalTimes(request.getTotalHours());
+        booking.setRemainingTimes(request.getTotalHours());
+        booking.setTotalPrice(0);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setAccount(customer);
+
+        booking = bookingRepo.save(booking);
+
+        //create booking detail
+        try{
+            BookingDetail bookingDetail = new BookingDetail();
+            bookingDetail.setBooking(booking);
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        //set booking response
+        BookingResponse response = new BookingResponse();
+        response.setBookingStatus(BookingStatus.PENDING);
+        response.setMsg("PENDING");
+        //create payment url
+        return response;
+    }
 
     public Booking getBookingById(long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)

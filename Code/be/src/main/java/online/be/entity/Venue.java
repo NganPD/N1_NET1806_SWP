@@ -30,7 +30,6 @@ public class Venue {
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
-    @Column()
     private String services;
 
     @JsonFormat(pattern = "HH:mm")
@@ -44,12 +43,15 @@ public class Venue {
     @Column(nullable = false)
     private String description;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "venue")
     private List<TimeSlot> timeSlots;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
 
@@ -57,6 +59,7 @@ public class Venue {
     @JoinColumn(name = "managerId")
     private Account manager;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
     private List<PaymentAccount> paymentInforList;
 }

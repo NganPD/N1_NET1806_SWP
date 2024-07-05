@@ -18,7 +18,6 @@ public class StaffVenue {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;
