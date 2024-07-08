@@ -67,9 +67,6 @@ public class VenueService {
         }
         //nếu venue chưa tồn tại trong hệ thống
         Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
-        if(manager.getRole() != Role.MANAGER){
-            throw new BadRequestException("This ID is not a manager ID");
-        }
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
         venue.setAddress(createVenueRequest.getAddress());
@@ -183,14 +180,14 @@ public class VenueService {
     public List<Venue> searchVenuesByAddress(String address){
         return venueRepository.findByAddress(address);
     }
-    //search by available slots
-    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
-        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
-        if (venues.isEmpty()) {
-            throw new NoDataFoundException("0 search");
-        }
-        return venues;
-    }
+//    //search by available slots
+//    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
+//        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
+//        if (venues.isEmpty()) {
+//            throw new NoDataFoundException("0 search");
+//        }
+//        return venues;
+//    }
 
 
     public Venue addStaffToVenue(long staffId, long venueId){

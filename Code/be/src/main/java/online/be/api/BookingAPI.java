@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Booking;
 import online.be.enums.BookingType;
 import online.be.model.Request.BookingRequest;
+import online.be.model.Request.DailyScheduleBookingRequest;
+import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
-import online.be.model.Response.BookingResponse;
-import online.be.model.Response.TimeSlotAvabilityResponse;
 import online.be.service.BookingService;
 import online.be.service.TimeSlotPriceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,13 @@ public class BookingAPI {
 
     @PostMapping("/flexible")
     public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
-        Booking createdBooking = bookingService.createFlexibleBooking(bookingRequest);
+        Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
         return ResponseEntity.ok(createdBooking);
+    }
+
+    @PostMapping("/payment")
+    public ResponseEntity payForBooking(@RequestParam long bookingId){
+        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId));
     }
 
     @PostMapping("/{bookingId}/cancel")

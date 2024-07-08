@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class FlexibleBookingRequest {
     private int totalHours;
-    private String startDate;
+    private String checkInDate;
     private long courtId;
-    private List<TimeSlot> selectedTimeSlots;
+    private List<Long> selectedTimeSlotsId;
 }

@@ -35,9 +35,4 @@ public class TransactionAPI {
         return ResponseEntity.ok(transactionHistory);
     }
 
-    @PostMapping("/pay")
-    public ResponseEntity payForBooking(@RequestParam long bookingId){
-        return ResponseEntity.ok(transactionService.processPayment(bookingId));
-    }
-
 }

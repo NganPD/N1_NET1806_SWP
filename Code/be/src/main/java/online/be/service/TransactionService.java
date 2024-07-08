@@ -144,42 +144,4 @@ public class TransactionService {
         return listTransactionResponseDTO;
     }
 
-    public Transaction processPayment(long bookingId){
-        Account user = authenticationService.getCurrentAccount();
-        Wallet userWallet = walletRepository.findWalletByAccount_Id(user.getId());
-        Wallet adminWallet = walletRepository.findWalletByAccountRole(Role.ADMIN);
-        Booking booking = bookingRepository.findBookingById(bookingId);
-        float amount = (float)booking.getTotalPrice();
-
-        if(userWallet.getBalance() < amount){
-            throw new BadRequestException("Insufficient balance");
-        }
-
-        //Deduct the amount from user's wallet
-        userWallet.setBalance(userWallet.getBalance() - amount);
-        walletRepository.save(userWallet);
-
-        //Add the amount to admin's wallet
-        adminWallet.setBalance(adminWallet.getBalance() + amount);
-        walletRepository.save(adminWallet);
-
-        //Create a new transaction
-        Transaction transaction = new Transaction();
-        transaction.setAmount(amount);
-        transaction.setTransactionType(TransactionEnum.COMPLETED);
-        transaction.setFrom(userWallet);
-        transaction.setTo(adminWallet);
-        transaction.setBooking(booking);
-        transaction.setDescription("Payment for booking");
-        transaction.setTransactionDate(LocalDateTime.now().toString());
-        Transaction savedTransaction = transactionRepository.save(transaction);
-
-        //update booking status
-        booking.setStatus(BookingStatus.CONFIRMED);
-        bookingRepository.save(booking);
-
-        return savedTransaction;
-    }
-
-
 }

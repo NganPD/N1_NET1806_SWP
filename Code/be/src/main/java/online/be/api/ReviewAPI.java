@@ -2,6 +2,7 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Review;
+import online.be.model.Request.ReviewRequest;
 import online.be.model.Request.VenueReviewRequest;
 import online.be.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,8 @@ public class ReviewAPI {
         return ResponseEntity.ok(review);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity createReview(@RequestBody VenueReviewRequest request){
+    @PostMapping("/sendReview")
+    public ResponseEntity sendReview(@RequestBody ReviewRequest request){
         Review review = reviewService.sendReview(request);
         return ResponseEntity.ok(review);
     }
@@ -33,13 +34,13 @@ public class ReviewAPI {
         return ResponseEntity.ok(reviewService.getALlReivews());
     }
 
-    @GetMapping
+    @GetMapping("/top-rate")
     public ResponseEntity getTopRatedVenues(){
         return ResponseEntity.ok(reviewService.getTopRatedVenues());
     }
 
-    @GetMapping
-    public ResponseEntity getMostBookedVenues(){
-        return ResponseEntity.ok(reviewService.findMostBookedVenues());
-    }
+//    @GetMapping
+//    public ResponseEntity getMostBookedVenues(){
+//        return ResponseEntity.ok(reviewService.findMostBookedVenues());
+//    }
 }

@@ -1,15 +1,18 @@
 package online.be.service;
 
 import jakarta.transaction.Transactional;
-import online.be.entity.Account;
-import online.be.entity.Booking;
-import online.be.entity.BookingDetail;
-import online.be.entity.TimeSlot;
+import online.be.entity.*;
 import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
+import online.be.enums.Role;
+import online.be.enums.TransactionEnum;
+import online.be.exception.BadRequestException;
+import online.be.exception.BookingException;
 import online.be.exception.DuplicateEntryException;
+import online.be.model.Request.BookingRequest;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
+import online.be.model.Request.FlexibleBookingRequest;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +23,7 @@ import java.time.*;
 
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,14 +44,21 @@ public class BookingService {
 
     @Autowired
     BookingDetailService detailService;
+
+    @Autowired
     WalletRepository walletRepository;
 
     @Autowired
     CourtTimeSlotRepository courtTimeSlotRepo;
+
+    @Autowired
     TransactionRepository transactionRepository;
 
     @Autowired
     AuthenticationService authenticationService;
+
+    @Autowired
+    AccountRepostory accountRepostory;
 
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
@@ -202,60 +213,141 @@ public class BookingService {
     }
     //Tự tạo hiển thị không có Booking
 
-    //cancel booking
-    public Transaction cancelBooking(long bookingId){
-        Booking booking = bookingRepo.findBookingById(bookingId);
-        LocalDate now = LocalDate.now();
-        LocalDate bookingDate = booking.getBookingDate();
+    public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
+        Account user = authenticationService.getCurrentAccount();
+        LocalDateTime bookingDate = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(), formatter);
 
-        boolean canCancel = false;
+        //kieemr tra so gio toi da va ngay hien tai
+        if(request.getTotalHours() > 24){
+            throw new BadRequestException("Total play hours cannot exceed 20 hours");
+        }
+
+        if(checkInDate.isBefore(bookingDate.toLocalDate())){
+            throw new BadRequestException("Start date cannot be in the past");
+        }
+        //Lay cac timeslot the ID va sap xepp
+        List<TimeSlot> timeSlots = request.getSelectedTimeSlotsId().stream()
+                .map(slotId -> timeSlotRepo.findById(slotId)
+                        .orElseThrow(() -> new RuntimeException("Timeslot not found: " + slotId)))
+                .sorted(Comparator.comparing(TimeSlot::getStartTime))
+                .collect(Collectors.toList());
+
+        //kiem tra tinh hop le cua cac timeslot
+        double totalPrice = 0;
+        int totalDuration = 0;
+
+        List<BookingDetail> details = new ArrayList<>();
+        for (TimeSlot timeSlot : timeSlots){
+            BookingDetail detail = detailService.createBookingDetail(
+                    BookingType.FLEXIBLE,
+                    request.getCheckInDate(),
+                    request.getCourtId(),
+                    timeSlot.getId()
+            );
+            totalPrice += detail.getPrice();
+            totalDuration += (int) detail.getDuration();
+            details.add(detail);
+        }
+        //kiem tra tong thoi gian dat lich
+        if(totalDuration > request.getTotalHours()){
+            throw new BadRequestException("Selected timeslots exceed the total play hours");
+        }
+
+        //create booking
+        Booking booking = new Booking();
+        booking.setAccount(user);
+        booking.setBookingDate(bookingDate);
+        booking.setBookingType(BookingType.FLEXIBLE);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setTotalPrice(totalPrice);
+        booking.setTotalTimes(totalDuration);
+        booking.setRemainingTimes(totalDuration);
+        booking.setBookingDetailList(details);
+
+        try {
+            return bookingRepo.save(booking);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
+                if (sqlException.getErrorCode() == 1062) {
+                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
+                }
+            }
+            throw new RuntimeException("Something went wrong, please try again", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Something went wrong, please try again");
+        }
+    }
+
+
+    //payForBooking
+    public Booking processBookingPayment(long bookingId){
+        //search booking
+        Booking booking = bookingRepo.findBookingById(bookingId);
+        if(booking == null){
+            throw new BadRequestException("Booking not found");
+        }
+        //search user wallet
+        Account customer = authenticationService.getCurrentAccount();
+        Wallet customerWallet = customer.getWallet();
+        //admin wallet
+        Account admin = accountRepostory.findAdmin();
+        Wallet adminWallet = admin.getWallet();
+        double amount = booking.getTotalPrice();
+
+        if(customerWallet.getBalance() >= amount){
+            booking.setStatus(BookingStatus.CONFIRMED);
+            customerWallet.setBalance(customerWallet.getBalance() - (float)amount);
+            adminWallet.setBalance(adminWallet.getBalance() + (float)amount);
+
+            walletRepository.save(adminWallet);
+            walletRepository.save(customerWallet);
+            return bookingRepo.save(booking);
+        }else{
+            throw new BadRequestException("Customer does not have enough balance.");
+        }
+    }
+    //cancel booking
+    public Booking cancelBooking(long bookingId){
+        Booking booking = bookingRepo.findBookingById(bookingId);
+        //search user wallet
+        Account customer = booking.getAccount();
+        Wallet customerWallet = customer.getWallet();
+        //admin wallet
+        Account admin = accountRepostory.findAdmin();
+        Wallet adminWallet = admin.getWallet();
+        if(booking != null){
+            if(isValidCancellation(booking)){
+                booking.setStatus(BookingStatus.CANCELLED);
+                adminWallet.setBalance(adminWallet.getBalance() - (float)booking.getTotalPrice());
+                customerWallet.setBalance(customerWallet.getBalance() + (float)booking.getTotalPrice());
+
+                walletRepository.save(adminWallet);
+                walletRepository.save(customerWallet);
+                return bookingRepo.save(booking);
+            }else{
+                throw new BookingException("This booking cannot be cancelled");
+            }
+        }else{
+            throw new BadRequestException("Booking not found");
+        }
+    }
+
+    private boolean isValidCancellation(Booking booking){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime bookingDate = booking.getBookingDate();
 
         switch (booking.getBookingType()){
             case FIXED:
             case FLEXIBLE:
-                canCancel = now.isBefore(bookingDate.minusDays(7));
-                break;
+                return ChronoUnit.DAYS.between(booking.getBookingDate(), now) >= 7;
             case DAILY:
-                canCancel = now.isBefore(bookingDate);
-                break;
-        }
-
-        //if canCancel is true
-        if(canCancel){
-            //get adminWallet and userwallet
-            Wallet adminWallet = walletRepository.findWalletByAccountRole(Role.ADMIN);
-            Wallet userWallet = booking.getAccount().getWallet();
-
-            float refundAmount = (float)booking.getTotalPrice();
-
-            //update wallet balances
-            adminWallet.setBalance(adminWallet.getBalance()-refundAmount);
-            userWallet.setBalance(userWallet.getBalance() + refundAmount);
-            walletRepository.save(adminWallet);
-            walletRepository.save(userWallet);
-
-            //create refund transaction
-            Transaction refundTransaction = new Transaction();
-            refundTransaction.setAmount(refundAmount);
-            refundTransaction.setTransactionType(TransactionEnum.REFUND);
-            refundTransaction.setFrom(adminWallet);
-            refundTransaction.setTo(userWallet);
-            refundTransaction.setBooking(booking);
-            refundTransaction.setDescription("Refund for booking cancellation");
-            refundTransaction.setTransactionDate(LocalDateTime.now().toString());
-            transactionRepository.save(refundTransaction);
-
-            //update booking status to cancel
-            booking.setStatus(BookingStatus.CANCELLED);
-            bookingRepo.save(booking);
-
-            return refundTransaction;
-        }else{
-            //set the msg to customer that we cannot refund user's money
-            throw new RuntimeException("Cancellation aborted by customer");
+                return ChronoUnit.MINUTES.between(booking.getBookingDate(), now) >= 30;
+            default:
+                return false;
         }
     }
-
     public Transaction processBookingComission(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
         CourtTimeSlot courtTimeSlot = booking.getBookingDetailList().get(0).getCourtTimeSlot();

@@ -24,7 +24,7 @@ public class TimeSlotPriceService {
 
     public TimeSlotPriceResponse createTimeSlot(TimeSlotPriceRequest request){
         //check the timeslot id exist or not
-        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotId())
+        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotID())
                 .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
         //if the timeslot exist set the field price
         //create a new timeslotprice entity

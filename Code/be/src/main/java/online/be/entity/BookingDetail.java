@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class BookingDetail {
 
     private long duration;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;

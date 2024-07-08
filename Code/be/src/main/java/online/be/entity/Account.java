@@ -59,12 +59,8 @@ public class Account implements UserDetails {
     @JoinColumn(name = "venue_id")
     private Venue  staffVenue;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Wallet wallet;
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<PaymentAccount> paymentAccountList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

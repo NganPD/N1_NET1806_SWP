@@ -68,7 +68,7 @@ public class WalletService {
         String tmnCode = VNPayConfig.vnp_TmpCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl = "http://mycremo.art/profile/wallet?id="+transactionReturn.getTransactionID();
+        String returnUrl = "http://goodminton.online/myProfile/wallet?id="+transactionReturn.getTransactionID();
 
         String currCode = "VND";
         Map<String, String> vnpParams = new TreeMap<>();
@@ -281,6 +281,12 @@ public float getBalance(){
         }else{
             throw new BookingException("Wallet not found for user ID: " + user.getId());
     }
+}
+
+public Wallet getWalletByTransactionId(UUID transactionId){
+        Transaction transaction = transactionRepository.findByTransactionID(transactionId);
+        Wallet wallet = walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
+        return wallet;
 }
 
 }

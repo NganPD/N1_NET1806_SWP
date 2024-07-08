@@ -23,7 +23,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Venue> findVenueWithHighRatings(int minRating);
 
 
-    @Query("SELECT v FROM Venue v LEFT JOIN Booking b ON v.id = b.venue.id " +
-            "GROUP BY v.id ORDER BY COUNT(b.id) DESC")
-    List<Venue> findMostBookedVenues();
+//    @Query("SELECT v FROM Venue v LEFT JOIN Booking b ON v.id = b.venue.id " +
+//            "GROUP BY v.id ORDER BY COUNT(b.id) DESC")
+//    List<Venue> findMostBookedVenues();
 }

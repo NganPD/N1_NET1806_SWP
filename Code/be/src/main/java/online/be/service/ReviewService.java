@@ -38,6 +38,7 @@ public class ReviewService {
         if(request.getRating() < 1 || request.getRating() > 5){
             throw new BadRequestException("Rating must be between 1 and 5");
         }
+
         //tao mot object review moi
         Review review = new Review();
         review.setComment(request.getFeedback());
@@ -63,7 +64,7 @@ public class ReviewService {
         return reviewRepository.findTopRatedVenues();
     }
 
-    public List<Venue> findMostBookedVenues(){
-        return reviewRepository.findMostBookedVenues();
-    }
+//    public List<Venue> findMostBookedVenues(){
+//        return reviewRepository.findMostBookedVenues();
+//    }
 }
