@@ -9,6 +9,8 @@ import online.be.enums.BookingStatus;
 import online.be.enums.SlotStatus;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -30,7 +32,10 @@ public class CourtTimeSlot {
     @JoinColumn(name = "timeSlot_id", nullable = false)
     private TimeSlot timeSlot;
 
+    @Column(nullable = false)
+    private LocalDate checkInDate;
+
     @JsonIgnore
-    @OneToOne(mappedBy = "courtTimeSlot")
+    @OneToOne(mappedBy = "courtTimeSlot", cascade = CascadeType.ALL)
     private BookingDetail bookingDetail;
 }

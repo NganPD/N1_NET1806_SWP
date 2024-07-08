@@ -24,36 +24,10 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
 
     List<TimeSlot> findByVenueId(long venueId);
 
-//    @Query("SELECT ts FROM TimeSlot ts" +
-//            "WHERE ts.venue.courtId = :courtId" +
-//            "AND ts.date = :date" +
-//            "AND ts.startTime <= :startTime" +
-//            "AND ts.endTime >= :endTime" +
-//            "AND ts.availableStatus = true" +
-//            "AND ts.availableCourts > 0")
-//    List<TimeSlot> findAvailableTimeSlotsByCourtIdAndDate(Long courtId, LocalDate date, LocalTime startTime, LocalTime endTime);
-
-//            "WHERE ts.venue.id = :venueId " +
-//            "AND ts.slotID NOT IN (" +
-//            "   SELECT cs.timeSlot.slotID FROM CourtSchedule cs " +
-//            "   WHERE cs.date = :date " +
-//            "   AND cs.court.venue.id = :venueId " +
-//            "   GROUP BY cs.timeSlot.slotID " +
-//            "   HAVING COUNT(cs.court.id) = (SELECT COUNT(c.id) FROM Court c WHERE c.venue.id = :venueId)" +
-//            ")")
-//    List<TimeSlot> findAvailableTimeSlotsWithAtLeastOneCourtInVenue(
-//            @Param("venueId") Long venueId,
-//            @Param("date") LocalDate date
-//    );
-//
-//    @Query("SELECT t FROM TimeSlot t" +
-//            "WHERE t.venue.id = :venueId" +
-//            "AND t.bookingType = :bookingType" +
-//            "AND t.startTime = :startTime" +
-//            "AND t.endTime = :endTime")
-//    List<TimeSlot> findBYVenueIdAndBookingTypeAndStartTimeAndEndTime(
-//            @Param("venueId") Long venueId,
-//            @Param("bookingType")BookingType bookingType,
-//            @Param("startTime") LocalTime startTime,
-//            @Param("endTime") LocalTime endTime);
+    // Custom query to get count of time slots for a specific courtId and checkInDate
+    @Query(value = "SELECT a.time_slot_id, COUNT(a.time_slot_id) " +
+            "FROM court_time_slot a " +
+            "WHERE a.court_id = :courtId AND a.check_in_date = :date " +
+            "GROUP BY a.time_slot_id", nativeQuery = true)
+    List<Object[]> countTimeSlotsByCourtIdAndDate(@Param("courtId") long courtId, @Param("date") LocalDate date);
 }

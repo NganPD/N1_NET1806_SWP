@@ -19,9 +19,6 @@ public class BookingDetail {
     @Column(nullable = false)
     private double price;
 
-    @Column(nullable = false)
-    private LocalDate checkInDate;
-
     private long duration;
 
     @ManyToOne

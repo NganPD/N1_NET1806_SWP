@@ -1,22 +1,29 @@
 
 package online.be.service;
 
+import online.be.entity.Court;
 import online.be.entity.TimeSlot;
 import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
 import online.be.exception.ResourceNotFoundException;
 import online.be.model.Request.TimeSlotRequest;
+import online.be.model.Response.TimeSlotResponse;
+import online.be.model.SlotIdCountDTO;
+import online.be.repository.CourtRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TimeSlotService {
@@ -26,6 +33,9 @@ public class TimeSlotService {
 
     @Autowired
     private VenueRepository venueRepository;
+
+    @Autowired
+    CourtRepository courtRepo;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -104,13 +114,62 @@ public class TimeSlotService {
         }
     }
 
-
     // Xoá một TimeSlot
     public void deleteTimeSlot(Long timeSlotId) {
         if (!timeSlotRepository.existsById(timeSlotId)) {
             throw new ResourceNotFoundException("TimeSlot with id " + timeSlotId + " not found");
         }
         timeSlotRepository.deleteById(timeSlotId);
+    }
+
+    public TimeSlotResponse mapperSlot(TimeSlot slot){
+        TimeSlotResponse slotResponse = new TimeSlotResponse();
+        slotResponse.setId(slot.getId());
+        slotResponse.setDuration(slot.getDuration());
+        slotResponse.setStartTime(String.valueOf(slot.getStartTime()));
+        slotResponse.setEndTime(String.valueOf(slot.getEndTime()));
+        slotResponse.setAvailable(true);
+        return slotResponse;
+    }
+
+    public List<TimeSlotResponse> getAvailableSlots(long courtId, LocalDate date){
+        Court court = courtRepo.findById(courtId).orElseThrow(() ->
+                new RuntimeException("Court not found with id: " + courtId));
+        List<TimeSlot> slots = timeSlotRepository.findByVenueId(court.getVenue().getId());
+        List<TimeSlotResponse> slotResponses = new ArrayList<>();
+        List<SlotIdCountDTO> list = new ArrayList<>();
+        List<Object[]> results = timeSlotRepository.countTimeSlotsByCourtIdAndDate(courtId, date);
+        list = results.stream()
+                .map(result -> new SlotIdCountDTO((Long) result[0], (Long) result[1]))
+                .collect(Collectors.toList());
+        for (TimeSlot slot: slots){
+            TimeSlotResponse slotResponse = mapperSlot(slot);
+
+            if(date.equals(LocalDate.now()) || date.isBefore(LocalDate.now())){
+                slotResponse.setAvailable(!isSlotExpired(date, slot.getStartTime()));
+            }
+
+            for (SlotIdCountDTO slotIdCountDTO: list){
+                if (slot.getId() == slotIdCountDTO.getSlotId() && slotIdCountDTO.getCount() == 1){
+                    slotResponse.setAvailable(false);
+                }
+            }
+            slotResponses.add(slotResponse);
+        }
+        return slotResponses;
+    }
+    // Check if the slot date and time has already passed
+    private boolean isSlotExpired(LocalDate slotDate, LocalTime slotStartTime) {
+        try {
+            LocalDateTime slotDateTime = LocalDateTime.of(slotDate, slotStartTime);
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
+            return now.isAfter(expiryTime);
+        } catch (DateTimeParseException e) {
+            e.printStackTrace();
+            // Handle the exception as needed
+            return true;
+        }
     }
 
 //    // Get TimeSlots by Venue and Exclude Court on Date

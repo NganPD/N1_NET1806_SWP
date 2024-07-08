@@ -18,11 +18,9 @@ public class TimeSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
     private LocalTime startTime;
 
-    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
     private LocalTime endTime;
 
