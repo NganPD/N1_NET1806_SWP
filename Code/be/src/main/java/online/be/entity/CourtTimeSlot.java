@@ -9,6 +9,9 @@ import online.be.enums.BookingStatus;
 import online.be.enums.SlotStatus;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -21,6 +24,8 @@ public class CourtTimeSlot {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SlotStatus status;
+
+    private LocalDate checkInDate;
 
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)

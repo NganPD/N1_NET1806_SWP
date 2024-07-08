@@ -68,7 +68,7 @@ public class WalletService {
         String tmnCode = VNPayConfig.vnp_TmpCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl = VNPayConfig.vnp_ReturnUrl+ "?id="+transactionReturn.getTransactionID();
+        String returnUrl = "http://mycremo.art/profile/wallet?id="+transactionReturn.getTransactionID();
 
         String currCode = "VND";
         Map<String, String> vnpParams = new TreeMap<>();

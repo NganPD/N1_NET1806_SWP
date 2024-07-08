@@ -51,12 +51,13 @@ public class Account implements UserDetails {
     private Set<Review> reviews;
 
     @JsonIgnore
-    @OneToMany(mappedBy ="manager" )
-    private List<Venue> assignedVenue;
+    @OneToOne(mappedBy ="manager" )
+    private Venue assignedVenue;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-    private List<StaffVenue> staffCourts;
+    @ManyToOne
+    @JoinColumn(name = "venue_id")
+    private Venue  staffVenue;
 
     @JsonIgnore
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)

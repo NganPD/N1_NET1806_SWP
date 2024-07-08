@@ -30,8 +30,6 @@
         @Enumerated(EnumType.STRING)
         private BookingType bookingType;
 
-        private LocalDate checkinDate;
-
         @Enumerated(EnumType.STRING)
         private BookingStatus status;
 

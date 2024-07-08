@@ -1,6 +1,7 @@
 package online.be.service;
 
 import online.be.entity.*;
+import online.be.enums.Role;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
@@ -30,10 +31,7 @@ public class VenueService {
     CourtRepository courtRepository;
 
     @Autowired
-    WalletRepository walletRepository;
-
-    @Autowired
-    AccountRepostory accountRepostory;
+    AccountRepostory accountRepository;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -68,7 +66,10 @@ public class VenueService {
             throw new DateTimeException("Closing hours cannot be the same as operating hours.");
         }
         //nếu venue chưa tồn tại trong hệ thống
-        Account manager = accountRepostory.findUserById(createVenueRequest.getManagerId());
+        Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
+        if(manager.getRole() != Role.MANAGER){
+            throw new BadRequestException("This ID is not a manager ID");
+        }
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
         venue.setAddress(createVenueRequest.getAddress());
@@ -182,13 +183,44 @@ public class VenueService {
     public List<Venue> searchVenuesByAddress(String address){
         return venueRepository.findByAddress(address);
     }
-//    //search by available slots
-//    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
-//        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
-//        if (venues.isEmpty()) {
-//            throw new NoDataFoundException("0 search");
-//        }
-//        return venues;
-//    }
+    //search by available slots
+    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
+        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
+        if (venues.isEmpty()) {
+            throw new NoDataFoundException("0 search");
+        }
+        return venues;
+    }
+
+
+    public Venue addStaffToVenue(long staffId, long venueId){
+        try {
+            Venue venue = venueRepository.findVenueById(venueId);
+            Account staff = accountRepository.findUserById(staffId);
+
+            //add staff to venue
+            staff.setStaffVenue(venue);
+            venue.getStaffs().add(staff);
+
+            //save change
+            accountRepository.save(staff);
+            venueRepository.save(venue);
+            return venue;
+        }catch (Exception e){
+            throw new BadRequestException("Error: " +e.getMessage());
+        }
+    }
+
+    public Account getManager(long venueId){
+        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
+        return manager;
+    }
+
+    public List<Account> getStaffsByVenueId(long venueId){
+        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
+        return staffs;
+    }
+
+
 }
 

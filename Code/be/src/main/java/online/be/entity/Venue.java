@@ -53,7 +53,11 @@ public class Venue {
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "managerId")
     private Account manager;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "staffVenue", cascade = CascadeType.ALL)
+    private List<Account> staffs;
 }

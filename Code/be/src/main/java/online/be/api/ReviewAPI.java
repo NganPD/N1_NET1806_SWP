@@ -24,12 +24,22 @@ public class ReviewAPI {
 
     @PostMapping("/create")
     public ResponseEntity createReview(@RequestBody VenueReviewRequest request){
-        Review review = reviewService.createReview(request);
+        Review review = reviewService.sendReview(request);
         return ResponseEntity.ok(review);
     }
 
     @GetMapping
     public ResponseEntity getAllReviews(){
         return ResponseEntity.ok(reviewService.getALlReivews());
+    }
+
+    @GetMapping
+    public ResponseEntity getTopRatedVenues(){
+        return ResponseEntity.ok(reviewService.getTopRatedVenues());
+    }
+
+    @GetMapping
+    public ResponseEntity getMostBookedVenues(){
+        return ResponseEntity.ok(reviewService.findMostBookedVenues());
     }
 }

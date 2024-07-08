@@ -23,10 +23,6 @@ public class BookingDetailAPI {
 //        return ResponseEntity.ok().body(bookingDetail);
 //    }
 
-    @GetMapping("/time-prices/{id}")
-    public ResponseEntity getByTimeSlotPricesId(@PathVariable long id) {
-        return ResponseEntity.ok(bookingDetailService.getByTimeSlotPricesId(id));
-    }
 
 //    @PutMapping("/{bookingDetailId}")
 //    public ResponseEntity updateBookingDetail(@RequestBody BookingDetailRequest bookingDetailRequest, @PathVariable long id){
