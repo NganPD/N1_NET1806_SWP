@@ -23,7 +23,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private LocalDate bookingDate;
+    private LocalDateTime bookingDate;
 
     private int totalTimes;
 
@@ -33,8 +33,6 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     private BookingType bookingType;
-
-    private LocalDate checkInDate;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;

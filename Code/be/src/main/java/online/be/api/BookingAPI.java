@@ -2,18 +2,13 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Booking;
-import online.be.enums.BookingType;
-import online.be.model.Request.BookingDetailRequest;
-import online.be.model.Request.BookingRequest;
 import online.be.model.Request.DailyScheduleBookingRequest;
-import online.be.model.Response.TimeSlotAvabilityResponse;
+import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.service.BookingService;
 import online.be.service.TimeSlotPriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/booking")
@@ -48,9 +43,15 @@ public class BookingAPI {
 //        List<TimeSlotAvabilityResponse> avabilityResponses = timeSlotPriceService.getAvailableTimeSlotForBookingType(bookingType);
 //        return ResponseEntity.ok(avabilityResponses);
 //    }
-    @PostMapping
+    @PostMapping("/daily-schedule")
     public ResponseEntity<Booking> createDailyScheduleBooking(@RequestBody DailyScheduleBookingRequest bookingRequest){
         Booking booking = bookingService.createDailyScheduleBooking(bookingRequest);
+        return ResponseEntity.ok(booking);
+    }
+
+    @PostMapping("/fixed-schedule")
+    public ResponseEntity<Booking> createFixedScheduleBooking(@RequestBody FixedScheduleBookingRequest bookingRequest){
+        Booking booking = bookingService.createFixedScheduleBooking(bookingRequest);
         return ResponseEntity.ok(booking);
     }
 

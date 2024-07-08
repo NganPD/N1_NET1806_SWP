@@ -6,6 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Optional;
+
 public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Long> {
 
 //    @Query("SELECT cts FROM CourtTimeSlot cts" +
@@ -32,4 +36,15 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
             "JOIN cts.timeSlot ts " +
             "WHERE cts.id = :courtTimeSlotId")
     long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
+
+//    @Query("SELECT cts " +
+//            "FROM CourtTimeSlot cts " +
+//            "JOIN cts.timeSlot ts " +
+//            "WHERE cts.date = :date " +
+//            "AND ts.startTime = :startTime " +
+//            "AND ts.endTime = :endTime " +
+//            "AND cts.status = 'AVAILABLE'")
+//    Optional<CourtTimeSlot> findByDayAndTime(@Param("date") LocalDate date,
+//                                             @Param("startTime") LocalTime startTime,
+//                                             @Param("endTime") LocalTime endTime);
 }

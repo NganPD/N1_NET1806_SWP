@@ -7,9 +7,11 @@ import java.util.List;
 @Data
 public class DailyScheduleBookingRequest {
 
-    private String bookingDate;
-
     private long accountId;
 
-    private BookingDetailRequest bookingDetailRequests;
+    private String checkInDate;
+
+    private long court;
+
+    private List<Long> timeslot;
 }

@@ -40,4 +40,9 @@ public class APIHandleException {
     public ResponseEntity<String> ResourceNotFoundException(ResourceNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(DuplicateEntryException.class)
+    public ResponseEntity<String> DuplicateEntryException(DuplicateEntryException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

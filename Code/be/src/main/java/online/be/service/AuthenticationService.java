@@ -118,6 +118,7 @@ public class AuthenticationService implements UserDetailsService {
         accountResponse.setFullName(account.getFullName());
         accountResponse.setRole(account.getRole());
         accountResponse.setId(account.getId());
+        accountResponse.setActive(account.isActive());
         return accountResponse;
     }
 
