@@ -1,15 +1,14 @@
 package online.be.service;
 
 import jakarta.transaction.Transactional;
-import online.be.entity.Account;
-import online.be.entity.Booking;
-import online.be.entity.BookingDetail;
-import online.be.entity.TimeSlot;
-import online.be.enums.BookingStatus;
-import online.be.enums.BookingType;
+import online.be.entity.*;
+import online.be.enums.*;
+import online.be.exception.BadRequestException;
+import online.be.exception.BookingException;
 import online.be.exception.DuplicateEntryException;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
+import online.be.model.Request.FlexibleBookingRequest;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +19,7 @@ import java.time.*;
 
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;

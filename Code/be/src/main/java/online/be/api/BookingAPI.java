@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Booking;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
+import online.be.model.Request.FlexibleBookingRequest;
 import online.be.service.BookingService;
 import online.be.service.TimeSlotPriceService;
 import org.springframework.beans.factory.annotation.Autowired;
