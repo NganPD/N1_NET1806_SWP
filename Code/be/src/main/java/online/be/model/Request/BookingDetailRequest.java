@@ -8,7 +8,6 @@ import java.util.Date;
 
 @Data
 public class BookingDetailRequest {
-    private long courtTimeSlotId;
-    private LocalDate checkInDate;
-    private long bookingId;
+    private Long courtTimeSlotId;
+    private String checkInDate;
 }

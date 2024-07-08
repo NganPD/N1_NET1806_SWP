@@ -17,10 +17,8 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column()
     private String comment;
 
-    @Column(nullable = false)
     private int rating;
 
     @Column(nullable = false)
@@ -33,5 +31,4 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
-
 }

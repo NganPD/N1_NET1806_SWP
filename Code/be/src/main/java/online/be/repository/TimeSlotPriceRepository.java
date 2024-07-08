@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,5 +22,5 @@ public interface TimeSlotPriceRepository extends JpaRepository<TimeSlotPrice, Lo
                                                          @Param("bookingType") BookingType bookingType);
 
     @Query("SELECT tsp FROM TimeSlotPrice tsp WHERE tsp.bookingType = :bookingType AND tsp.timeSlot.id = :timeSlotId")
-    List<TimeSlotPrice> findByBookingTypeAndTimeSlotId(@Param("bookingType") BookingType bookingType, @Param("timeSlotId") Long timeSlotId);
+    Optional <TimeSlotPrice> findByBookingTypeAndTimeSlotId(@Param("bookingType") BookingType bookingType, @Param("timeSlotId") long timeSlotId);
 }

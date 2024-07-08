@@ -22,13 +22,9 @@ public class BookingDetail {
     private double price;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate checkInDate;
 
     private long duration;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private BookingStatus status;
 
     @ManyToOne
     @JoinColumn(name = "booking_id")

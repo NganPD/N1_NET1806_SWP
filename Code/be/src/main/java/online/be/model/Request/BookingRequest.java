@@ -1,12 +1,8 @@
 package online.be.model.Request;
 
 import lombok.Data;
-import online.be.entity.Account;
-import online.be.entity.BookingDetail;
-import online.be.entity.Payment;
 import online.be.enums.BookingType;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Data

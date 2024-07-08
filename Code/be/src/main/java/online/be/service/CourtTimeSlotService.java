@@ -42,8 +42,7 @@ public class CourtTimeSlotService {
 
     //get
     public CourtTimeSlot getCourtTimeSlotById(long courtTimeSlotId){
-        CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(courtTimeSlotId)
-                .orElseThrow(()-> new BadRequestException("Court Time Slot not found"));
+        CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(courtTimeSlotId);
         return courtTimeSlot;
     }
 

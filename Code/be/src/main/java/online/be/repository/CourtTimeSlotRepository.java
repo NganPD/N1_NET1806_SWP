@@ -6,10 +6,12 @@ import online.be.enums.SlotStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Long> {
@@ -28,9 +30,9 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
             "AND ts.id = :timeSlotId " +
             "AND tsp.bookingType = :bookingType " +
             "AND cts.status = 'AVAILABLE'")  // Assuming you want only available slots
-    CourtTimeSlot findAvailableCourtTimeSlotsByCourtIdAndTimeSlotIdAndBookingType(
-            @Param("courtId") long courtId,
-            @Param("timeSlotId") long timeSlotId,
+    Optional<CourtTimeSlot> findAvailableCourtTimeSlotsByCourtIdAndTimeSlotIdAndBookingType(
+            @Param("courtId") Long courtId,
+            @Param("timeSlotId") Long timeSlotId,
             @Param("bookingType") BookingType bookingType);
 
     @Query("SELECT ts.duration " +
@@ -38,5 +40,7 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
             "JOIN cts.timeSlot ts " +
             "WHERE cts.id = :courtTimeSlotId")
     long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
+
+    CourtTimeSlot findById(long id);
 }
 

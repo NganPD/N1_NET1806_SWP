@@ -25,10 +25,20 @@ public class BookingAPI {
     @Autowired
     TimeSlotPriceService timeSlotPriceService;
 
-    @PostMapping
-    public ResponseEntity<BookingResponse> createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
-        BookingResponse createdBooking = bookingService.createFlexibleBooking(bookingRequest);
+    @PostMapping("/flexible")
+    public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
+        Booking createdBooking = bookingService.createFlexibleBooking(bookingRequest);
         return ResponseEntity.ok(createdBooking);
+    }
+
+    @PostMapping("/{bookingId}/cancel")
+    public ResponseEntity cancelBooking(@PathVariable long bookingId){
+        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+    }
+
+    @PostMapping("/{bookingId}/processComission")
+    public ResponseEntity processCommision(@PathVariable long bookingId){
+        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
     }
 
 //    @GetMapping("/{bookingId}")

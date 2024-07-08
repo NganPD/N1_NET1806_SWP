@@ -7,13 +7,14 @@ import online.be.model.Response.PaymentResponse;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentService {
-
-    private final VNPayConfig vnPayConfig;
+public class VnPayService {
 
     public PaymentResponse createVnPayPayment(HttpServletRequest req) {
         String vnp_Version = "2.1.0";
@@ -23,8 +24,7 @@ public class PaymentService {
         String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
         String vnp_IpAddr = VNPayConfig.getIpAddress(req);
         String vnp_TmnCode = VNPayConfig.vnp_TmpCode;
-        int amount = 100000;
-//                Integer.parseInt(req.getParameter("amount")) * 100;
+        int amount = Integer.parseInt(req.getParameter("amount")) * 100;
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);

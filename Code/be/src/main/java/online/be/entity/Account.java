@@ -48,17 +48,20 @@ public class Account implements UserDetails {
 
     @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Review> reviews;
+    private Set<Review> reviews;
 
     @JsonIgnore
     @OneToMany(mappedBy ="manager" )
     private List<Venue> assignedVenue;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<StaffVenue> staffCourts;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<PaymentAccount> paymentAccountList;
+    @JsonIgnore
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Wallet wallet;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -28,12 +28,6 @@ public class BookingDetailAPI {
         return ResponseEntity.ok(bookingDetailService.getByTimeSlotPricesId(id));
     }
 
-    @PostMapping
-    public ResponseEntity createFlexibleBookingDetail(@RequestBody BookingDetailRequest bookingDetailRequest){
-        BookingDetail bookingDetail = bookingDetailService.createFlexibleBookingDetail(bookingDetailRequest);
-        return ResponseEntity.ok().body(bookingDetail);
-    }
-
 //    @PutMapping("/{bookingDetailId}")
 //    public ResponseEntity updateBookingDetail(@RequestBody BookingDetailRequest bookingDetailRequest, @PathVariable long id){
 //        BookingDetail bookingDetail = bookingDetailService.updateBookingDetail(bookingDetailRequest, id);

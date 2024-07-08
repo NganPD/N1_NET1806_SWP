@@ -14,10 +14,6 @@ import java.util.List;
 
 @Repository
 public interface BookingDetailRepostiory extends JpaRepository<BookingDetail, Long> {
-    @Query("SELECT bd FROM BookingDetail bd " +
-            "WHERE bd.courtTimeSlot.court.id = :courtId " +
-            "AND bd.status = :status")
-    List<BookingDetail> findByCourtAndStatus(long courtId, BookingStatus status);
 
     List<BookingDetail> findByCourtTimeSlot_TimeSlot_TimeSlotPricesId(long id);
 
@@ -27,9 +23,4 @@ public interface BookingDetailRepostiory extends JpaRepository<BookingDetail, Lo
             "WHERE bd.booking.id = :bookingId")
     Double findTotalPriceByBookingId(long bookingId);
 
-    @Query("SELECT bd FROM BookingDetail bd WHERE bd.booking = :booking AND bd.courtTimeSlot = :courtTimeSlot AND bd.date = :date")
-    BookingDetail findByBookingAndCourtTimeSlotAndDate(
-            @Param("booking") Booking booking,
-            @Param("courtTimeSlot") CourtTimeSlot courtTimeSlot,
-            @Param("date") LocalDate date);
 }

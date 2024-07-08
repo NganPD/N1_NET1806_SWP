@@ -3,6 +3,7 @@ package online.be.service;
 import online.be.entity.*;
 import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
+
 import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.BookingDetailRequest;
@@ -12,7 +13,8 @@ import online.be.repository.CourtTimeSlotRepository;
 import online.be.repository.TimeSlotPriceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -38,42 +40,30 @@ public class BookingDetailService {
         CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(request.getCourtTimeSlotId())
                 .orElseThrow(()-> new BadRequestException("Selected court timeslot not found"));
 
-        Booking booking = bookingRepository.findById(request.getBookingId())
-                .orElseThrow(()-> new BadRequestException("Booking ID not found"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(),formatter);
 
-        List<TimeSlotPrice> prices = timeSlotPriceRepository.findByBookingTypeAndTimeSlotId(BookingType.FLEXIBLE, courtTimeSlot.getTimeSlot().getId());
-        if (prices.isEmpty()) {
-            throw new BadRequestException("No price found for the given time slot and booking type");
-        }
+        TimeSlotPrice slotPrice = timeSlotPriceRepository.findByBookingTypeAndTimeSlotId(BookingType.FLEXIBLE, courtTimeSlot.getTimeSlot().getId())
+                .orElseThrow(() -> new BadRequestException("No price found for the given time slot and booking type"));
 
-        // Kiểm tra nếu đã có BookingDetail với cùng booking_id, courtTimeSlot_id và date
-        BookingDetail existingDetail = bookingDetailRepostiory.findByBookingAndCourtTimeSlotAndDate(
-                booking, courtTimeSlot, request.getCheckInDate());
+        double price = slotPrice.getPrice();
+        double discount = slotPrice.getDiscount();
 
-        if (existingDetail != null) {
-            // Nếu đã tồn tại, có thể cập nhật hoặc ném lỗi tùy thuộc vào logic của bạn
-            throw new BadRequestException("BookingDetail already exists for this booking, court time slot, and date");
-        }
+        //calculate the final price after applying the discount
+        double finalPrice = price*(1-discount);
 
-        double price = prices.get(0).getPrice();
-        long duration = courtTimeSlotRepository.findDurationByCourTimeSlotId(request.getCourtTimeSlotId());
         BookingDetail detail = new BookingDetail();
-        detail.setPrice(price);
-        detail.setDuration(duration);
-        detail.setDate(request.getCheckInDate());
-        detail.setStatus(BookingStatus.PENDING);
-        detail.setCourtTimeSlot(courtTimeSlot);
-        detail.setBooking(booking);
+        try{
+            long duration = courtTimeSlotRepository.findDurationByCourTimeSlotId(request.getCourtTimeSlotId());
+            detail.setDuration(duration);
+            detail.setPrice(finalPrice);
+            detail.setCourtTimeSlot(courtTimeSlot);
+            detail.setCheckInDate(checkInDate);
 
-        courtTimeSlot.setStatus(SlotStatus.BOOKED);
-        courtTimeSlotRepository.save(courtTimeSlot);
-
-        bookingDetailRepostiory.save(detail);
-        //Update total price in booking
-        Double totalPrice = bookingDetailRepostiory.findTotalPriceByBookingId(booking.getId());
-        if(totalPrice != null){
-            booking.setTotalPrice(totalPrice);
-            bookingRepository.save(booking);
+            courtTimeSlot.setStatus(SlotStatus.BOOKED);
+            courtTimeSlotRepository.save(courtTimeSlot);
+        }catch (Exception e){
+            throw new RuntimeException("Something went wrong, please try again");
         }
         return detail;
     }

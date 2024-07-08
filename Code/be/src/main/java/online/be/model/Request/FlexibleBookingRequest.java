@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class FlexibleBookingRequest {
-    private LocalDate bookingDate;
+    private String bookingDate;
     private int totalHours;
-    private long customerId;
+    private List<BookingDetailRequest> bookingDetailRequests;
 }
