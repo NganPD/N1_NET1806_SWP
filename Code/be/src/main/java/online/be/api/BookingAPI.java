@@ -2,18 +2,15 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Booking;
-import online.be.enums.BookingType;
-import online.be.model.Request.BookingRequest;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
-import online.be.model.Request.FlexibleBookingRequest;
 import online.be.service.BookingService;
 import online.be.service.TimeSlotPriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("api/booking")
@@ -76,4 +73,9 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
+    @PatchMapping("/bookingId/{bookingId}/checkInDate/{checkInDate}")
+    public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable LocalDate checkInDate){
+        Booking booking = bookingService.checkIn(bookingId, checkInDate);
+        return ResponseEntity.ok(booking);
+    }
 }

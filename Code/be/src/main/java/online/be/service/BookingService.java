@@ -1,18 +1,15 @@
 package online.be.service;
 
 import jakarta.transaction.Transactional;
-import online.be.entity.*;
+import online.be.entity.Account;
+import online.be.entity.Booking;
+import online.be.entity.BookingDetail;
+import online.be.entity.TimeSlot;
 import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
-import online.be.enums.Role;
-import online.be.enums.TransactionEnum;
-import online.be.exception.BadRequestException;
-import online.be.exception.BookingException;
 import online.be.exception.DuplicateEntryException;
-import online.be.model.Request.BookingRequest;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
-import online.be.model.Request.FlexibleBookingRequest;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,7 +20,6 @@ import java.time.*;
 
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -207,6 +203,29 @@ public class BookingService {
         } catch (Exception e) {
             throw new RuntimeException("Something went wrong, please try again", e);
         }
+    }
+
+    public Booking checkIn(long id, LocalDate checkInDate){
+        Booking booking = bookingRepo.findById(id).orElseThrow(() ->
+                new RuntimeException("Booking not found with id: " + id));
+        List<BookingDetail> details = booking.getBookingDetailList();
+        int count = details.size();
+        for (BookingDetail detail : details){
+            if (detail.getCourtTimeSlot().getCheckInDate().equals(checkInDate)){
+                CourtTimeSlot courtTimeSlot = courtTimeSlotRepo.findByBookingDetail(detail);
+                courtTimeSlot.setStatus(SlotStatus.CHECKED);
+                courtTimeSlotRepo.save(courtTimeSlot);
+                count = count - 1;
+                if (booking.getRemainingTimes() != 0){
+                    booking.setRemainingTimes(booking.getRemainingTimes()-1);
+                }
+            }
+        }
+        if (count == 0){
+            booking.setStatus(BookingStatus.CONFIRMED);
+            bookingRepo.save(booking);
+        }
+        return booking;
     }
     public void deleteBooking(Long bookingId) {
         bookingRepo.deleteById(bookingId);
