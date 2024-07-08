@@ -1,5 +1,6 @@
 package online.be.repository;
 
+import online.be.entity.BookingDetail;
 import online.be.entity.CourtTimeSlot;
 import online.be.enums.BookingType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Long> {
@@ -36,6 +38,8 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
             "JOIN cts.timeSlot ts " +
             "WHERE cts.id = :courtTimeSlotId")
     long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
+
+    CourtTimeSlot findByBookingDetail(@Param("BookingDetail") BookingDetail bookingDetail);
 
 //    @Query("SELECT cts " +
 //            "FROM CourtTimeSlot cts " +

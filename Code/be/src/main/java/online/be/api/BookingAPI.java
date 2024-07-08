@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("api/booking")
 @SecurityRequirement(name = "api")
@@ -55,4 +57,9 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
+    @PatchMapping("/bookingId/{bookingId}/checkInDate/{checkInDate}")
+    public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable LocalDate checkInDate){
+        Booking booking = bookingService.checkIn(bookingId, checkInDate);
+        return ResponseEntity.ok(booking);
+    }
 }
