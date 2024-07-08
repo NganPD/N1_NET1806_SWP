@@ -1,23 +1,30 @@
 package online.be.service;
-import online.be.entity.*;
-import online.be.enums.*;
-import online.be.exception.BadRequestException;
-import online.be.exception.BookingException;
-import online.be.model.Request.BookingDetailRequest;
-import online.be.model.Request.FlexibleBookingRequest;
-import online.be.model.Request.UpdateBookingRequest;
-import online.be.model.Response.BookingResponse;
-import online.be.model.Response.PaymentResponse;
+
+import jakarta.transaction.Transactional;
+import online.be.entity.Account;
+import online.be.entity.Booking;
+import online.be.entity.BookingDetail;
+import online.be.entity.TimeSlot;
+import online.be.enums.BookingStatus;
+import online.be.enums.BookingType;
+import online.be.exception.DuplicateEntryException;
+import online.be.model.Request.DailyScheduleBookingRequest;
+import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -26,108 +33,170 @@ public class BookingService {
     BookingRepository bookingRepo;
 
     @Autowired
-   AuthenticationService authenticationService;
+    BookingDetailRepostiory bookingDetailRepo;
+
+    @Autowired
+    TimeSlotRepository timeSlotRepo;
 
     @Autowired
     BookingDetailService detailService;
-
-    @Autowired
     WalletRepository walletRepository;
 
     @Autowired
+    CourtTimeSlotRepository courtTimeSlotRepo;
     TransactionRepository transactionRepository;
 
-    public static final int MAX_FLEXIBLE_BOOKING_HOURS = 20;
+    @Autowired
+    AuthenticationService authenticationService;
 
-
-///    public BookingResponse bookDailySchedule(DailyScheduleBookingRequest dailyScheduleBookingRequest){
-//        //check whether user login or not
-//        Account customer = authenticationRepository.findById(dailyScheduleBookingRequest.getAccountId())
-//                .orElseThrow(()-> new BadRequestException("User has not authenticated yet"));
-//        //check venue availability
-//        List<Court> availableCourts = courtRepository.findAvailableCourtsForTimeSlot(dailyScheduleBookingRequest.getVenueId(),
-//                dailyScheduleBookingRequest.getTimeSlotId());
-//        if(availableCourts.isEmpty()){
-//            throw new BookingException("No available courts for the selected timeslot");
-//        }
-//        //reference price
-//        TimeSlotPrice timeSlotPrice = timeSlotPriceRepository.findByTimeSlotAndBookingType(dailyScheduleBookingRequest.getTimeSlotId(),
-//                BookingType.ONE_DAY);
-//        if (timeSlotPrice == null) {
-//            throw new RuntimeException("No price found for the selected time slot and booking type.");
-//        }
-//        //Logic for booking daily schedule
-//        //create a new booking entity
-//        Booking booking = new Booking();
-//        //set court
-//        booking.setBookingDate(dailyScheduleBookingRequest.getBookingDate());
-//        booking.setBookingType(BookingType.ONE_DAY);
-//        booking.setStatus(BookingStatus.PENDING);
-//        booking.setAccount(customer);
-//        booking = bookingRepo.save(booking);
-//        //create booking detail entity
-//        BookingDetail bookingDetail = new BookingDetail();
-//        bookingDetail.setBooking(booking);
-//        bookingDetail.setDate(LocalDate.now());
-//        bookingDetail.setPrice(timeSlotPrice.getPrice());
-//        bookingDetail.setTimeSlot();
-//    }
-
-    public Booking createFlexibleBooking(FlexibleBookingRequest request){
+    public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
+        LocalDateTime bookingDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate bookingDate = LocalDate.parse(request.getBookingDate(), formatter);
-        //create booking
+        LocalDate checkInDate = LocalDate.parse(bookingRequest.getCheckInDate(),formatter);
+
+        // Verify that there is at least one timeslot in the request
+        if (bookingRequest.getTimeslot().isEmpty()) {
+            throw new RuntimeException("No timeslots provided!");
+        }
+
+        // Retrieve and sort the timeslots based on startTime
+        List<TimeSlot> timeSlots = bookingRequest.getTimeslot().stream()
+                .map(slotId -> timeSlotRepo.findById(slotId)
+                        .orElseThrow(() -> new RuntimeException("Timeslot not found: " + slotId)))
+                .sorted(Comparator.comparing(TimeSlot::getStartTime))
+                .collect(Collectors.toList());
+
+        // Get the start time of the earliest timeslot
+        LocalTime earliestStartTime = timeSlots.get(0).getStartTime();
+
+        // Validate the check-in date
+        if (checkInDate.isBefore(bookingDate.toLocalDate())) {
+            throw new RuntimeException("Check-in date is invalid!");
+        } else if (checkInDate.equals(bookingDate.toLocalDate())) {
+            LocalDateTime earliestStartDateTime = LocalDateTime.of(checkInDate, earliestStartTime);
+            if (Duration.between(bookingDate, earliestStartDateTime).toMinutes() < 30) {
+                throw new RuntimeException("Booking must be made at least 30 minutes before the start time!");
+            }
+        }
+
+        // Create booking
         Booking booking = new Booking();
         List<BookingDetail> details = new ArrayList<>();
+        double totalPrice = 0;
         int totalHours = 0;
-        double totalPrice = 0.0;
-        for (BookingDetailRequest detailRequest : request.getBookingDetailRequests()){
-            BookingDetail detail = detailService.createFlexibleBookingDetail(detailRequest);
+
+        // Create a booking detail for each timeslot
+        for (TimeSlot timeSlot : timeSlots) {
+            BookingDetail detail = detailService.createBookingDetail(
+                    BookingType.DAILY,
+                    bookingRequest.getCheckInDate(),
+                    bookingRequest.getCourt(),
+                    timeSlot.getId()
+            );
             detail.setBooking(booking);
             details.add(detail);
             totalPrice += detail.getPrice();
             totalHours += (int) detail.getDuration();
         }
-        try{
+
+        // Set booking details and save
+        try {
             booking.setAccount(currentAccount);
             booking.setBookingDate(bookingDate);
+            booking.setBookingType(BookingType.DAILY);
+            booking.setStatus(BookingStatus.PENDING);
             booking.setTotalPrice(totalPrice);
             booking.setTotalTimes(totalHours);
-            booking.setRemainingTimes(totalHours);
             booking.setBookingDetailList(details);
-            booking.setBookingType(BookingType.FLEXIBLE);
-            booking.setStatus(BookingStatus.PENDING);
-           return bookingRepo.save(booking);
-
-        }catch (Exception ex){
+            return bookingRepo.save(booking);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
+                if (sqlException.getErrorCode() == 1062) {
+                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
+                }
+            }
+            throw new RuntimeException("Something went wrong, please try again", e);
+        } catch (Exception e) {
             throw new RuntimeException("Something went wrong, please try again");
         }
     }
 
-    public Booking getBookingById(long bookingId) {
-        Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new BookingException("This booking ID does not exist"));
-        return booking;
+    @Transactional
+    public Booking createFixedScheduleBooking(FixedScheduleBookingRequest bookingRequest) {
+        Account currentAccount = authenticationService.getCurrentAccount();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate applicationStartDate = LocalDate.parse(bookingRequest.getApplicationStartDate(), formatter);
+        LocalDateTime bookingDate = LocalDateTime.now();
+
+        // Kiểm tra nếu tháng của bookingDate là sau tháng của applicationStartDate
+        if (bookingDate.getYear() > applicationStartDate.getYear() ||
+                (bookingDate.getYear() == applicationStartDate.getYear() && bookingDate.getMonthValue() >= applicationStartDate.getMonthValue())) {
+            throw new IllegalArgumentException("Booking date month must be before application start date month.");
+        }
+
+        // Kiểm tra nếu bookingDate là ngày cuối tháng và applicationStartDate cách bookingDate ít nhất 7 ngày
+        int dayOfMonth = bookingDate.getDayOfMonth();
+        if (dayOfMonth >= 25 && dayOfMonth <= 31) {
+            if (applicationStartDate.isBefore(ChronoLocalDate.from(bookingDate.plusDays(7)))) {
+                throw new IllegalArgumentException("For booking dates in the last days of the month, application start date must be at least 7 days after the booking date.");
+            }
+        }
+
+        Booking booking = new Booking();
+        List<BookingDetail> details = new ArrayList<>();
+
+        for (FixedScheduleBookingRequest.FixedTimeSlot fixedTimeSlot : bookingRequest.getFixedTimeSlots()) {
+            DayOfWeek dayOfWeek = DayOfWeek.valueOf(fixedTimeSlot.getDayOfWeek().toUpperCase());
+
+            for (int month = 0; month < bookingRequest.getDurationInMonths(); month++) {
+                LocalDate startOfMonth = applicationStartDate.plusDays(month *  30L);
+                LocalDate endOfMonth = startOfMonth.plusDays(29); // 30 ngày từ ngày bắt đầu
+
+                // Kiểm tra ngày đầu tiên trong tháng là ngày nào
+                LocalDate firstBookingDay = startOfMonth.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+
+                for (LocalDate date = firstBookingDay;
+                     !date.isAfter(endOfMonth);
+                     date = date.plusWeeks(1)) {
+
+                    for (Long slotId : fixedTimeSlot.getTimeslot()) {
+                        BookingDetail detail = detailService.createBookingDetail(
+                                BookingType.FIXED,
+                                date.format(formatter),
+                                fixedTimeSlot.getCourt(),
+                                slotId
+                        );
+                        detail.setBooking(booking);
+                        details.add(detail);
+                    }
+                }
+            }
+        }
+
+        double totalPrice = details.stream().mapToDouble(BookingDetail::getPrice).sum();
+        int totalHours = details.stream().mapToInt(detail -> (int) detail.getDuration()).sum();
+
+        try {
+            booking.setAccount(currentAccount);
+            booking.setBookingDate(bookingDate);
+            booking.setTotalPrice(totalPrice);
+            booking.setTotalTimes(totalHours);
+            booking.setBookingDetailList(details);
+            booking.setBookingType(BookingType.FIXED);
+            booking.setStatus(BookingStatus.PENDING);
+            return bookingRepo.save(booking);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
+                if (sqlException.getErrorCode() == 1062) {
+                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
+                }
+            }
+            throw new RuntimeException("Something went wrong, please try again", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Something went wrong, please try again", e);
+        }
     }
-
-    public List<Booking> getAllBooking() {
-        return bookingRepo.findAll();
-    }
-
-
-    public List<Booking> getAllBookings() {
-        return bookingRepo.findAll();
-    }//Tự tạo hiển thị khi không có Booking
-
-    public Booking updateBooking(UpdateBookingRequest updateBookingRequest, Long bookingId) {
-        Booking booking = getBookingById(bookingId);
-
-
-        return bookingRepo.save(booking);
-    }
-    //Chưa try-catch và xử lý lỗi không tồn tại
-
     public void deleteBooking(Long bookingId) {
         bookingRepo.deleteById(bookingId);
     }

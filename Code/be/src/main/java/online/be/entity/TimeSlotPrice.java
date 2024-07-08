@@ -7,12 +7,12 @@ import lombok.Setter;
 import online.be.enums.BookingType;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 public class TimeSlotPrice {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

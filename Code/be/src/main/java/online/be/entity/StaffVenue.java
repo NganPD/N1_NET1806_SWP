@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StaffVenue {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

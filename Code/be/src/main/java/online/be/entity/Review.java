@@ -32,4 +32,5 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "venue_id")
     private Venue venue;
+
 }

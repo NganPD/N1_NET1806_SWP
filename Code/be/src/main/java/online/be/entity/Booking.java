@@ -1,45 +1,50 @@
-    package online.be.entity;
+package online.be.entity;
 
-    import com.fasterxml.jackson.annotation.JsonFormat;
-    import com.fasterxml.jackson.annotation.JsonIgnore;
-    import jakarta.persistence.*;
-    import lombok.Getter;
-    import lombok.Setter;
-    import lombok.ToString;
-    import online.be.enums.BookingStatus;
-    import online.be.enums.BookingType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import online.be.enums.BookingStatus;
+import online.be.enums.BookingType;
+import online.be.enums.PaymentStatus;
+import org.springframework.format.annotation.DateTimeFormat;
 
-    import java.time.LocalDate;
-    import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
-    @Entity
-    @Getter
-    @Setter
-    @ToString
-    public class Booking {
+@Entity
+@Getter
+@Setter
+@ToString
+public class Booking {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private long id;
-        @JsonFormat
-        private LocalDate bookingDate;
-        private int totalTimes;
-        private double totalPrice;
-        private int remainingTimes;//flexible booking
+    private LocalDateTime bookingDate;
 
-        @Enumerated(EnumType.STRING)
-        private BookingType bookingType;
+    private int totalTimes;
 
-        @Enumerated(EnumType.STRING)
-        private BookingStatus status;
+    private double totalPrice;
 
-        @ManyToOne
-        @JoinColumn(name = "user_Id")
-        private Account account;
+    private int remainingTimes;//flexible booking
 
-        @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-        @JsonIgnore
-        private List<BookingDetail> bookingDetailList;
+    @Enumerated(EnumType.STRING)
+    private BookingType bookingType;
+
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_Id")
+    private Account account;
+
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<BookingDetail> bookingDetailList;
 
         @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
         private List<Transaction> transactions;

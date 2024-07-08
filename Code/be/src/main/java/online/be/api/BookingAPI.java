@@ -59,4 +59,16 @@ public class BookingAPI {
 //        List<TimeSlotAvabilityResponse> avabilityResponses = timeSlotPriceService.getAvailableTimeSlotForBookingType(bookingType);
 //        return ResponseEntity.ok(avabilityResponses);
 //    }
+    @PostMapping("/daily-schedule")
+    public ResponseEntity<Booking> createDailyScheduleBooking(@RequestBody DailyScheduleBookingRequest bookingRequest){
+        Booking booking = bookingService.createDailyScheduleBooking(bookingRequest);
+        return ResponseEntity.ok(booking);
+    }
+
+    @PostMapping("/fixed-schedule")
+    public ResponseEntity<Booking> createFixedScheduleBooking(@RequestBody FixedScheduleBookingRequest bookingRequest){
+        Booking booking = bookingService.createFixedScheduleBooking(bookingRequest);
+        return ResponseEntity.ok(booking);
+    }
+
 }

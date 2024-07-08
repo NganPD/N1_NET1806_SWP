@@ -120,6 +120,7 @@ public class AuthenticationService implements UserDetailsService {
         accountResponse.setRole(account.getRole());
         accountResponse.setWallet(account.getWallet());
         accountResponse.setId(account.getId());
+        accountResponse.setActive(account.isActive());
         return accountResponse;
     }
 

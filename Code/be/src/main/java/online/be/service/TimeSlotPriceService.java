@@ -71,5 +71,8 @@ public class TimeSlotPriceService {
         return timeSlotPriceRepository.findAll();
     }
 
+    public List<TimeSlotPrice> getAllSlotPriceBySlotId(long slotId){
+        return timeSlotPriceRepository.findAll();
+    }
 
 }

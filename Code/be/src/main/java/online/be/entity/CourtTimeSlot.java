@@ -10,7 +10,6 @@ import online.be.enums.SlotStatus;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -25,8 +24,6 @@ public class CourtTimeSlot {
     @Column(nullable = false)
     private SlotStatus status;
 
-    private LocalDate checkInDate;
-
     @ManyToOne
     @JoinColumn(name = "court_id", nullable = false)
     private Court court;
@@ -35,7 +32,10 @@ public class CourtTimeSlot {
     @JoinColumn(name = "timeSlot_id", nullable = false)
     private TimeSlot timeSlot;
 
+    @Column(nullable = false)
+    private LocalDate checkInDate;
+
     @JsonIgnore
-    @OneToOne(mappedBy = "courtTimeSlot")
+    @OneToOne(mappedBy = "courtTimeSlot", cascade = CascadeType.ALL)
     private BookingDetail bookingDetail;
 }
