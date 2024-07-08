@@ -1,12 +1,10 @@
 package online.be.service;
 
 import jakarta.transaction.Transactional;
-import online.be.entity.Account;
-import online.be.entity.Booking;
-import online.be.entity.BookingDetail;
-import online.be.entity.TimeSlot;
+import online.be.entity.*;
 import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
+import online.be.enums.SlotStatus;
 import online.be.exception.DuplicateEntryException;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
@@ -194,5 +192,28 @@ public class BookingService {
         } catch (Exception e) {
             throw new RuntimeException("Something went wrong, please try again", e);
         }
+    }
+
+    public Booking checkIn(long id, LocalDate checkInDate){
+        Booking booking = bookingRepo.findById(id).orElseThrow(() ->
+                new RuntimeException("Booking not found with id: " + id));
+        List<BookingDetail> details = booking.getBookingDetailList();
+        int count = details.size();
+        for (BookingDetail detail : details){
+            if (detail.getCourtTimeSlot().getCheckInDate().equals(checkInDate)){
+                CourtTimeSlot courtTimeSlot = courtTimeSlotRepo.findByBookingDetail(detail);
+                courtTimeSlot.setStatus(SlotStatus.CHECKED);
+                courtTimeSlotRepo.save(courtTimeSlot);
+                count = count - 1;
+                if (booking.getRemainingTimes() != 0){
+                    booking.setRemainingTimes(booking.getRemainingTimes()-1);
+                }
+            }
+        }
+        if (count == 0){
+            booking.setStatus(BookingStatus.CONFIRMED);
+            bookingRepo.save(booking);
+        }
+        return booking;
     }
 }
