@@ -1,7 +1,6 @@
 package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import online.be.entity.Account;
 import online.be.entity.Venue;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
@@ -85,22 +84,6 @@ public class VenueAPI {
     public ResponseEntity searchVenuesByOperatingHour(@RequestParam String operatingHours){
         List<Venue> venues = venueService.searchVenuesByOperatingHours(operatingHours);
         return ResponseEntity.ok(venues);
-    }
-
-    @PostMapping("/{venueId}/staff/{staffId}")
-    public ResponseEntity addStaffToVenue(@PathVariable long venueId, @PathVariable long staffId){
-        Venue venue = venueService.addStaffToVenue(staffId, venueId);
-        return ResponseEntity.ok(venue);
-    }
-
-    @GetMapping("{venueId}/manager")
-    public ResponseEntity<Account> getManager(@PathVariable long venueId){
-        return ResponseEntity.ok(venueService.getManager(venueId));
-    }
-
-    @GetMapping("{venueId}/staffs")
-    public ResponseEntity<List<Account>> getStaffs(@PathVariable long venueId){
-        return ResponseEntity.ok(venueService.getStaffsByVenueId(venueId));
     }
 
 
