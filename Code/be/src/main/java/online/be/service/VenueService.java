@@ -4,13 +4,13 @@ import online.be.entity.Account;
 import online.be.entity.Court;
 import online.be.entity.PaymentAccount;
 import online.be.entity.Venue;
+import online.be.enums.BookingType;
 import online.be.enums.VenueStatus;
-import online.be.exception.BadRequestException;
-import online.be.exception.BookingException;
-import online.be.exception.NoDataFoundException;
-import online.be.exception.VenueException;
+import online.be.exception.*;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
+import online.be.model.Response.TimeSlotResponse;
+import online.be.model.Response.VenueResponse;
 import online.be.repository.AccountRepostory;
 import online.be.repository.CourtRepository;
 import online.be.repository.PaymentAccountRepository;
@@ -21,8 +21,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -40,6 +42,9 @@ public class VenueService {
 
     @Autowired
     AccountRepostory accountRepostory;
+
+    @Autowired
+    TimeSlotService timeSlotService;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -98,18 +103,58 @@ public class VenueService {
 
 
     // Lấy venue bằng ID
-    public Venue getVenueById(long venueId) {
+    public VenueResponse getVenueById(long venueId) {
         // Sử dụng findById của repository để tìm venue theo ID
-        Venue venue = venueRepository.findById(venueId).get();
-        if (venue == null) {
-            try {
-                throw new VenueException("Venue not found");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);
+        Venue venue = venueRepository.findById(venueId).orElseThrow(() ->
+                new ResourceNotFoundException("Venue not found with id: " + venueId));
+        VenueResponse response = getVenueResponse(venue);
+        return response;
+        //Tự handle lỗi để front end nhận được
+    }
+
+    public List<VenueResponse> getVenueByAvailableTime(String time){
+        List<VenueResponse> responses = new ArrayList<>();
+        List<Venue> venues = venueRepository.findAll();
+        LocalDate currentDate = LocalDate.now();
+        for (Venue venue: venues){
+            List<Court> courts = venue.getCourts();
+            int count = 0;
+            for (Court court : courts){
+                List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlots(court.getId(), currentDate, BookingType.DAILY);
+                for (TimeSlotResponse slotResponse : availableSlots){
+                    if (slotResponse.isAvailable() && slotResponse.getStartTime().contains(time)){
+                        count++;
+                    }
+                }
+            }
+            if (count != 0){
+                VenueResponse response = getVenueResponse(venue);
+                responses.add(response);
             }
         }
-        return venue;
-        //Tự handle lỗi để front end nhận được
+        if (responses == null){
+            throw new NoDataFoundException("Có con cak mà tìm");
+        }
+        return responses;
+    }
+
+    private static VenueResponse getVenueResponse(Venue venue) {
+        VenueResponse response = new VenueResponse();
+        response.setId(venue.getId());
+        response.setServices(venue.getServices());
+        response.setManager(venue.getManager());
+        response.setVenueStatus(venue.getVenueStatus());
+        response.setReviews(venue.getReviews());
+        response.setAddress(venue.getAddress());
+        response.setCourts(venue.getCourts());
+        response.setDescription(venue.getDescription());
+        response.setName(venue.getName());
+        response.setTimeSlots(venue.getTimeSlots());
+        response.setClosingHours(venue.getClosingHours());
+        response.setOperatingHours(venue.getOperatingHours());
+        response.setNumberOfCourt(venue.getCourts().size());
+        response.setPaymentInforList(venue.getPaymentInforList());
+        return response;
     }
 
     // Lấy tất cả venues

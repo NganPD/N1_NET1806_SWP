@@ -50,6 +50,15 @@ public class CourtService {
         return court;
     }
 
+    public List<Court> getCourtByVenueId(long venueId) {
+        List<Court> courts = courtRepository.findByVenueId(venueId);
+        if (courts == null) {
+            throw new BadRequestException("Có con cak mà đòi");
+        }
+        return courts;
+    }
+
+
     //show toàn bộ court
     public List<Court> getAllCourts() {
         return courtRepository.findAll();

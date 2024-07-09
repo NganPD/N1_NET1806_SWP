@@ -19,4 +19,11 @@ public interface TimeSlotPriceRepository extends JpaRepository<TimeSlotPrice, Lo
     @Query("SELECT tsp FROM TimeSlotPrice tsp WHERE tsp.bookingType = :bookingType AND tsp.timeSlot.id = :timeSlotId")
     List<TimeSlotPrice> findByBookingTypeAndTimeSlotId(@Param("bookingType") BookingType bookingType, @Param("timeSlotId") Long timeSlotId);
     List<TimeSlotPrice> findByTimeSlotId(long timeSlotId);
+    // Hàm mới để tìm kiếm theo timeSlotId và bookingType
+    @Query("SELECT tsp FROM TimeSlotPrice tsp " +
+            "WHERE tsp.timeSlot.id = :timeSlotId " +
+            "AND tsp.bookingType = :bookingType")
+    TimeSlotPrice findByTimeSlotIdAndBookingType(@Param("timeSlotId") long timeSlotId,
+                                                       @Param("bookingType") BookingType bookingType);
 }
+
