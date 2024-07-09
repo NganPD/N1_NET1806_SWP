@@ -61,7 +61,7 @@ public class TimeSlotService {
             }
         }
         //calculate duration
-        long duration = Duration.between(startTime, endTime).toHours();
+        long duration = Duration.between(startTime, endTime).toMinutes();
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));

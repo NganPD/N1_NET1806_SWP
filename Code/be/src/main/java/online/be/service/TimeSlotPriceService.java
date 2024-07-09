@@ -22,17 +22,15 @@ public class TimeSlotPriceService {
     @Autowired
     TimeSlotRepository timeSlotRepository;
 
-    public TimeSlotPriceResponse createTimeSlot(TimeSlotPriceRequest request){
+    public TimeSlotPriceResponse createTimeSlot(Long timeSlotId, TimeSlotPriceRequest request){
         //check the timeslot id exist or not
-        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotID())
+        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
                 .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
         //if the timeslot exist set the field price
         //create a new timeslotprice entity
         TimeSlotPrice slotPrice = new TimeSlotPrice();
         slotPrice.setBookingType(request.getBookingType());
-        slotPrice.setDiscount(request.getDiscount());
         slotPrice.setPrice(request.getPrice());
-        slotPrice.setTimeSlot(timeSlot);
 
         TimeSlotPrice createdSlotPrice = timeSlotPriceRepository.save(slotPrice);
 

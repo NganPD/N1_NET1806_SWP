@@ -42,5 +42,4 @@ public class AccountAPI {
         Account deletedAccount = accountService.deleteById(id);
         return ResponseEntity.ok(deletedAccount);
     }
-
 }
