@@ -3,13 +3,16 @@ package online.be.service;
 
 import online.be.entity.Court;
 import online.be.entity.TimeSlot;
+import online.be.entity.TimeSlotPrice;
 import online.be.entity.Venue;
+import online.be.enums.BookingType;
 import online.be.exception.BadRequestException;
 import online.be.exception.ResourceNotFoundException;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.model.Response.TimeSlotResponse;
 import online.be.model.SlotIdCountDTO;
 import online.be.repository.CourtRepository;
+import online.be.repository.TimeSlotPriceRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ public class TimeSlotService {
 
     @Autowired
     CourtRepository courtRepo;
+
+    @Autowired
+    TimeSlotPriceRepository timeSlotPriceRepo;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -122,17 +128,19 @@ public class TimeSlotService {
         timeSlotRepository.deleteById(timeSlotId);
     }
 
-    public TimeSlotResponse mapperSlot(TimeSlot slot){
+    public TimeSlotResponse mapperSlot(TimeSlot slot, BookingType bookingType){
         TimeSlotResponse slotResponse = new TimeSlotResponse();
+        TimeSlotPrice timeSlotPrice = timeSlotPriceRepo.findByTimeSlotIdAndBookingType(slot.getId(),bookingType);
         slotResponse.setId(slot.getId());
         slotResponse.setDuration(slot.getDuration());
         slotResponse.setStartTime(String.valueOf(slot.getStartTime()));
         slotResponse.setEndTime(String.valueOf(slot.getEndTime()));
         slotResponse.setAvailable(true);
+        slotResponse.setPrice(timeSlotPrice.getPrice());
         return slotResponse;
     }
 
-    public List<TimeSlotResponse> getAvailableSlots(long courtId, LocalDate date){
+    public List<TimeSlotResponse> getAvailableSlots(long courtId, LocalDate date, BookingType bookingType){
         Court court = courtRepo.findById(courtId).orElseThrow(() ->
                 new RuntimeException("Court not found with id: " + courtId));
         List<TimeSlot> slots = timeSlotRepository.findByVenueId(court.getVenue().getId());
@@ -142,11 +150,12 @@ public class TimeSlotService {
         list = results.stream()
                 .map(result -> new SlotIdCountDTO((Long) result[0], (Long) result[1]))
                 .collect(Collectors.toList());
-        for (TimeSlot slot: slots){
-            TimeSlotResponse slotResponse = mapperSlot(slot);
 
-            if(date.equals(LocalDate.now()) || date.isBefore(LocalDate.now())){
-                slotResponse.setAvailable(!isSlotExpired(date, slot.getStartTime()));
+        for (TimeSlot slot: slots){
+            TimeSlotResponse slotResponse = mapperSlot(slot, bookingType);
+            // Kiểm tra quy tắc đặt lịch trong phương thức isSlotExpired
+            if (isSlotExpired(date, slot.getStartTime(), bookingType)) {
+                slotResponse.setAvailable(false);
             }
 
             for (SlotIdCountDTO slotIdCountDTO: list){
@@ -158,19 +167,35 @@ public class TimeSlotService {
         }
         return slotResponses;
     }
-    // Check if the slot date and time has already passed
-    private boolean isSlotExpired(LocalDate slotDate, LocalTime slotStartTime) {
+
+    // Kiểm tra nếu ngày và giờ của slot đã trôi qua
+    private boolean isSlotExpired(LocalDate slotDate, LocalTime slotStartTime, BookingType bookingType) {
         try {
             LocalDateTime slotDateTime = LocalDateTime.of(slotDate, slotStartTime);
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
-            return now.isAfter(expiryTime);
+
+            if (bookingType == BookingType.FIXED || bookingType == BookingType.FLEXIBLE) {
+                // Phải được đặt ít nhất 7 ngày trước khi bắt đầu tháng mới
+                LocalDateTime sevenDaysBeforeNextMonth = LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(7).atStartOfDay();
+                if (slotDateTime.isBefore(sevenDaysBeforeNextMonth)) {
+                    return true;
+                }
+            } else if (bookingType == BookingType.DAILY) {
+                // Phải được đặt ít nhất 30 phút trước giờ bắt đầu
+                LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
+                if (now.isAfter(expiryTime)) {
+                    return true;
+                }
+            }
+
+            return false;
         } catch (DateTimeParseException e) {
             e.printStackTrace();
-            // Handle the exception as needed
+            // Xử lý ngoại lệ nếu cần
             return true;
         }
     }
+
 
 //    // Get TimeSlots by Venue and Exclude Court on Date
 //    public List<TimeSlot> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(Long venueId, LocalDate date) {

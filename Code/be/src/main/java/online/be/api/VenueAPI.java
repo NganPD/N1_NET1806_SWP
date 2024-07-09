@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Venue;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
+import online.be.model.Response.VenueResponse;
 import online.be.service.VenueService;
 import org.hibernate.sql.Update;
 import org.springframework.cglib.core.Local;
@@ -32,7 +33,7 @@ public class VenueAPI {
 
     @GetMapping("/{venueId}")
     public ResponseEntity getVenueById(@PathVariable long venueId){
-        Venue venue = venueService.getVenueById(venueId);
+        VenueResponse venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
 
@@ -86,7 +87,10 @@ public class VenueAPI {
         return ResponseEntity.ok(venues);
     }
 
-
-
+    @GetMapping("/search-availableTime/{availableTime}")
+    public ResponseEntity searchVenuesByAvailableTime(@PathVariable String availableTime){
+        List<VenueResponse> venues = venueService.getVenueByAvailableTime(availableTime);
+        return ResponseEntity.ok(venues);
+    }
 
 }
