@@ -12,5 +12,5 @@ import lombok.Setter;
 public class RechargeRequest {
     private String amount;
     private String description;
-    private String transactionDate;
+    private String transitionDate;
 }

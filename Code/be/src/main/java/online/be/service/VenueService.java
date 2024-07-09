@@ -37,10 +37,6 @@ public class VenueService {
 
     // Tạo một venue
     public Venue createVenue(CreateVenueRequest createVenueRequest) {
-        //kiểm tra format tên của venue
-        if (!Pattern.matches("^[a-zA-Z\\s]+$", createVenueRequest.getVenueName())) {
-            throw new VenueException("Venue name contains invalid characters. Only letters and spaces are allowed.");
-        }
         //chuyển đổi request string thành localtime
         LocalTime operatingHours = LocalTime.parse(createVenueRequest.getOperatingHours(), timeFormatter);
         LocalTime closingHours = LocalTime.parse(createVenueRequest.getClosingHours(), timeFormatter);
@@ -217,6 +213,8 @@ public class VenueService {
         List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
         return staffs;
     }
+
+
 
 
 }

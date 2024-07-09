@@ -44,6 +44,11 @@ public class BookingAPI {
         return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
     }
 
+    @GetMapping("/booking-history")
+    public ResponseEntity getBookingHistory(){
+        return ResponseEntity.ok(bookingService.getBookingHistory());
+    }
+
 //    @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
 //        Booking Booking = bookingService.getBookingById(bookingId);

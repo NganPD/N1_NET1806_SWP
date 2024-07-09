@@ -237,16 +237,17 @@ public class BookingService {
         LocalDateTime bookingDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(), formatter);
-
         //kieemr tra so gio toi da va ngay hien tai
-        if(request.getTotalHours() > 24){
+        if(request.getTotalHours() > 20){
             throw new BadRequestException("Total play hours cannot exceed 20 hours");
         }
 
+        //lấy ngày bắt đầu slot sau đó cộng thêm 30 ngày
+        LocalDate endDate = checkInDate.plusDays(30);
         if(checkInDate.isBefore(bookingDate.toLocalDate())){
             throw new BadRequestException("Start date cannot be in the past");
         }
-        //Lay cac timeslot the ID va sap xepp
+        //Lay cac timeslot the ID va sap xep
         List<TimeSlot> timeSlots = request.getSelectedTimeSlotsId().stream()
                 .map(slotId -> timeSlotRepo.findById(slotId)
                         .orElseThrow(() -> new RuntimeException("Timeslot not found: " + slotId)))
@@ -301,7 +302,7 @@ public class BookingService {
 
 
     //payForBooking
-    public Booking processBookingPayment(long bookingId){
+    public Transaction processBookingPayment(long bookingId){
         //search booking
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking == null){
@@ -322,7 +323,18 @@ public class BookingService {
 
             walletRepository.save(adminWallet);
             walletRepository.save(customerWallet);
-            return bookingRepo.save(booking);
+            bookingRepo.save(booking);
+
+            Transaction transaction = new Transaction();
+            transaction.setTransactionDate(LocalDateTime.now().toString());
+            transaction.setFrom(customerWallet);
+            transaction.setTo(adminWallet);
+            transaction.setBooking(booking);
+            transaction.setVenueID(booking.getBookingDetailList().get(0).getCourtTimeSlot().getCourt().getVenue().getId());
+            transaction.setTransactionType(TransactionEnum.COMPLETED);
+            transaction.setAmount((float)booking.getTotalPrice());
+            transaction.setDescription("Pay for booking");
+            return transactionRepository.save(transaction);
         }else{
             throw new BadRequestException("Customer does not have enough balance.");
         }
@@ -346,7 +358,7 @@ public class BookingService {
                 walletRepository.save(customerWallet);
                 return bookingRepo.save(booking);
             }else{
-                throw new BookingException("This booking cannot be cancelled");
+                throw new BadRequestException("This booking cannot be cancelled");
             }
         }else{
             throw new BadRequestException("Booking not found");
@@ -404,6 +416,11 @@ public class BookingService {
         transactionRepository.save(transferTransaction);
 
         return transferTransaction;
+    }
+
+    public List<Booking> getBookingHistory(){
+        Account customer = authenticationService.getCurrentAccount();
+        return bookingRepo.findBookingByAccount_Id(customer.getId());
     }
 
 }

@@ -95,13 +95,24 @@ public class AccountService {
         return account;
     }
 
-    public Account deleteById(long id) {
+    public Account deActiveAccount(long id) {
         Account account = accountRepository.findById(id).orElseThrow(
                 ()-> new BadRequestException("Account does not exist!")
         );
         account.setActive(false);
         return accountRepository.save(account);
     }
+
+    public Account activeAccount(long id){
+        Account account = accountRepository.findById(id).get();
+        if(account != null){
+            account.setActive(true);
+            return accountRepository.save(account);
+        }else{
+            throw new BadRequestException("Account not found");
+        }
+    }
+
 
 
 }

@@ -3,6 +3,8 @@ package online.be.service;
 import online.be.entity.*;
 import online.be.enums.BookingType;
 import online.be.enums.SlotStatus;
+import online.be.exception.BadRequestException;
+import online.be.exception.BookingException;
 import online.be.exception.ResourceNotFoundException;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +40,9 @@ public class BookingDetailService {
         CourtTimeSlot courtTimeSlot = new CourtTimeSlot();
         //Retrieve Time slot and court, catch ResourceNotFoundException
         TimeSlot slot = slotRepo.findById(slotId).orElseThrow(() ->
-                new RuntimeException("TimeSlot not found with id: " + slotId));
+                new BadRequestException("TimeSlot not found with id: " + slotId));
         Court court = courtRepo.findById(courtId).orElseThrow(() ->
-                new RuntimeException("Court not found with id: " + courtId));
+                new BadRequestException("Court not found with id: " + courtId));
         try {
             // Parse the check-in date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");

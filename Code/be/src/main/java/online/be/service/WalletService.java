@@ -48,13 +48,13 @@ public class WalletService {
 
     public String createUrl(RechargeRequest rechargeRequest)
             throws NoSuchAlgorithmException, InvalidKeyException,
-            Exception{
+            Exception {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         LocalDateTime createDate = LocalDateTime.now();
         String formattedCreateDate = createDate.format(formatter);
 
         Account user = authenticationService.getCurrentAccount();
-        String orderId = UUID.randomUUID().toString().substring(0,6);
+        String orderId = UUID.randomUUID().toString().substring(0, 6);
         Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
 
         Transaction transaction = new Transaction();
@@ -68,7 +68,7 @@ public class WalletService {
         String tmnCode = VNPayConfig.vnp_TmpCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl = "http://goodminton.online/myProfile/wallet?id="+transactionReturn.getTransactionID();
+        String returnUrl = "http://goodminton.online/myProfile/wallet?id=" + transactionReturn.getTransactionID();
 
         String currCode = "VND";
         Map<String, String> vnpParams = new TreeMap<>();
@@ -80,7 +80,7 @@ public class WalletService {
         vnpParams.put("vnp_TxnRef", orderId);
         vnpParams.put("vnp_OrderInfo", "Thanh toan cho ma GD: " + orderId);
         vnpParams.put("vnp_OrderType", "other");
-        vnpParams.put("vnp_Amount", rechargeRequest.getAmount() +"00");
+        vnpParams.put("vnp_Amount", rechargeRequest.getAmount() + "00");
         vnpParams.put("vnp_ReturnUrl", returnUrl);
         vnpParams.put("vnp_CreateDate", formattedCreateDate);
         vnpParams.put("vnp_IpAddr", "104.248.224.6");
@@ -165,128 +165,126 @@ public class WalletService {
 //    }
 
 
-public Wallet recharge(UUID id) {
-    Account user = authenticationService.getCurrentAccount();
-    Transaction transaction = transactionRepository.findByTransactionID(id);
-    Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
-    if(transaction.getTransactionType().equals(TransactionEnum.PENDING)) {
-        if(wallet.getWalletID() == transaction.getTo().getWalletID()){
-            wallet.setBalance(wallet.getBalance()+transaction.getAmount());
+    public Wallet recharge(UUID id) {
+        Account user = authenticationService.getCurrentAccount();
+        Transaction transaction = transactionRepository.findByTransactionID(id);
+        Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
+        if (transaction.getTransactionType().equals(TransactionEnum.PENDING)) {
+            if (wallet.getWalletID() == transaction.getTo().getWalletID()) {
+                wallet.setBalance(wallet.getBalance() + transaction.getAmount());
+            }
+        } else {
+            throw new RuntimeException("Reload");
         }
-    }
-    else{
-        throw new RuntimeException("Reload");
-    }
-    transaction.setTransactionType(TransactionEnum.RECHARGE);
+        transaction.setTransactionType(TransactionEnum.RECHARGE);
 
-    transactionRepository.save(transaction);
-    return walletRepository.save(wallet);
-}
-
-public  Wallet walletDetail(long id) {
-    return  walletRepository.findWalletByAccount_Id(id);
-}
-
-public Transaction withDraw(WithDrawRequest withDrawRequest) {
-    Account user = authenticationService.getCurrentAccount();
-    Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
-    if (wallet.getBalance() >= (withDrawRequest.getAmount())) {
-        Transaction transaction = new Transaction();
-        transaction.setAmount((withDrawRequest.getAmount()));
-        transaction.setTransactionType(TransactionEnum.WITHDRAW_PENDING);
-        transaction.setFrom(wallet);
-        transaction.setDescription("WITHDRAW");
-        transaction.setAccountName(withDrawRequest.getAccountName());
-        transaction.setBankName(withDrawRequest.getBankName());
-        transaction.setAccountNumber(withDrawRequest.getAccountNumber());
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        transaction.setTransactionDate(now.format(formatter));
-        wallet.setBalance(wallet.getBalance()-(withDrawRequest.getAmount()));
-        walletRepository.save(wallet);
-        return transactionRepository.save(transaction);
-    } else {
-        throw new RuntimeException("Insufficient balance in wallet for withdrawal.");
-    }
-}
-
-public List<TransactionResponse> requestWithDraw() {
-    List<TransactionResponse> listTransactionResponseDTO = new ArrayList<>();
-    List<Transaction> transactions = transactionRepository.findTransactionByTransactionType(TransactionEnum.WITHDRAW_PENDING);
-    for (Transaction transaction : transactions) {
-        TransactionResponse transactionResponseDTO = new TransactionResponse();
-        transactionResponseDTO.setTransactionID(transaction.getTransactionID());
-        transactionResponseDTO.setTransactionType(transaction.getTransactionType());
-        transactionResponseDTO.setAmount(transaction.getAmount());
-        transactionResponseDTO.setDescription(transaction.getDescription());
-        transactionResponseDTO.setTransactionDate(transaction.getTransactionDate());
-        transactionResponseDTO.setFrom(transaction.getFrom());
-        transactionResponseDTO.setTo(transaction.getTo());
-        if(transaction.getFrom() != null){
-            transactionResponseDTO.setUserFrom(transaction.getFrom().getAccount());
-        }
-        if(transaction.getTo() != null){
-            transactionResponseDTO.setUserTo(transaction.getTo().getAccount());
-        }
-        listTransactionResponseDTO.add(transactionResponseDTO);
-    }
-    return  listTransactionResponseDTO;
-}
-
-public Transaction acpWithDraw(UUID id) {
-    Transaction transaction = transactionRepository.findByTransactionID(id);
-    if (transaction != null) {
-        transaction.setTransactionType(TransactionEnum.WITHDRAW_SUCCESS);
-        threadSendMail(transaction.getFrom().getAccount(), "Withdrawal Successfully", "Thank you for trusting and using Cremo");
         transactionRepository.save(transaction);
-        return  transaction;
-    }
-    else{
-        return null;
+        return walletRepository.save(wallet);
     }
 
-}
-
-
-public Transaction rejectWithDraw(UUID id, String reason) {
-    Transaction transaction = transactionRepository.findByTransactionID(id);
-    if (transaction != null) {
-        Wallet wallet = transaction.getFrom();
-        wallet.setBalance(wallet.getBalance()+ transaction.getAmount());
-        transaction.setTransactionType(TransactionEnum.WITHDRAW_REJECT);
-        transaction.setReasonWithdrawReject(reason);
-        threadSendMail(transaction.getFrom().getAccount(), "Withdrawal failed", "You Cannot Withdraw Because: " + reason);
-        return transactionRepository.save(transaction);
-    } else {
-        return null;
+    public Wallet walletDetail(long id) {
+        return walletRepository.findWalletByAccount_Id(id);
     }
-}
 
-public void threadSendMail(Account user,String subject, String description){
-    Runnable r = new Runnable() {
-        @Override
-        public void run() {
-            emailService.sendMail(user,subject,description);
-        }
-
-    };
-    new Thread(r).start();
-}
-
-public float getBalance(){
+    public Transaction withDraw(WithDrawRequest withDrawRequest) {
         Account user = authenticationService.getCurrentAccount();
         Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
-        if(wallet != null){
-            return wallet.getBalance();
-        }else{
-            throw new BookingException("Wallet not found for user ID: " + user.getId());
+        if (wallet.getBalance() >= (withDrawRequest.getAmount())) {
+            Transaction transaction = new Transaction();
+            transaction.setAmount((withDrawRequest.getAmount()));
+            transaction.setTransactionType(TransactionEnum.WITHDRAW_PENDING);
+            transaction.setFrom(wallet);
+            transaction.setDescription("WITHDRAW");
+            transaction.setAccountName(withDrawRequest.getAccountName());
+            transaction.setBankName(withDrawRequest.getBankName());
+            transaction.setAccountNumber(withDrawRequest.getAccountNumber());
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            transaction.setTransactionDate(now.format(formatter));
+            wallet.setBalance(wallet.getBalance() - (withDrawRequest.getAmount()));
+            walletRepository.save(wallet);
+            return transactionRepository.save(transaction);
+        } else {
+            throw new RuntimeException("Insufficient balance in wallet for withdrawal.");
+        }
     }
-}
 
-public Wallet getWalletByTransactionId(UUID transactionId){
+    public List<TransactionResponse> requestWithDraw() {
+        List<TransactionResponse> listTransactionResponseDTO = new ArrayList<>();
+        List<Transaction> transactions = transactionRepository.findTransactionByTransactionType(TransactionEnum.WITHDRAW_PENDING);
+        for (Transaction transaction : transactions) {
+            TransactionResponse transactionResponseDTO = new TransactionResponse();
+            transactionResponseDTO.setTransactionID(transaction.getTransactionID());
+            transactionResponseDTO.setTransactionType(transaction.getTransactionType());
+            transactionResponseDTO.setAmount(transaction.getAmount());
+            transactionResponseDTO.setDescription(transaction.getDescription());
+            transactionResponseDTO.setTransactionDate(transaction.getTransactionDate());
+            transactionResponseDTO.setFrom(transaction.getFrom());
+            transactionResponseDTO.setTo(transaction.getTo());
+            if (transaction.getFrom() != null) {
+                transactionResponseDTO.setUserFrom(transaction.getFrom().getAccount());
+            }
+            if (transaction.getTo() != null) {
+                transactionResponseDTO.setUserTo(transaction.getTo().getAccount());
+            }
+            listTransactionResponseDTO.add(transactionResponseDTO);
+        }
+        return listTransactionResponseDTO;
+    }
+
+    public Transaction acpWithDraw(UUID id) {
+        Transaction transaction = transactionRepository.findByTransactionID(id);
+        if (transaction != null) {
+            transaction.setTransactionType(TransactionEnum.WITHDRAW_SUCCESS);
+            threadSendMail(transaction.getFrom().getAccount(), "Withdrawal Successfully", "Thank you for trusting and using Cremo");
+            transactionRepository.save(transaction);
+            return transaction;
+        } else {
+            return null;
+        }
+
+    }
+
+
+    public Transaction rejectWithDraw(UUID id, String reason) {
+        Transaction transaction = transactionRepository.findByTransactionID(id);
+        if (transaction != null) {
+            Wallet wallet = transaction.getFrom();
+            wallet.setBalance(wallet.getBalance() + transaction.getAmount());
+            transaction.setTransactionType(TransactionEnum.WITHDRAW_REJECT);
+            transaction.setReasonWithdrawReject(reason);
+            threadSendMail(transaction.getFrom().getAccount(), "Withdrawal failed", "You Cannot Withdraw Because: " + reason);
+            return transactionRepository.save(transaction);
+        } else {
+            return null;
+        }
+    }
+
+    public void threadSendMail(Account user, String subject, String description) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                emailService.sendMail(user, subject, description);
+            }
+
+        };
+        new Thread(r).start();
+    }
+
+    public float getBalance() {
+        Account user = authenticationService.getCurrentAccount();
+        Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
+        if (wallet != null) {
+            return wallet.getBalance();
+        } else {
+            throw new BookingException("Wallet not found for user ID: " + user.getId());
+        }
+    }
+
+    public Wallet getWalletByTransactionId(UUID transactionId) {
         Transaction transaction = transactionRepository.findByTransactionID(transactionId);
         Wallet wallet = walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
         return wallet;
-}
+    }
 
 }

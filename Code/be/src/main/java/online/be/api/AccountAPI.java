@@ -23,24 +23,18 @@ public class AccountAPI {
         return ResponseEntity.ok(account);
     }
 
-//    @PostMapping("/update")
-//    public ResponseEntity<Account> updateAccount(AccountRequest accountRequest){
-//        Account account = accountService.updateAccount(accountRequest);
-//        return ResponseEntity.ok(account);
-//    }
-
-    @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity deleteBooking(@PathVariable long id){
-        accountService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @DeleteMapping("/account/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity deleteAccount(@PathVariable long id){
-        Account deletedAccount = accountService.deleteById(id);
+        Account deletedAccount = accountService.deActiveAccount(id);
         return ResponseEntity.ok(deletedAccount);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity activeAccount(@PathVariable long id){
+        Account account = accountService.activeAccount(id);
+        return ResponseEntity.ok(account);
+    }
+
 
 }

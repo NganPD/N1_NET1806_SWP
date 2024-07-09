@@ -37,10 +37,6 @@ public class Court {
     private Venue venue;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "court",cascade = CascadeType.ALL)
-    private List<StaffVenue> staffCourts;
-
-    @JsonIgnore
     @OneToMany(mappedBy = "court")
     private List<CourtTimeSlot> courtTimeSlots;
 

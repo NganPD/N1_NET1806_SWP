@@ -32,7 +32,6 @@ public class Venue {
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
-    @Column()
     private String services;
 
     @JsonFormat(pattern = "HH:mm")
