@@ -26,21 +26,20 @@ public class Venue {
     @Column(nullable = false)
     private String address;
 
+    private String contactInfor;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
 
+    @Column()
     private String services;
 
     @JsonFormat(pattern = "HH:mm")
-    @Column(nullable = false)
     private LocalTime operatingHours;
-
     @JsonFormat(pattern = "HH:mm")
-    @Column(nullable = false)
     private LocalTime closingHours;
 
-    @Column(nullable = false)
     private String description;
 
     @JsonIgnore
@@ -55,11 +54,11 @@ public class Venue {
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "managerId")
     private Account manager;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
-    private List<PaymentAccount> paymentInforList;
+    @OneToMany(mappedBy = "staffVenue", cascade = CascadeType.ALL)
+    private List<Account> staffs;
 }

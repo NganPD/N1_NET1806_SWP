@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TimeSlotPriceRepository extends JpaRepository<TimeSlotPrice, Long> {
+
     @Query("SELECT tsp FROM TimeSlotPrice tsp " +
             "WHERE tsp.timeSlot.id = :timeSlotId " +
             "AND tsp.bookingType = :bookingType")

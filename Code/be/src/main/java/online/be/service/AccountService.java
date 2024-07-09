@@ -1,12 +1,17 @@
 package online.be.service;
 
 import online.be.entity.Account;
+import online.be.entity.Venue;
+import online.be.entity.Wallet;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
+import online.be.exception.ResourceNotFoundException;
 import online.be.model.EmailDetail;
 import online.be.model.Request.AccountRequest;
 import online.be.repository.AccountRepostory;
+import online.be.repository.VenueRepository;
+import online.be.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static java.rmi.server.LogStream.log;
@@ -30,6 +37,12 @@ public class AccountService {
     @Autowired
     EmailService emailService;
 
+    @Autowired
+    VenueRepository venueRepository;
+
+    @Autowired
+    WalletRepository walletRepository;
+
     public Account createAccount(AccountRequest accountRequest) {
         //kiểm tra xem là tài khoản đã tồn tại hay chưa
         Account existingAccount = accountRepository.findAccountByEmail(accountRequest.getEmail());
@@ -42,6 +55,10 @@ public class AccountService {
         account.setPhone(accountRequest.getPhone());
         account.setPassword(passwordEncoder.encode(accountRequest.getPassword()));
         account.setActive(true);
+        Wallet wallet = new Wallet();
+        wallet.setBalance(0);
+        wallet.setAccount(account);
+
         switch (accountRequest.getRole()) {
             case MANAGER:
                 account.setRole(Role.MANAGER);
@@ -54,6 +71,7 @@ public class AccountService {
                 break;
         }
         try {
+            walletRepository.save(wallet);
             account = accountRepository.save(account);
         }catch (DataIntegrityViolationException e){
             System.out.println(e.getMessage());
@@ -84,4 +102,6 @@ public class AccountService {
         account.setActive(false);
         return accountRepository.save(account);
     }
+
+
 }

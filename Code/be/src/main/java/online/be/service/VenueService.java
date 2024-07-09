@@ -1,9 +1,7 @@
 package online.be.service;
 
-import online.be.entity.Account;
-import online.be.entity.Court;
-import online.be.entity.PaymentAccount;
-import online.be.entity.Venue;
+import online.be.entity.*;
+import online.be.enums.Role;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
@@ -11,10 +9,7 @@ import online.be.exception.NoDataFoundException;
 import online.be.exception.VenueException;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
-import online.be.repository.AccountRepostory;
-import online.be.repository.CourtRepository;
-import online.be.repository.PaymentAccountRepository;
-import online.be.repository.VenueRepository;
+import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,55 +31,52 @@ public class VenueService {
     CourtRepository courtRepository;
 
     @Autowired
-    PaymentAccountRepository paymentAccountRepository;
-
-    @Autowired
-    AccountRepostory accountRepostory;
+    AccountRepostory accountRepository;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-    // Tạo một venue mới
+    // Tạo một venue
     public Venue createVenue(CreateVenueRequest createVenueRequest) {
         //kiểm tra format tên của venue
         if (!Pattern.matches("^[a-zA-Z\\s]+$", createVenueRequest.getVenueName())) {
             throw new VenueException("Venue name contains invalid characters. Only letters and spaces are allowed.");
         }
-//        //kiểm tra xem sân tồn tại bên trong hệ thống chưa
-//        Venue existingVenue = venueRepository.findByName(createVenueRequest.getVenueName());
-//        if (existingVenue != null) {
-//            throw new VenueException("Duplicate venue");
-//        }
-//        //check the hour
-//        if (createVenueRequest.getOperatingHours().isBefore(LocalTime.MIN) || createVenueRequest.getOperatingHours().isAfter(LocalTime.MAX)) {
-//            throw new DateTimeException("Invalid value for HourOfDay (valid values 0 - 23): ");
-//        }
-//        //check the hour and minute
-//        if (createVenueRequest.getClosingHours().isBefore(LocalTime.MIN) || createVenueRequest.getClosingHours().isAfter(LocalTime.MAX)) {
-//            throw new DateTimeException( "Closing hours must be between 00:00 and 23:59.");
-//        }
-//        //the closing hours cannot be before operating hours
-//        if (createVenueRequest.getClosingHours().isBefore(createVenueRequest.getOperatingHours())) {
-//            throw new DateTimeException("Closing hours cannot be before operating hours.");
-//        }
-//        //the closing hours cannot be the same as operating hours
-//        if (createVenueRequest.getClosingHours().equals(createVenueRequest.getOperatingHours())) {
-//            throw new DateTimeException("Closing hours cannot be the same as operating hours.");
-//        }
+        //chuyển đổi request string thành localtime
+        LocalTime operatingHours = LocalTime.parse(createVenueRequest.getOperatingHours(), timeFormatter);
+        LocalTime closingHours = LocalTime.parse(createVenueRequest.getClosingHours(), timeFormatter);
+        //kiểm tra xem sân tồn tại bên trong hệ thống chưa
+        Venue existingVenue = venueRepository.findByName(createVenueRequest.getVenueName());
+        if (existingVenue != null) {
+            throw new VenueException("Duplicate venue");
+        }
+        //check the hour
+        if (operatingHours.isBefore(LocalTime.MIN) || operatingHours.isAfter(LocalTime.MAX)) {
+            throw new DateTimeException("Invalid value for HourOfDay (valid values 0 - 23): ");
+        }
+        //check the hour and minute
+        if (closingHours.isBefore(LocalTime.MIN) || closingHours.isAfter(LocalTime.MAX)) {
+            throw new DateTimeException( "Closing hours must be between 00:00 and 23:59.");
+        }
+        //the closing hours cannot be before operating hours
+        if (closingHours.isBefore(operatingHours)) {
+            throw new DateTimeException("Closing hours cannot be before operating hours.");
+        }
+        //the closing hours cannot be the same as operating hours
+        if (closingHours.equals(operatingHours)) {
+            throw new DateTimeException("Closing hours cannot be the same as operating hours.");
+        }
         //nếu venue chưa tồn tại trong hệ thống
+        Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
         venue.setAddress(createVenueRequest.getAddress());
+        venue.setContactInfor(createVenueRequest.getContactInfor());
         venue.setDescription(createVenueRequest.getDescription());
-        venue.setOperatingHours(LocalTime.parse(createVenueRequest.getOperatingHours(), timeFormatter));
-        venue.setClosingHours(LocalTime.parse(createVenueRequest.getClosingHours(), timeFormatter));
+        venue.setOperatingHours(operatingHours);
+        venue.setClosingHours(closingHours);
+        venue.setServices(createVenueRequest.getServices());
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
-
-//        //Nếu có chỉ định manager, thì add id manager vào venue
-//        if (createVenueRequest.getManagerId() != null) {
-//            Account manager = accountRepostory.findById(createVenueRequest.getManagerId())
-//                    .orElseThrow(() -> new BadRequestException("Manager account not found"));
-//            venue.setManager(manager);
-//        }
+        venue.setManager(manager);
         //save venue informtion down to database
         try {
             venue = venueRepository.save(venue);
@@ -197,8 +189,35 @@ public class VenueService {
 //        return venues;
 //    }
 
-    public PaymentAccount getPaymentAccountByVenueId(long venueId){
-        return paymentAccountRepository.findByVenueId(venueId);
+
+    public Venue addStaffToVenue(long staffId, long venueId){
+        try {
+            Venue venue = venueRepository.findVenueById(venueId);
+            Account staff = accountRepository.findUserById(staffId);
+
+            //add staff to venue
+            staff.setStaffVenue(venue);
+            venue.getStaffs().add(staff);
+
+            //save change
+            accountRepository.save(staff);
+            venueRepository.save(venue);
+            return venue;
+        }catch (Exception e){
+            throw new BadRequestException("Error: " +e.getMessage());
+        }
     }
+
+    public Account getManager(long venueId){
+        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
+        return manager;
+    }
+
+    public List<Account> getStaffsByVenueId(long venueId){
+        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
+        return staffs;
+    }
+
+
 }
 

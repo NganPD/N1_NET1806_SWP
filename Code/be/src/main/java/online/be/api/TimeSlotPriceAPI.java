@@ -1,5 +1,6 @@
 package online.be.api;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.TimeSlotPrice;
 import online.be.model.Request.TimeSlotPriceRequest;
 import online.be.model.Response.TimeSlotPriceResponse;
@@ -13,7 +14,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/timeSlotPrice")
+@RequestMapping("/api/time-slot-price")
+@SecurityRequirement(name = "api")
 public class TimeSlotPriceAPI {
 
     @Autowired
@@ -21,24 +23,24 @@ public class TimeSlotPriceAPI {
 
     // Lấy tất cả các CourtSchedule
     @GetMapping
-    public ResponseEntity<List<TimeSlotPrice>> getAllCourtSchedules() {
+    public ResponseEntity<List<TimeSlotPrice>> getAllPrice() {
         return ResponseEntity.ok(timeSlotPriceService.getAllSlotPrice());
     }
 
     // Tạo mới một CourtSchedule
     @PostMapping
-    public ResponseEntity<TimeSlotPriceResponse> createCourtSchedule(@PathVariable long timeSlotId,@RequestBody TimeSlotPriceRequest request) {
-        TimeSlotPriceResponse response = timeSlotPriceService.createTimeSlot(timeSlotId, request);
+    public ResponseEntity<TimeSlotPriceResponse> createTimeSlotPrice(@RequestBody TimeSlotPriceRequest request) {
+        TimeSlotPriceResponse response = timeSlotPriceService.createTimeSlot(request);
         return ResponseEntity.ok(response);
     }
 
     // Cập nhật thông tin một CourtSchedule
-    @PutMapping("/{id}")
-    public ResponseEntity<TimeSlotPriceResponse> updateCourtSchedule(@PathVariable long timeSlotId, @PathVariable long timeSlotPriceId,
-                                                             @RequestBody TimeSlotPrice timeSlotPriceDetaiil) {
-        TimeSlotPriceResponse response = timeSlotPriceService.updateTimeSlotPrice(timeSlotId, timeSlotPriceId, timeSlotPriceDetaiil);
-        return ResponseEntity.ok(response);
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<TimeSlotPriceResponse> updatePrice(@PathVariable long timeSlotId, @PathVariable long timeSlotPriceId,
+//                                                             @RequestBody TimeSlotPrice timeSlotPriceDetaiil) {
+//        TimeSlotPriceResponse response = timeSlotPriceService.updateTimeSlotPrice(timeSlotId, timeSlotPriceId, timeSlotPriceDetaiil);
+//        return ResponseEntity.ok(response);
+//    }
 
 //    // Xóa một CourtSchedule
 //    @DeleteMapping("/{id}")
