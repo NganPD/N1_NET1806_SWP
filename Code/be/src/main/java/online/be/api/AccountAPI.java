@@ -2,6 +2,7 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Account;
+import online.be.enums.Role;
 import online.be.model.Request.AccountRequest;
 import online.be.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,9 @@ public class AccountAPI {
 
     @DeleteMapping("/account/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity deleteAccount(@PathVariable long id){
+    public ResponseEntity lockAccount(@PathVariable long id){
         Account deletedAccount = accountService.deActiveAccount(id);
-        return ResponseEntity.ok(deletedAccount);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
@@ -36,5 +37,9 @@ public class AccountAPI {
         return ResponseEntity.ok(account);
     }
 
+    @PutMapping("/{id}/role")
+    public void assignRole(@PathVariable long id, @RequestParam Role role){
+        accountService.assignRole(id, role);
+    }
 
 }

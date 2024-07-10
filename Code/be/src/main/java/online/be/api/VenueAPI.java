@@ -7,6 +7,7 @@ import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
 import online.be.service.VenueService;
 import org.hibernate.sql.Update;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,8 @@ import java.util.List;
 @SecurityRequirement(name = "api")
 public class VenueAPI {
 
+    @Autowired
     VenueService venueService;
-
-    public VenueAPI(VenueService venueService) {
-        this.venueService = venueService;
-    }
 
     @PostMapping
     public ResponseEntity<Venue> createVenue(@RequestBody CreateVenueRequest createVenueRequest){
@@ -48,17 +46,6 @@ public class VenueAPI {
         Venue updatedVenue = venueService.updateVenue(venueId, updateVenueRequest);
         return ResponseEntity.ok().body(updatedVenue);
     }
-
-//    //lay theo availableslot
-//    @GetMapping("/search-venues-availableslots")
-//    public ResponseEntity findVenuesWithAvailableSlots(
-//            @RequestParam String startTime, @RequestParam String endTime
-//    ){
-//        LocalTime start = LocalTime.parse(startTime);
-//        LocalTime end = LocalTime.parse(endTime);
-//        List<Venue> venues = venueService.getVenueWithAvailableSlots(start, end);
-//        return ResponseEntity.ok(venues);
-//    }
 
     //lấy theo tên
     @GetMapping("/search-keyword")
@@ -101,6 +88,16 @@ public class VenueAPI {
     @GetMapping("{venueId}/staffs")
     public ResponseEntity<List<Account>> getStaffs(@PathVariable long venueId){
         return ResponseEntity.ok(venueService.getStaffsByVenueId(venueId));
+    }
+
+    @GetMapping("{venueId}/courts")
+    public ResponseEntity getCourtsByVenueId(@PathVariable long venueId){
+        return ResponseEntity.ok(venueService.getCourtByVenueId(venueId));
+    }
+
+    @GetMapping("{venueId}/reviews")
+    public ResponseEntity getReviewsByVenueId(@PathVariable long venueId){
+        return ResponseEntity.ok(venueService.getReviewByVenueId(venueId));
     }
 
 

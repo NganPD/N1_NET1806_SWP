@@ -4,8 +4,6 @@ import online.be.entity.*;
 import online.be.enums.BookingType;
 import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
-import online.be.exception.BookingException;
-import online.be.exception.ResourceNotFoundException;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +25,7 @@ public class BookingDetailService {
     CourtRepository courtRepo;
 
     @Autowired
-    TimeSlotPriceService timeSlotPriceService;
+    DiscountService discountService;
 
     @Autowired
     TimeSlotService timeSlotService;
@@ -55,9 +53,9 @@ public class BookingDetailService {
         } catch (Exception e){
             throw new RuntimeException("Something went wrong, please try again!");
         }
-        List<TimeSlotPrice> slotPrices = timeSlotPriceService.getAllSlotPriceBySlotId(slot.getId());
+        List<Discount> slotPrices = discountService.getAllSlotPriceBySlotId(slot.getId());
         double price = 0;
-        for (TimeSlotPrice slotPrice : slotPrices){
+        for (Discount slotPrice : slotPrices){
             if (slotPrice.getBookingType().equals(bookingType)){
                 price = slotPrice.getPrice();
                 if (price <= 0){

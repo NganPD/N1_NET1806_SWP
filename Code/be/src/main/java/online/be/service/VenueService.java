@@ -33,6 +33,9 @@ public class VenueService {
     @Autowired
     AccountRepostory accountRepository;
 
+    @Autowired
+    ReviewRepository reviewRepository;
+
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     // Tạo một venue
@@ -107,10 +110,6 @@ public class VenueService {
 
     // Cập nhật thông tin venue
     public Venue updateVenue(long venueId, UpdateVenueRequest updateVenueRequest) {
-        //kiem tra ten venue
-        if (!Pattern.matches("^[a-zA-Z\\s]+$", updateVenueRequest.getVenueName())) {
-            throw new VenueException("Venue name contains invalid characters. Only letters and spaces are allowed.");
-        }
         // Find venue by ID
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new BadRequestException("Venue not found with id: " + venueId));
@@ -214,6 +213,21 @@ public class VenueService {
         return staffs;
     }
 
+    public List<Court> getCourtByVenueId(long venueId){
+        Venue venue = venueRepository.findVenueById(venueId);
+        if(venue == null){
+            throw new NoDataFoundException("Venue not found");
+        }
+        return courtRepository.findByVenue(venue);
+    }
+
+    public List<Review> getReviewByVenueId(long venueId){
+        Venue venue = venueRepository.findVenueById(venueId);
+        if(venue == null){
+            throw new NoDataFoundException("Venue not found");
+        }
+        return reviewRepository.findByVenue(venue);
+    }
 
 
 

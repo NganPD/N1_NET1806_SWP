@@ -75,6 +75,8 @@ public class CourtService {
         court.setStatus(CourtStatus.INACTIVE);
         courtRepository.save(court);
     }
+
+
 }
 
 

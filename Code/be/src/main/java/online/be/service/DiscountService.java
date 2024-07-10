@@ -1,78 +1,59 @@
 package online.be.service;
 
 import online.be.entity.TimeSlot;
-import online.be.entity.TimeSlotPrice;
+import online.be.entity.Discount;
 import online.be.exception.BadRequestException;
-import online.be.model.Request.TimeSlotPriceRequest;
+import online.be.model.Request.DiscountRequest;
 import online.be.model.Response.TimeSlotPriceResponse;
-import online.be.repository.TimeSlotPriceRepository;
+import online.be.repository.DiscountRepository;
 import online.be.repository.TimeSlotRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class TimeSlotPriceService {
+public class DiscountService {
 
     @Autowired
-    TimeSlotPriceRepository timeSlotPriceRepository;
+    DiscountRepository discountRepository;
 
     @Autowired
     TimeSlotRepository timeSlotRepository;
 
-    public TimeSlotPriceResponse createTimeSlot(TimeSlotPriceRequest request){
+    public Discount createDiscountTable(DiscountRequest request){
         //check the timeslot id exist or not
         TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotID())
                 .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
         //if the timeslot exist set the field price
         //create a new timeslotprice entity
-        TimeSlotPrice slotPrice = new TimeSlotPrice();
+        Discount slotPrice = new Discount();
         slotPrice.setBookingType(request.getBookingType());
         slotPrice.setDiscount(request.getDiscount());
-        slotPrice.setPrice(request.getPrice());
         slotPrice.setTimeSlot(timeSlot);
-
-        TimeSlotPrice createdSlotPrice = timeSlotPriceRepository.save(slotPrice);
-
-        //create and return the response
-        TimeSlotPriceResponse response = new TimeSlotPriceResponse();
-        response.setTimeSlotId(createdSlotPrice.getTimeSlot().getId());
-        response.setBookingType(createdSlotPrice.getBookingType());
-        response.setPrice(createdSlotPrice.getPrice());
-        return response;
+        return discountRepository.save(slotPrice);
     }
 
-    public TimeSlotPriceResponse updateTimeSlotPrice(long timeSlotId, long timeSlotPriceId, TimeSlotPrice timeSlotPrice){
+    public Discount updateTimeSlotPrice(long timeSlotId, long discountId, DiscountRequest request){
         //check the timeslot id
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
                 .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
         //check the time slot price id
-        TimeSlotPrice existingTimeSlotPrice = timeSlotPriceRepository.findById(timeSlotPriceId)
+        Discount discount = discountRepository.findById(discountId)
                 .orElseThrow(()-> new BadRequestException("The time slot price id does not exist"));
 
-        existingTimeSlotPrice.setTimeSlot(timeSlot);
-        existingTimeSlotPrice.setBookingType(timeSlotPrice.getBookingType());
-        existingTimeSlotPrice.setPrice(timeSlotPrice.getPrice());
-
-        TimeSlotPrice updateTimeSlotPrice = timeSlotPriceRepository.save(existingTimeSlotPrice);
-
-        //return the response
-        TimeSlotPriceResponse response = new TimeSlotPriceResponse();
-        response.setTimeSlotId(updateTimeSlotPrice.getTimeSlot().getId());
-        response.setBookingType(updateTimeSlotPrice.getBookingType());
-        response.setPrice(updateTimeSlotPrice.getPrice());
-
-        return response;
+        discount.setTimeSlot(timeSlot);
+        discount.setBookingType(request.getBookingType());
+        discount.setDiscount(request.getDiscount());
+        return discountRepository.save(discount);
     }
 
-    public List<TimeSlotPrice> getAllSlotPrice(){
-        return timeSlotPriceRepository.findAll();
+    public List<Discount> getAllSlotPrice(){
+        return discountRepository.findAll();
     }
 
-    public List<TimeSlotPrice> getAllSlotPriceBySlotId(long slotId){
-        return timeSlotPriceRepository.findAll();
+    public List<Discount> getAllSlotPriceBySlotId(long slotId){
+        return discountRepository.findAll();
     }
 
 }

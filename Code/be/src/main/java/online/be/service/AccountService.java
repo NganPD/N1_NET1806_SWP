@@ -113,6 +113,15 @@ public class AccountService {
         }
     }
 
+    public void assignRole(long accountId, Role role){
+        Account account = accountRepository.findById(accountId).get();
+        if(account == null){
+            throw new AuthException("Account not found");
+        }
+        account.setRole(role);
+        accountRepository.save(account);
+    }
+
 
 
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -27,6 +26,7 @@ public class TimeSlot {
     private LocalTime endTime;
 
     private long duration;
+    private double price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -35,7 +35,7 @@ public class TimeSlot {
 
     @JsonIgnore
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
-    private List<TimeSlotPrice> timeSlotPrices;
+    private List<Discount> discounts;
 
     @JsonIgnore
     @OneToMany(mappedBy = "timeSlot")

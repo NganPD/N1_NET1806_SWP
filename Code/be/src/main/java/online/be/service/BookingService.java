@@ -232,6 +232,24 @@ public class BookingService {
     }
     //Tự tạo hiển thị không có Booking
 
+    //mua số giờ chơi cho loại lịch linh hoạt
+    public Booking purchaseFlexibleHours(int totalHour){
+        Account user = authenticationService.getCurrentAccount();
+        LocalDateTime purchaseDate = LocalDateTime.now();
+        //validate total hour
+        //create booking entity for purchasing hours
+        Booking booking = new Booking();
+        booking.setAccount(user);
+        booking.setBookingType(BookingType.FLEXIBLE);
+        booking.setBookingDate(purchaseDate);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setTotalTimes(totalHour);
+        booking.setRemainingTimes(totalHour);
+
+        //calculate total price base on hourly rate
+        double totalPrice = totalHour
+
+    }
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
         Account user = authenticationService.getCurrentAccount();
         LocalDateTime bookingDate = LocalDateTime.now();

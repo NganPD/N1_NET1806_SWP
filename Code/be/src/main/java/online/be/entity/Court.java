@@ -25,9 +25,6 @@ public class Court {
     @Enumerated(EnumType.STRING)
     private CourtStatus status;
 
-    @Column(nullable = true)
-    private String services;
-
     @Column(name = "description")
     private String description;
 

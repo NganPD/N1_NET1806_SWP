@@ -219,30 +219,4 @@ public class AuthenticationService implements UserDetailsService {
         return authenticationRepository.save(account);
     }
 
-    public void assignRole(Long accountId, Role role) {
-        Account account = authenticationRepository.findById(accountId).orElseThrow(
-                () -> new BadRequestException("Account not found!")
-        );
-        account.setRole(role);
-        authenticationRepository.save(account);
-    }
-
-    //khoa account lai neu muon xoa thi chi co the chinh status
-    public void lockAccount(Long accountId) {
-        Account account = authenticationRepository.findById(accountId).orElseThrow(
-                () -> new BadRequestException("Account not found!")
-        );
-        account.setActive(false);
-        authenticationRepository.save(account);
-    }
-
-    public void unlockAccount(long accountId) {
-        Account account = authenticationRepository.findById(accountId).orElseThrow(
-                () -> new BadRequestException("Account not found!")
-        );
-        account.setActive(true);
-        authenticationRepository.save(account);
-    }
-
-
 }

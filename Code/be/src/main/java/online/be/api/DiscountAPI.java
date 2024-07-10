@@ -1,36 +1,32 @@
 package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import online.be.entity.TimeSlotPrice;
-import online.be.model.Request.TimeSlotPriceRequest;
-import online.be.model.Response.TimeSlotPriceResponse;
-import online.be.repository.TimeSlotPriceRepository;
-import online.be.service.TimeSlotPriceService;
+import online.be.entity.Discount;
+import online.be.model.Request.DiscountRequest;
+import online.be.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/time-slot-price")
 @SecurityRequirement(name = "api")
-public class TimeSlotPriceAPI {
+public class DiscountAPI {
 
     @Autowired
-    TimeSlotPriceService timeSlotPriceService;
+    DiscountService discountService;
 
-    // Lấy tất cả các CourtSchedule
     @GetMapping
-    public ResponseEntity<List<TimeSlotPrice>> getAllPrice() {
-        return ResponseEntity.ok(timeSlotPriceService.getAllSlotPrice());
+    public ResponseEntity<List<Discount>> getAllPrice() {
+        return ResponseEntity.ok(discountService.getAllSlotPrice());
     }
 
     // Tạo mới một CourtSchedule
     @PostMapping
-    public ResponseEntity<TimeSlotPriceResponse> createTimeSlotPrice(@RequestBody TimeSlotPriceRequest request) {
-        TimeSlotPriceResponse response = timeSlotPriceService.createTimeSlot(request);
+    public ResponseEntity createTimeSlotPrice(@RequestBody DiscountRequest request) {
+        Discount response = discountService.createDiscountTable(request);
         return ResponseEntity.ok(response);
     }
 

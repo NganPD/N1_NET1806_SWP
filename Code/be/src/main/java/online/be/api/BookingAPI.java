@@ -6,7 +6,7 @@ import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
 import online.be.service.BookingService;
-import online.be.service.TimeSlotPriceService;
+import online.be.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class BookingAPI {
     BookingService bookingService;
 
     @Autowired
-    TimeSlotPriceService timeSlotPriceService;
+    DiscountService discountService;
 
     @PostMapping("/flexible")
     public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
