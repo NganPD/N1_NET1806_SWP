@@ -4,7 +4,6 @@ package online.be.api;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Review;
 import online.be.model.Request.ReviewRequest;
-import online.be.model.Request.VenueReviewRequest;
 import online.be.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
