@@ -49,7 +49,7 @@ public class BookingAPI {
         return ResponseEntity.ok(bookingService.getBookingHistory());
     }
 
-//    @GetMapping("/{bookingId}")
+    //    @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
 //        Booking Booking = bookingService.getBookingById(bookingId);
 //        return ResponseEntity.ok().body(Booking);

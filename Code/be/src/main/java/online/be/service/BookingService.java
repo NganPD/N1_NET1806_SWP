@@ -264,12 +264,12 @@ public class BookingService {
         }catch (Exception ex){
             throw new RuntimeException("Failed to create booking", ex);
         }
-
+        return booking;
     }
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
         Account user = authenticationService.getCurrentAccount();
         //find the booking
-        Booking booking
+        Booking booking = bookingRepo.findBookingById(request.getBookingId());
         LocalDateTime bookingDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(), formatter);

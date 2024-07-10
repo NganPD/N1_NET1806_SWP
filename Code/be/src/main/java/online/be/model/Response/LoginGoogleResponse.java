@@ -3,6 +3,7 @@ package online.be.model.Response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import online.be.entity.Wallet;
 import online.be.enums.Role;
 
 @Getter
@@ -23,5 +24,6 @@ public class LoginGoogleResponse {
 
     private Role role;
 
+    private Wallet wallet;
     private String token;
 }

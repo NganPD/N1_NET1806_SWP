@@ -1,3 +1,4 @@
+
 package online.be.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,8 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 import online.be.enums.BookingStatus;
 import online.be.enums.BookingType;
-import online.be.enums.PaymentStatus;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,10 +42,8 @@ public class Booking {
 
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<BookingDetail> bookingDetailList;
 
-    @OneToOne
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
 }
