@@ -247,7 +247,7 @@ public class BookingService {
         booking.setRemainingTimes(totalHour);
 
         //calculate total price base on hourly rate
-        TimeSlot timeSlot = timeSlotRepo.findByVenueId(venueId);
+        List<TimeSlot> timeSlot = timeSlotRepo.findByVenueId(venueId);
 
     }
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
