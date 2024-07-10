@@ -1,11 +1,12 @@
 package online.be.util;
 
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class DateTImeUtils {
-    // Định dạng ngày: dd-MM-yyyy
-    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+@Component
+public class DateTimeUtils {
 
     /**
      * Định dạng LocalDate thành chuỗi sử dụng định dạng DATE_FORMATTER.
@@ -13,7 +14,7 @@ public class DateTImeUtils {
      * @param date LocalDate đối tượng
      * @return Chuỗi định dạng ngày
      */
-    public static String formatDate(LocalDate date) {
-        return date.format(DATE_FORMATTER);
+    public String formatDate(LocalDate date) {
+        return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
     }
 }

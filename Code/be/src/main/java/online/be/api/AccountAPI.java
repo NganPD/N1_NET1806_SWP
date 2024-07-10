@@ -42,4 +42,8 @@ public class AccountAPI {
         accountService.assignRole(id, role);
     }
 
+    @GetMapping("/role/{role}")
+    public ResponseEntity getByRole(@PathVariable Role role){
+        return ResponseEntity.ok(accountService.getByRole(role));
+    }
 }

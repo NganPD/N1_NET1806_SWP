@@ -7,6 +7,7 @@ import online.be.entity.Transaction;
 import online.be.entity.Wallet;
 import online.be.enums.Role;
 import online.be.enums.TransactionEnum;
+import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
 import online.be.model.Request.RechargeRequest;
 import online.be.model.Request.WithDrawRequest;
@@ -205,7 +206,7 @@ public class WalletService {
             walletRepository.save(wallet);
             return transactionRepository.save(transaction);
         } else {
-            throw new RuntimeException("Insufficient balance in wallet for withdrawal.");
+            throw new BadRequestException("Insufficient balance in wallet for withdrawal.");
         }
     }
 
@@ -240,7 +241,7 @@ public class WalletService {
             transactionRepository.save(transaction);
             return transaction;
         } else {
-            return null;
+            throw new BadRequestException("Cannot found transaction");
         }
 
     }

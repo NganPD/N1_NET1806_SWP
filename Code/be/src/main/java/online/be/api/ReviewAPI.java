@@ -17,7 +17,7 @@ public class ReviewAPI {
     private ReviewService reviewService;
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/{reviewId}")
     public ResponseEntity getReviewById(@PathVariable long reviewId){
         Review review = reviewService.getReviewById(reviewId);
         return ResponseEntity.ok(review);

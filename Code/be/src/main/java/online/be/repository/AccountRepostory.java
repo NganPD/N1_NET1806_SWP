@@ -16,4 +16,5 @@ public interface AccountRepostory extends JpaRepository<Account, Long> {
     Account findManagerByAssignedVenue_Id(long venueId);
     @Query("SELECT a FROM Account a WHERE a.role = 'ADMIN'")
     Account findAdmin();
+    List<Account> findByRole(Role role);
 }

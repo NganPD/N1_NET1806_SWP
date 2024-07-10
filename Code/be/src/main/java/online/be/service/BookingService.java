@@ -6,6 +6,7 @@ import online.be.enums.*;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
 import online.be.exception.DuplicateEntryException;
+import online.be.model.EmailDetail;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
@@ -58,6 +59,9 @@ public class BookingService {
 
     @Autowired
     AccountRepostory accountRepostory;
+
+    @Autowired
+    EmailService emailService;
 
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
@@ -264,77 +268,77 @@ public class BookingService {
         }catch (Exception ex){
             throw new RuntimeException("Failed to create booking", ex);
         }
-
+        return booking;
     }
-    public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
-        Account user = authenticationService.getCurrentAccount();
-        //find the booking
-        Booking booking
-        LocalDateTime bookingDate = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(), formatter);
-        //kieemr tra so gio toi da va ngay hien tai
-        if(request.getTotalHours() > 20){
-            throw new BadRequestException("Total play hours cannot exceed 20 hours");
-        }
-
-        //lấy ngày bắt đầu slot sau đó cộng thêm 30 ngày
-        LocalDate endDate = checkInDate.plusDays(30);
-        if(checkInDate.isBefore(bookingDate.toLocalDate())){
-            throw new BadRequestException("Start date cannot be in the past");
-        }
-        //Lay cac timeslot the ID va sap xep
-        List<TimeSlot> timeSlots = request.getSelectedTimeSlotsId().stream()
-                .map(slotId -> timeSlotRepo.findById(slotId)
-                        .orElseThrow(() -> new RuntimeException("Timeslot not found: " + slotId)))
-                .sorted(Comparator.comparing(TimeSlot::getStartTime))
-                .collect(Collectors.toList());
-
-        //kiem tra tinh hop le cua cac timeslot
-        double totalPrice = 0;
-        int totalDuration = 0;
-
-        List<BookingDetail> details = new ArrayList<>();
-        for (TimeSlot timeSlot : timeSlots){
-            BookingDetail detail = detailService.createBookingDetail(
-                    BookingType.FLEXIBLE,
-                    request.getCheckInDate(),
-                    request.getCourtId(),
-                    timeSlot.getId()
-            );
-            totalPrice += detail.getPrice();
-            totalDuration += (int) detail.getDuration();
-            details.add(detail);
-        }
-        //kiem tra tong thoi gian dat lich
-        if(totalDuration > request.getTotalHours()){
-            throw new BadRequestException("Selected timeslots exceed the total play hours");
-        }
-
-        //create booking
-        Booking booking = new Booking();
-        booking.setAccount(user);
-        booking.setBookingDate(bookingDate);
-        booking.setBookingType(BookingType.FLEXIBLE);
-        booking.setStatus(BookingStatus.PENDING);
-        booking.setTotalPrice(totalPrice);
-        booking.setTotalTimes(totalDuration);
-        booking.setRemainingTimes(totalDuration);
-        booking.setBookingDetailList(details);
-
-        try {
-            return bookingRepo.save(booking);
-        } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
-                if (sqlException.getErrorCode() == 1062) {
-                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
-                }
-            }
-            throw new RuntimeException("Something went wrong, please try again", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Something went wrong, please try again");
-        }
-    }
+//    public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
+//        Account user = authenticationService.getCurrentAccount();
+//        //find the booking
+//        Booking booking
+//        LocalDateTime bookingDate = LocalDateTime.now();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//        LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(), formatter);
+//        //kieemr tra so gio toi da va ngay hien tai
+//        if(request.getTotalHours() > 20){
+//            throw new BadRequestException("Total play hours cannot exceed 20 hours");
+//        }
+//
+//        //lấy ngày bắt đầu slot sau đó cộng thêm 30 ngày
+//        LocalDate endDate = checkInDate.plusDays(30);
+//        if(checkInDate.isBefore(bookingDate.toLocalDate())){
+//            throw new BadRequestException("Start date cannot be in the past");
+//        }
+//        //Lay cac timeslot the ID va sap xep
+//        List<TimeSlot> timeSlots = request.getSelectedTimeSlotsId().stream()
+//                .map(slotId -> timeSlotRepo.findById(slotId)
+//                        .orElseThrow(() -> new RuntimeException("Timeslot not found: " + slotId)))
+//                .sorted(Comparator.comparing(TimeSlot::getStartTime))
+//                .collect(Collectors.toList());
+//
+//        //kiem tra tinh hop le cua cac timeslot
+//        double totalPrice = 0;
+//        int totalDuration = 0;
+//
+//        List<BookingDetail> details = new ArrayList<>();
+//        for (TimeSlot timeSlot : timeSlots){
+//            BookingDetail detail = detailService.createBookingDetail(
+//                    BookingType.FLEXIBLE,
+//                    request.getCheckInDate(),
+//                    request.getCourtId(),
+//                    timeSlot.getId()
+//            );
+//            totalPrice += detail.getPrice();
+//            totalDuration += (int) detail.getDuration();
+//            details.add(detail);
+//        }
+//        //kiem tra tong thoi gian dat lich
+//        if(totalDuration > request.getTotalHours()){
+//            throw new BadRequestException("Selected timeslots exceed the total play hours");
+//        }
+//
+//        //create booking
+//        Booking booking = new Booking();
+//        booking.setAccount(user);
+//        booking.setBookingDate(bookingDate);
+//        booking.setBookingType(BookingType.FLEXIBLE);
+//        booking.setStatus(BookingStatus.PENDING);
+//        booking.setTotalPrice(totalPrice);
+//        booking.setTotalTimes(totalDuration);
+//        booking.setRemainingTimes(totalDuration);
+//        booking.setBookingDetailList(details);
+//
+//        try {
+//            return bookingRepo.save(booking);
+//        } catch (DataIntegrityViolationException e) {
+//            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
+//                if (sqlException.getErrorCode() == 1062) {
+//                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
+//                }
+//            }
+//            throw new RuntimeException("Something went wrong, please try again", e);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Something went wrong, please try again");
+//        }
+//    }
 
 
     //payForBooking
@@ -370,10 +374,22 @@ public class BookingService {
             transaction.setTransactionType(TransactionEnum.COMPLETED);
             transaction.setAmount((float)booking.getTotalPrice());
             transaction.setDescription("Pay for booking");
+
+
+            // Send email notification
+            String subject = "Booking Payment Confirmation";
+            String description = "Dear " + customer.getFullName() + ",\n\n" +
+                    "Your payment of " + amount + " for booking ID " + bookingId + " has been successfully processed.\n" +
+                    "Thank you for your booking!\n\n" +
+                    "Best regards,\ngoodminton.online";
+
+            emailService.sendMail(customer, subject, description);
+
             return transactionRepository.save(transaction);
         }else{
             throw new BadRequestException("Customer does not have enough balance.");
         }
+
     }
     //cancel booking
     public Booking cancelBooking(long bookingId){

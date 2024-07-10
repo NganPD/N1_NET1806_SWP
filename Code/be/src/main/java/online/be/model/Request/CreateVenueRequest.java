@@ -12,7 +12,7 @@ public class CreateVenueRequest {
     private String address;
     private String contactInfor;//sdt hoặc email
     private VenueStatus venueStatus;
-    private String operatingHours;
+    private String openingHours;
     private String closingHours;
     private String description;
     private String services;

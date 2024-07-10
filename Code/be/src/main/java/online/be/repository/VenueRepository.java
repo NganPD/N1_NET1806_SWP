@@ -26,10 +26,11 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
 //        List<Venue> findVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime);
 
         List<Venue> findByAddress(String address);
+        List<Venue> findByAddressContaining(String keyword);
 
         Venue findByName(String venueName);
 
-        List<Venue> findByOperatingHours(@Param("operatingHours") LocalTime operatingHours);
+        List<Venue> findByOpeningHour(@Param("openingHour") LocalTime openingHour);
 
         Venue findVenueById(long venueId);
 }

@@ -16,4 +16,5 @@ public class TimeSlotRequest {
     @JsonFormat(pattern = "HH:mm")
     private String  endTime;
     private long venueId;
+    private double price;
 }

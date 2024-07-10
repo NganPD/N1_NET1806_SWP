@@ -7,6 +7,7 @@ import online.be.exception.BadRequestException;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.threeten.bp.DateTimeUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -33,6 +34,7 @@ public class BookingDetailService {
     @Autowired
     TimeSlotRepository slotRepo;
 
+
     public BookingDetail createBookingDetail(BookingType bookingType, String date, long courtId, long slotId){
         // Create a new Court time slot
         CourtTimeSlot courtTimeSlot = new CourtTimeSlot();
@@ -53,15 +55,12 @@ public class BookingDetailService {
         } catch (Exception e){
             throw new RuntimeException("Something went wrong, please try again!");
         }
-        List<Discount> slotPrices = discountService.getAllSlotPriceBySlotId(slot.getId());
+        List<Discount> discountList = discountService.getAllSlotPriceBySlotId(slot.getId());
         double price = 0;
-        for (Discount slotPrice : slotPrices){
-            if (slotPrice.getBookingType().equals(bookingType)){
-                price = slotPrice.getPrice();
-                if (price <= 0){
-                    throw new RuntimeException("Price is not negative number and larger than 0");
-                }
-                price = price - (price * (slotPrice.getDiscount()/100));
+        for (Discount discount : discountList){
+            if (discount.getBookingType().equals(bookingType)){
+                price = slot.getPrice();
+                price = price - (price * (discount.getDiscount()/100));
             }
         }
 

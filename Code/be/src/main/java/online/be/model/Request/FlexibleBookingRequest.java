@@ -11,6 +11,6 @@ import java.util.List;
 public class FlexibleBookingRequest {
     private long bookingId;
     private String checkInDate;
-    private List<Long> courtId;
+    private long courtId;
     private List<Long> selectedTimeSlotsId;
 }

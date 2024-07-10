@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/time-slot-price")
+@RequestMapping("/api/discount")
 @SecurityRequirement(name = "api")
 public class DiscountAPI {
 
@@ -19,13 +19,13 @@ public class DiscountAPI {
     DiscountService discountService;
 
     @GetMapping
-    public ResponseEntity<List<Discount>> getAllPrice() {
+    public ResponseEntity<List<Discount>> getAlliscount() {
         return ResponseEntity.ok(discountService.getAllSlotPrice());
     }
 
     // Tạo mới một CourtSchedule
     @PostMapping
-    public ResponseEntity createTimeSlotPrice(@RequestBody DiscountRequest request) {
+    public ResponseEntity createDiscountTable(@RequestBody DiscountRequest request) {
         Discount response = discountService.createDiscountTable(request);
         return ResponseEntity.ok(response);
     }
