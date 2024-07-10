@@ -10,7 +10,11 @@ import java.util.List;
 @Data
 public class FlexibleBookingRequest {
     private long bookingId;
-    private String checkInDate;
-    private List<Long> courtId;
-    private List<Long> selectedTimeSlotsId;
+    private List<FlexibleTimeSlot> flexibleTimeSlots;
+    @Data
+    public static class FlexibleTimeSlot {
+        private String checkInDate;
+        private long court;
+        private List<Long> timeslot;
+    }
 }

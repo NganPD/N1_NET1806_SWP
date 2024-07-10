@@ -15,5 +15,5 @@ public class CreateVenueRequest {
     private String closingHours;
     private String description;
     private String services;
-//    private Long managerId;//reference từ account
+    private Long managerId;//reference từ account
 }
