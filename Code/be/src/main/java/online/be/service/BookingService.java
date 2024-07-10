@@ -233,7 +233,7 @@ public class BookingService {
     //Tự tạo hiển thị không có Booking
 
     //mua số giờ chơi cho loại lịch linh hoạt
-    public Booking purchaseFlexibleHours(int totalHour){
+    public Booking purchaseFlexibleHours(int totalHour, long venueId){
         Account user = authenticationService.getCurrentAccount();
         LocalDateTime purchaseDate = LocalDateTime.now();
         //validate total hour
@@ -247,7 +247,7 @@ public class BookingService {
         booking.setRemainingTimes(totalHour);
 
         //calculate total price base on hourly rate
-        double totalPrice = totalHour
+        TimeSlot timeSlot = timeSlotRepo.findByVenueId(venueId);
 
     }
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
