@@ -48,6 +48,9 @@ public class BookingService {
     CourtTimeSlotRepository courtTimeSlotRepo;
 
     @Autowired
+    DiscountRepository discountRepository;
+
+    @Autowired
     TransactionRepository transactionRepository;
 
     @Autowired
@@ -234,6 +237,7 @@ public class BookingService {
 
     //mua số giờ chơi cho loại lịch linh hoạt
     public Booking purchaseFlexibleHours(int totalHour, long venueId){
+        //load current user
         Account user = authenticationService.getCurrentAccount();
         LocalDateTime purchaseDate = LocalDateTime.now();
         //validate total hour
@@ -247,11 +251,25 @@ public class BookingService {
         booking.setRemainingTimes(totalHour);
 
         //calculate total price base on hourly rate
-        List<TimeSlot> timeSlot = timeSlotRepo.findByVenueId(venueId);
+        List<TimeSlot> timeSlots = timeSlotRepo.findByVenueId(venueId);
+        float price = (float)timeSlots.get(0).getPrice();
+        Discount discount = discountRepository.findByBookingType(BookingType.FLEXIBLE);
+        double discountRate = discount.getDiscount()/100;
+        double totalPrices = totalHour*(price*(1- discountRate));
+        booking.setTotalPrice(totalPrices);
+
+        //save booking to generate bookingId
+        try{
+            booking = bookingRepo.save(booking);
+        }catch (Exception ex){
+            throw new RuntimeException("Failed to create booking", ex);
+        }
 
     }
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request){
         Account user = authenticationService.getCurrentAccount();
+        //find the booking
+        Booking booking
         LocalDateTime bookingDate = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate checkInDate = LocalDate.parse(request.getCheckInDate(), formatter);

@@ -9,8 +9,8 @@ import java.util.List;
 
 @Data
 public class FlexibleBookingRequest {
-    private int totalHours;
+    private long bookingId;
     private String checkInDate;
-    private long courtId;
+    private List<Long> courtId;
     private List<Long> selectedTimeSlotsId;
 }
