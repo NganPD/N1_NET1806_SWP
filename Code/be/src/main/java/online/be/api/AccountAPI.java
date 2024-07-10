@@ -41,5 +41,4 @@ public class AccountAPI {
     public void assignRole(@PathVariable long id, @RequestParam Role role){
         accountService.assignRole(id, role);
     }
-
 }

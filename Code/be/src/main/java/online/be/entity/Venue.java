@@ -35,9 +35,9 @@ public class Venue {
     private String services;
 
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime operatingHours;
+    private LocalTime openingHour;
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime closingHours;
+    private LocalTime closingHour;
 
     private String description;
 
