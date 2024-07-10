@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,7 +41,7 @@ public class ReviewService {
         Review review = new Review();
         review.setComment(request.getFeedback());
         review.setRating(request.getRating());
-        review.setCreatedDate(LocalDate.now());
+        review.setCreatedDate(LocalDateTime.now());
         review.setAccount(user);
         review.setVenue(venue);
 

@@ -34,9 +34,5 @@ public class TimeSlot {
 
     @JsonIgnore
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
-    private List<Discount> discounts;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private List<CourtTimeSlot> courtTimeSlots;
 }

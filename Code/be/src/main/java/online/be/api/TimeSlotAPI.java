@@ -70,7 +70,7 @@ public class TimeSlotAPI {
     }
 
     @GetMapping("/courtId/{courtId}/date/{date}/bookingType/{bookingType}")
-    public ResponseEntity getAvailableTimeSlot(@PathVariable long courtId, @PathVariable LocalDate date, @PathVariable BookingType bookingType){
-        return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date,bookingType));
+    public ResponseEntity getAvailableTimeSlot(@PathVariable long courtId, @PathVariable LocalDate date){//, @PathVariable BookingType bookingType){
+        return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
     }
 }

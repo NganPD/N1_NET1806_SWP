@@ -31,7 +31,7 @@ public class VenueService {
     CourtRepository courtRepository;
 
     @Autowired
-    AccountRepostory accountRepository;
+    AuthenticationRepository accountRepository;
 
     @Autowired
     ReviewRepository reviewRepository;
@@ -65,14 +65,14 @@ public class VenueService {
             throw new DateTimeException("Closing hours cannot be the same as operating hours.");
         }
         //nếu venue chưa tồn tại trong hệ thống
-        Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
+        Account manager = accountRepository.findById(createVenueRequest.getManagerId()).get();
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
         venue.setAddress(createVenueRequest.getAddress());
-        venue.setContactInfor(createVenueRequest.getContactInfor());
+//        venue.setContactInfor(createVenueRequest.());
         venue.setDescription(createVenueRequest.getDescription());
-        venue.setOperatingHours(operatingHours);
-        venue.setClosingHours(closingHours);
+        venue.setOpeningHour(operatingHours);
+        venue.setClosingHour(closingHours);
         venue.setServices(createVenueRequest.getServices());
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
         venue.setManager(manager);
@@ -117,8 +117,8 @@ public class VenueService {
         venue.setName(updateVenueRequest.getVenueName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
-        venue.setOperatingHours(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
-        venue.setClosingHours(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
+        venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
+        venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
 
         //If assigned courts are updated, handle the assignment
@@ -158,7 +158,7 @@ public class VenueService {
     //search by operating hours
     public List<Venue> searchVenuesByOperatingHours(String operatingHoursStr) {
         LocalTime operatingHours = LocalTime.parse(operatingHoursStr);
-        return venueRepository.findByOperatingHours(operatingHours);
+        return venueRepository.findByOpeningHour(operatingHours);
     }
 
     //
@@ -188,7 +188,7 @@ public class VenueService {
     public Venue addStaffToVenue(long staffId, long venueId){
         try {
             Venue venue = venueRepository.findVenueById(venueId);
-            Account staff = accountRepository.findUserById(staffId);
+            Account staff = accountRepository.findById(staffId).get();
 
             //add staff to venue
             staff.setStaffVenue(venue);
@@ -202,16 +202,16 @@ public class VenueService {
             throw new BadRequestException("Error: " +e.getMessage());
         }
     }
-
-    public Account getManager(long venueId){
-        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
-        return manager;
-    }
-
-    public List<Account> getStaffsByVenueId(long venueId){
-        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
-        return staffs;
-    }
+//
+//    public Account getManager(long venueId){
+//        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
+//        return manager;
+//    }
+//
+//    public List<Account> getStaffsByVenueId(long venueId){
+//        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
+//        return staffs;
+//    }
 
     public List<Court> getCourtByVenueId(long venueId){
         Venue venue = venueRepository.findVenueById(venueId);

@@ -1,4 +1,3 @@
-
 package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -51,18 +50,18 @@ public class WalletAPI {
         return ResponseEntity.ok(list);
     }
 
-    @PutMapping("/acceptWithDraw")
-    public ResponseEntity acpWithDraw(@RequestParam("TransactionId") UUID id) throws Exception{
-        Transaction transaction = walletService.acpWithDraw(id);
-        return ResponseEntity.ok(transaction);
-    }
-
-    @PutMapping("/rejectWithDraw")
-    public ResponseEntity rejectWithDraw(@RequestParam("TransactionId") UUID id,
-                                         @RequestParam("reason") String reason){
-        Transaction transaction = walletService.rejectWithDraw(id, reason);
-        return ResponseEntity.ok(transaction);
-    }
+//    @PutMapping("/acceptWithDraw")
+//    public ResponseEntity acpWithDraw(@RequestParam("TransactionId") UUID id) throws Exception{
+//        Transaction transaction = walletService.acpWithDraw(id);
+//        return ResponseEntity.ok(transaction);
+//    }
+//
+//    @PutMapping("/rejectWithDraw")
+//    public ResponseEntity rejectWithDraw(@RequestParam("TransactionId") UUID id,
+//                                         @RequestParam("reason") String reason){
+//        Transaction transaction = walletService.rejectWithDraw(id, reason);
+//        return ResponseEntity.ok(transaction);
+//    }
 
     @GetMapping("/walletDetail/{id}")
     public ResponseEntity walletDetail(@PathVariable long id) throws Exception{
@@ -70,10 +69,10 @@ public class WalletAPI {
         return ResponseEntity.ok(wallet);
     }
 
-//    @GetMapping("/balance")
-//    public ResponseEntity getBalance(){
-//        float balance = walletService.getBalance();
-//        WalletResponse response = new WalletResponse(balance);
-//        return ResponseEntity.ok(response);
-//    }
+    @GetMapping("/balance")
+    public ResponseEntity getBalance(){
+        float balance = walletService.getBalance();
+        WalletResponse response = new WalletResponse(balance);
+        return ResponseEntity.ok(response);
+    }
 }

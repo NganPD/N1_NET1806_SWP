@@ -22,7 +22,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private LocalDateTime bookingDate;
+    private LocalDate bookingDate;
 
     private int totalTimes;
 
@@ -40,10 +40,16 @@ public class Booking {
     @JoinColumn(name = "user_Id")
     private Account account;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<BookingDetail> bookingDetailList;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
+
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 }

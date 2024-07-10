@@ -23,24 +23,24 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
 //    List<CourtTimeSlot> findAvailableCourtTimeSlots(@Param("timeSlotId") long timeSlotId,
 //                                                    @Param("status")SlotStatus status);
 
-    @Query("SELECT cts " +
-            "FROM CourtTimeSlot cts " +
-            "JOIN cts.timeSlot ts " +
-            "JOIN ts.timeSlotPrices tsp " +
-            "WHERE cts.court.id = :courtId " +
-            "AND ts.id = :timeSlotId " +
-            "AND tsp.bookingType = :bookingType " +
-            "AND cts.status = 'AVAILABLE'")  // Assuming you want only available slots
-    CourtTimeSlot findAvailableCourtTimeSlotsByCourtIdAndTimeSlotIdAndBookingType(
-            @Param("courtId") long courtId,
-            @Param("timeSlotId") long timeSlotId,
-            @Param("bookingType") BookingType bookingType);
-
-    @Query("SELECT ts.duration " +
-            "FROM CourtTimeSlot cts " +
-            "JOIN cts.timeSlot ts " +
-            "WHERE cts.id = :courtTimeSlotId")
-    long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
+//    @Query("SELECT cts " +
+//            "FROM CourtTimeSlot cts " +
+//            "JOIN cts.timeSlot ts " +
+//            "JOIN ts.timeSlotPrices tsp " +
+//            "WHERE cts.court.id = :courtId " +
+//            "AND ts.id = :timeSlotId " +
+//            "AND tsp.bookingType = :bookingType " +
+//            "AND cts.status = 'AVAILABLE'")  // Assuming you want only available slots
+//    CourtTimeSlot findAvailableCourtTimeSlotsByCourtIdAndTimeSlotIdAndBookingType(
+//            @Param("courtId") long courtId,
+//            @Param("timeSlotId") long timeSlotId,
+//            @Param("bookingType") BookingType bookingType);
+//
+//    @Query("SELECT ts.duration " +
+//            "FROM CourtTimeSlot cts " +
+//            "JOIN cts.timeSlot ts " +
+//            "WHERE cts.id = :courtTimeSlotId")
+//    long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
 
     CourtTimeSlot findByBookingDetail(@Param("BookingDetail") BookingDetail bookingDetail);
 
@@ -61,18 +61,18 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
 //    List<CourtTimeSlot> findAvailableCourtTimeSlots(@Param("timeSlotId") long timeSlotId,
 //                                                    @Param("status")SlotStatus status);
 
-    @Query("SELECT cts " +
-            "FROM CourtTimeSlot cts " +
-            "JOIN cts.timeSlot ts " +
-            "JOIN ts.timeSlotPrices tsp " +
-            "WHERE cts.court.id = :courtId " +
-            "AND ts.id = :timeSlotId " +
-            "AND tsp.bookingType = :bookingType " +
-            "AND cts.status = 'AVAILABLE'")  // Assuming you want only available slots
-    Optional<CourtTimeSlot> findAvailableCourtTimeSlotsByCourtIdAndTimeSlotIdAndBookingType(
-            @Param("courtId") Long courtId,
-            @Param("timeSlotId") Long timeSlotId,
-            @Param("bookingType") BookingType bookingType);
+//    @Query("SELECT cts " +
+//            "FROM CourtTimeSlot cts " +
+//            "JOIN cts.timeSlot ts " +
+//            "JOIN ts.timeSlotPrices tsp " +
+//            "WHERE cts.court.id = :courtId " +
+//            "AND ts.id = :timeSlotId " +
+//            "AND tsp.bookingType = :bookingType " +
+//            "AND cts.status = 'AVAILABLE'")  // Assuming you want only available slots
+//    Optional<CourtTimeSlot> findAvailableCourtTimeSlotsByCourtIdAndTimeSlotIdAndBookingType(
+//            @Param("courtId") Long courtId,
+//            @Param("timeSlotId") Long timeSlotId,
+//            @Param("bookingType") BookingType bookingType);
 
     CourtTimeSlot findById(long id);
 }

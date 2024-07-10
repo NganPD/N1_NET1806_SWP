@@ -29,25 +29,25 @@ public class BookingAPI {
         return ResponseEntity.ok(createdBooking);
     }
 
-    @PostMapping("/payment")
-    public ResponseEntity payForBooking(@RequestParam long bookingId){
-        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId));
-    }
-
-    @PostMapping("/{bookingId}/cancel")
-    public ResponseEntity cancelBooking(@PathVariable long bookingId){
-        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
-    }
-
-    @PostMapping("/{bookingId}/processComission")
-    public ResponseEntity processCommision(@PathVariable long bookingId){
-        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
-    }
-
-    @GetMapping("/booking-history")
-    public ResponseEntity getBookingHistory(){
-        return ResponseEntity.ok(bookingService.getBookingHistory());
-    }
+//    @PostMapping("/payment")
+//    public ResponseEntity payForBooking(@RequestParam long bookingId){
+//        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId));
+//    }
+//
+//    @PostMapping("/{bookingId}/cancel")
+//    public ResponseEntity cancelBooking(@PathVariable long bookingId){
+//        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+//    }
+//
+//    @PostMapping("/{bookingId}/processComission")
+//    public ResponseEntity processCommision(@PathVariable long bookingId){
+//        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
+//    }
+//
+//    @GetMapping("/booking-history")
+//    public ResponseEntity getBookingHistory(){
+//        return ResponseEntity.ok(bookingService.getBookingHistory());
+//    }
 
     //    @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
@@ -82,6 +82,12 @@ public class BookingAPI {
     @PatchMapping("/bookingId/{bookingId}/checkInDate/{checkInDate}")
     public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable LocalDate checkInDate){
         Booking booking = bookingService.checkIn(bookingId, checkInDate);
+        return ResponseEntity.ok(booking);
+    }
+
+    @PostMapping("/flexible-schedule/hours/{hours}/id/{id}")
+    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id){
+        Booking booking = bookingService.purchaseFlexibleHours(hours,id);
         return ResponseEntity.ok(booking);
     }
 }

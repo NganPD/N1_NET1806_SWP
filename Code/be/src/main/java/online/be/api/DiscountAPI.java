@@ -23,12 +23,12 @@ public class DiscountAPI {
         return ResponseEntity.ok(discountService.getAllSlotPrice());
     }
 
-    // Tạo mới một CourtSchedule
-    @PostMapping
-    public ResponseEntity createTimeSlotPrice(@RequestBody DiscountRequest request) {
-        Discount response = discountService.createDiscountTable(request);
-        return ResponseEntity.ok(response);
-    }
+//    // Tạo mới một CourtSchedule
+//    @PostMapping
+//    public ResponseEntity createTimeSlotPrice(@RequestBody DiscountRequest request) {
+//        Discount response = discountService.createDiscountTable(request);
+//        return ResponseEntity.ok(response);
+//    }
 
     // Cập nhật thông tin một CourtSchedule
 //    @PutMapping("/{id}")

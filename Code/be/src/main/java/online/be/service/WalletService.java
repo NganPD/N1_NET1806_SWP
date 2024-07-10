@@ -231,45 +231,45 @@ public class WalletService {
         }
         return listTransactionResponseDTO;
     }
-
-    public Transaction acpWithDraw(UUID id) {
-        Transaction transaction = transactionRepository.findByTransactionID(id);
-        if (transaction != null) {
-            transaction.setTransactionType(TransactionEnum.WITHDRAW_SUCCESS);
-            threadSendMail(transaction.getFrom().getAccount(), "Withdrawal Successfully", "Thank you for trusting and using Cremo");
-            transactionRepository.save(transaction);
-            return transaction;
-        } else {
-            return null;
-        }
-
-    }
-
-
-    public Transaction rejectWithDraw(UUID id, String reason) {
-        Transaction transaction = transactionRepository.findByTransactionID(id);
-        if (transaction != null) {
-            Wallet wallet = transaction.getFrom();
-            wallet.setBalance(wallet.getBalance() + transaction.getAmount());
-            transaction.setTransactionType(TransactionEnum.WITHDRAW_REJECT);
-            transaction.setReasonWithdrawReject(reason);
-            threadSendMail(transaction.getFrom().getAccount(), "Withdrawal failed", "You Cannot Withdraw Because: " + reason);
-            return transactionRepository.save(transaction);
-        } else {
-            return null;
-        }
-    }
-
-    public void threadSendMail(Account user, String subject, String description) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                emailService.sendMail(user, subject, description);
-            }
-
-        };
-        new Thread(r).start();
-    }
+//
+//    public Transaction acpWithDraw(UUID id) {
+//        Transaction transaction = transactionRepository.findByTransactionID(id);
+//        if (transaction != null) {
+//            transaction.setTransactionType(TransactionEnum.WITHDRAW_SUCCESS);
+//            threadSendMail(transaction.getFrom().getAccount(), "Withdrawal Successfully", "Thank you for trusting and using Cremo");
+//            transactionRepository.save(transaction);
+//            return transaction;
+//        } else {
+//            return null;
+//        }
+//
+//    }
+//
+//
+//    public Transaction rejectWithDraw(UUID id, String reason) {
+//        Transaction transaction = transactionRepository.findByTransactionID(id);
+//        if (transaction != null) {
+//            Wallet wallet = transaction.getFrom();
+//            wallet.setBalance(wallet.getBalance() + transaction.getAmount());
+//            transaction.setTransactionType(TransactionEnum.WITHDRAW_REJECT);
+//            transaction.setReasonWithdrawReject(reason);
+//            threadSendMail(transaction.getFrom().getAccount(), "Withdrawal failed", "You Cannot Withdraw Because: " + reason);
+//            return transactionRepository.save(transaction);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    public void threadSendMail(Account user, String subject, String description) {
+//        Runnable r = new Runnable() {
+//            @Override
+//            public void run() {
+//                emailService.sendMailTemplate(user, subject, description);
+//            }
+//
+//        };
+//        new Thread(r).start();
+//    }
 
     public float getBalance() {
         Account user = authenticationService.getCurrentAccount();
