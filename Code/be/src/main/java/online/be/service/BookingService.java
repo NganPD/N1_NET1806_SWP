@@ -1,14 +1,15 @@
 package online.be.service;
 
+import jakarta.transaction.Transactional;
 import online.be.entity.*;
 import online.be.enums.*;
 import online.be.exception.BadRequestException;
+import online.be.exception.BookingException;
 import online.be.exception.DuplicateEntryException;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
 import online.be.repository.*;
-import online.be.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -61,11 +62,12 @@ public class BookingService {
     @Autowired
     CourtRepository courtRepo;
 
-    @Autowired
-    DateTimeUtils utils;
 
     @Autowired
     VenueRepository venueRepo;
+
+    @Autowired
+    EmailService emailService;
 
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
@@ -77,6 +79,7 @@ public class BookingService {
         List<TimeSlot> timeSlots = bookingRequest.getTimeslot().stream()
                 .map(slotId -> timeSlotRepo.findById(slotId)
                         .orElseThrow(() -> new RuntimeException("Timeslot not found: " + slotId)))
+                .sorted(Comparator.comparing(TimeSlot::getStartTime))
                 .collect(Collectors.toList());
 
         // Retrieve court by id
@@ -307,128 +310,137 @@ public class BookingService {
 
 
 
-    //payForBooking
-//    public Transaction processBookingPayment(long bookingId) {
-//        //search booking
-//        Booking booking = bookingRepo.findBookingById(bookingId);
-//        if (booking == null) {
-//            throw new BadRequestException("Booking not found");
-//        }
-//        //search user wallet
-//        Account customer = authenticationService.getCurrentAccount();
-//        Wallet customerWallet = customer.getWallet();
-//        //admin wallet
-//        Account admin = accountRepostory.findAdmin();
-//        Wallet adminWallet = admin.getWallet();
-//        double amount = booking.getTotalPrice();
-//
-//        if (customerWallet.getBalance() >= amount) {
-//            booking.setStatus(BookingStatus.CONFIRMED);
-//            customerWallet.setBalance(customerWallet.getBalance() - (float) amount);
-//            adminWallet.setBalance(adminWallet.getBalance() + (float) amount);
-//
-//            walletRepository.save(adminWallet);
-//            walletRepository.save(customerWallet);
-//            bookingRepo.save(booking);
-//
-//            Transaction transaction = new Transaction();
-//            transaction.setTransactionDate(LocalDateTime.now().toString());
-//            transaction.setFrom(customerWallet);
-//            transaction.setTo(adminWallet);
-//            transaction.setBooking(booking);
-//            transaction.setVenueID(booking.getBookingDetailList().get(0).getCourtTimeSlot().getCourt().getVenue().getId());
-//            transaction.setTransactionType(TransactionEnum.COMPLETED);
-//            transaction.setAmount((float) booking.getTotalPrice());
-//            transaction.setDescription("Pay for booking");
-//            return transactionRepository.save(transaction);
-//        } else {
-//            throw new BadRequestException("Customer does not have enough balance.");
-//        }
-//    }
-//
-//    //cancel booking
-//    public Booking cancelBooking(long bookingId) {
-//        Booking booking = bookingRepo.findBookingById(bookingId);
-//        //search user wallet
-//        Account customer = booking.getAccount();
-//        Wallet customerWallet = customer.getWallet();
-//        //admin wallet
-//        Account admin = accountRepostory.findAdmin();
-//        Wallet adminWallet = admin.getWallet();
-//        if (booking != null) {
-//            if (isValidCancellation(booking)) {
-//                booking.setStatus(BookingStatus.CANCELLED);
-//                adminWallet.setBalance(adminWallet.getBalance() - (float) booking.getTotalPrice());
-//                customerWallet.setBalance(customerWallet.getBalance() + (float) booking.getTotalPrice());
-//
-//                walletRepository.save(adminWallet);
-//                walletRepository.save(customerWallet);
-//                return bookingRepo.save(booking);
-//            } else {
-//                throw new BadRequestException("This booking cannot be cancelled");
-//            }
-//        } else {
-//            throw new BadRequestException("Booking not found");
-//        }
-//    }
-//
-//    private boolean isValidCancellation(Booking booking) {
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime bookingDate = booking.getBookingDate();
-//
-//        switch (booking.getBookingType()) {
-//            case FIXED:
-//            case FLEXIBLE:
-//                return ChronoUnit.DAYS.between(booking.getBookingDate(), now) >= 7;
-//            case DAILY:
-//                return ChronoUnit.MINUTES.between(booking.getBookingDate(), now) >= 30;
-//            default:
-//                return false;
-//        }
-//    }
-//
-//    public Transaction processBookingComission(long bookingId) {
-//        Booking booking = bookingRepo.findBookingById(bookingId);
-//        CourtTimeSlot courtTimeSlot = booking.getBookingDetailList().get(0).getCourtTimeSlot();
-//        Venue venue = courtTimeSlot.getCourt().getVenue();
-//        Account manager = venue.getManager();
-//
-//        Wallet managerWallet = walletRepository.findWalletByAccount_Id(manager.getId());
-//        Wallet adminWallet = walletRepository.findWalletByAccountRole(Role.ADMIN);
-//
-//        float commissionRate = 0.1f;
-//        float commisssion = (float) booking.getTotalPrice() * commissionRate;
-//        float netAmount = (float) booking.getTotalPrice() - commisssion;
-//
-//        if (adminWallet.getBalance() < booking.getTotalPrice()) {
-//            throw new BadRequestException("Admin does not have enought balance for the payment");
-//        }
-//
-//        //Deduct from admin wallet
-//        adminWallet.setBalance(adminWallet.getBalance() - netAmount);
-//        walletRepository.save(adminWallet);
-//
-//        //add net amount to court manager wallet
-//        managerWallet.setBalance(managerWallet.getBalance() + netAmount);
-//        walletRepository.save(managerWallet);
-//
-//        //Create Transaction record for the transfer
-//        Transaction transferTransaction = new Transaction();
-//        transferTransaction.setAmount(netAmount);
-//        transferTransaction.setTransactionType(TransactionEnum.COMPLETED);
-//        transferTransaction.setFrom(adminWallet);
-//        transferTransaction.setTo(managerWallet);
-//        transferTransaction.setBooking(booking);
-//        transferTransaction.setDescription("Payment for court manager after commission");
-//        transferTransaction.setTransactionDate(LocalDateTime.now().toString());
-//        transactionRepository.save(transferTransaction);
-//
-//        return transferTransaction;
-//    }
-//
-//    public List<Booking> getBookingHistory() {
-//        Account customer = authenticationService.getCurrentAccount();
-//        return bookingRepo.findBookingByAccount_Id(customer.getId());
-//    }
+    public Transaction processBookingPayment(long bookingId){
+        //search booking
+        Booking booking = bookingRepo.findBookingById(bookingId);
+        if(booking == null){
+            throw new BadRequestException("Booking not found");
+        }
+        //search user wallet
+        Account customer = authenticationService.getCurrentAccount();
+        Wallet customerWallet = customer.getWallet();
+        //admin wallet
+        Account admin = accountRepostory.findAdmin();
+        Wallet adminWallet = admin.getWallet();
+        double amount = booking.getTotalPrice();
+
+        if(customerWallet.getBalance() >= amount){
+            booking.setStatus(BookingStatus.CONFIRMED);
+            customerWallet.setBalance(customerWallet.getBalance() - (float)amount);
+            adminWallet.setBalance(adminWallet.getBalance() + (float)amount);
+
+            walletRepository.save(adminWallet);
+            walletRepository.save(customerWallet);
+            bookingRepo.save(booking);
+
+            Transaction transaction = new Transaction();
+            transaction.setTransactionDate(LocalDateTime.now().toString());
+            transaction.setFrom(customerWallet);
+            transaction.setTo(adminWallet);
+            transaction.setBooking(booking);
+            transaction.setVenueID(booking.getBookingDetailList().get(0).getCourtTimeSlot().getCourt().getVenue().getId());
+            transaction.setTransactionType(TransactionEnum.COMPLETED);
+            transaction.setAmount((float)booking.getTotalPrice());
+            transaction.setDescription("Pay for booking");
+
+
+            // Send email notification
+            String subject = "Booking Payment Confirmation";
+            String description = "Dear " + customer.getFullName() + ",\n\n" +
+                    "Your payment of " + amount + " for booking ID " + bookingId + " has been successfully processed.\n" +
+                    "Thank you for your booking!\n\n" +
+                    "Best regards,\ngoodminton.online";
+
+            emailService.sendMail(customer, subject, description);
+
+            return transactionRepository.save(transaction);
+        }else{
+            throw new BadRequestException("Customer does not have enough balance.");
+        }
+
+    }
+    //cancel booking
+    public Booking cancelBooking(long bookingId){
+        Booking booking = bookingRepo.findBookingById(bookingId);
+        //search user wallet
+        Account customer = booking.getAccount();
+        Wallet customerWallet = customer.getWallet();
+        //admin wallet
+        Account admin = accountRepostory.findAdmin();
+        Wallet adminWallet = admin.getWallet();
+        if(booking != null){
+            if(isValidCancellation(booking)){
+                booking.setStatus(BookingStatus.CANCELLED);
+                adminWallet.setBalance(adminWallet.getBalance() - (float)booking.getTotalPrice());
+                customerWallet.setBalance(customerWallet.getBalance() + (float)booking.getTotalPrice());
+
+                walletRepository.save(adminWallet);
+                walletRepository.save(customerWallet);
+                return bookingRepo.save(booking);
+            }else{
+                throw new BadRequestException("This booking cannot be cancelled");
+            }
+        }else{
+            throw new BadRequestException("Booking not found");
+        }
+    }
+
+    private boolean isValidCancellation(Booking booking){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate bookingDate = booking.getBookingDate();
+
+        switch (booking.getBookingType()){
+            case FIXED:
+            case FLEXIBLE:
+                return ChronoUnit.DAYS.between(booking.getBookingDate(), now) >= 7;
+            case DAILY:
+                return ChronoUnit.MINUTES.between(booking.getBookingDate(), now) >= 30;
+            default:
+                return false;
+        }
+    }
+    public Transaction processBookingComission(long bookingId){
+        Booking booking = bookingRepo.findBookingById(bookingId);
+        CourtTimeSlot courtTimeSlot = booking.getBookingDetailList().get(0).getCourtTimeSlot();
+        Venue venue = courtTimeSlot.getCourt().getVenue();
+        Account manager = venue.getManager();
+
+        Wallet managerWallet = walletRepository.findWalletByAccount_Id(manager.getId());
+        Wallet adminWallet = walletRepository.findWalletByAccountRole(Role.ADMIN);
+
+        float commissionRate = 0.1f;
+        float commisssion = (float) booking.getTotalPrice()*commissionRate;
+        float netAmount = (float) booking.getTotalPrice() - commisssion;
+
+        if(adminWallet.getBalance() < booking.getTotalPrice()){
+            throw new BadRequestException("Admin does not have enought balance for the payment");
+        }
+
+        //Deduct from admin wallet
+        adminWallet.setBalance(adminWallet.getBalance() - netAmount);
+        walletRepository.save(adminWallet);
+
+        //add net amount to court manager wallet
+        managerWallet.setBalance(managerWallet.getBalance() + netAmount);
+        walletRepository.save(managerWallet);
+
+        //Create Transaction record for the transfer
+        Transaction transferTransaction  = new Transaction();
+        transferTransaction.setAmount(netAmount);
+        transferTransaction.setTransactionType(TransactionEnum.COMPLETED);
+        transferTransaction.setFrom(adminWallet);
+        transferTransaction.setTo(managerWallet);
+        transferTransaction.setBooking(booking);
+        transferTransaction.setDescription("Payment for court manager after commission");
+        transferTransaction.setTransactionDate(LocalDateTime.now().toString());
+        transactionRepository.save(transferTransaction);
+
+        return transferTransaction;
+    }
+
+    public List<Booking> getBookingHistory(){
+        Account customer = authenticationService.getCurrentAccount();
+        return bookingRepo.findBookingByAccount_Id(customer.getId());
+    }
 
 }

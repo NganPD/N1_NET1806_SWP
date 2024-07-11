@@ -21,7 +21,6 @@ public class Wallet {
 
     private float balance;
 
-    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", unique = true)
     private Account account;

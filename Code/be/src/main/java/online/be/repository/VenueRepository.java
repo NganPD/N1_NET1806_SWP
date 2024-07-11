@@ -27,6 +27,7 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
 //        List<Venue> findVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime);
 
         List<Venue> findByAddress(String address);
+        List<Venue> findByAddressContaining(String keyword);
 
         Venue findByName(String venueName);
 

@@ -26,9 +26,9 @@ public class Venue {
 
     @Column(nullable = false)
     private String address;
-
+    private int numberOfCourts;
     private String contactInfor;
-
+    private String imageUrl;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;

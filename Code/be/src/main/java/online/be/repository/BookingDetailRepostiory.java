@@ -16,6 +16,8 @@ import java.util.List;
 public interface BookingDetailRepostiory extends JpaRepository<BookingDetail, Long> {
 
 
+    List<BookingDetail> findByBookingId(long bookingId);
+
     @Query("SELECT SUM(bd.price) FROM BookingDetail bd " +
             "WHERE bd.booking.id = :bookingId")
     Double findTotalPriceByBookingId(long bookingId);

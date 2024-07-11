@@ -11,9 +11,10 @@ public class CreateVenueRequest {
     private String venueName;
     private String address;
     private VenueStatus venueStatus;
-    private String operatingHours;
+    private String contactInfor;
+    private String openingHours;
     private String closingHours;
     private String description;
     private String services;
-    private Long managerId;//reference từ account
+    private long managerId;//reference từ account
 }

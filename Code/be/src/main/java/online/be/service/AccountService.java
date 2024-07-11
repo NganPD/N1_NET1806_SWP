@@ -123,6 +123,9 @@ public class AccountService {
         accountRepository.save(account);
     }
 
+    public List<Account> getByRole(Role role){
+        return accountRepository.findByRole(role);
+    }
 
 
 }

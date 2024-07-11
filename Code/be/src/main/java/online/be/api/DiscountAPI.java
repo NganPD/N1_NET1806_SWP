@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/time-slot-price")
+@RequestMapping("/api/discount")
 @SecurityRequirement(name = "api")
 public class DiscountAPI {
 

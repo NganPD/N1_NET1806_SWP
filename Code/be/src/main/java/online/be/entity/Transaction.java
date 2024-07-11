@@ -33,8 +33,6 @@ public class Transaction {
 
     private Long venueID;
 
-    private Long bookingID;
-
     String accountNumber;
 
     String accountName;

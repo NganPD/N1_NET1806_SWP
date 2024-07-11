@@ -1,4 +1,3 @@
-
 package online.be.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
