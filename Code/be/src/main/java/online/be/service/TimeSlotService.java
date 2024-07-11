@@ -177,8 +177,8 @@ public class TimeSlotService {
         // Calculate all the dates that match the given day of the week within the duration
         List<LocalDate> matchingDates = new ArrayList<>();
         for (int month = 0; month < durationMonth; month++) {
-            LocalDate startOfMonth = applicationDate.plusMonths(month);
-            LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
+            LocalDate startOfMonth = applicationDate.plusDays(month * 30L);
+            LocalDate endOfMonth = startOfMonth.plusDays(29);
 
             // Get the first matching day of the week in the current month
             LocalDate firstMatchingDate = startOfMonth.with(TemporalAdjusters.nextOrSame(dayOfWeek));
@@ -189,24 +189,39 @@ public class TimeSlotService {
             }
         }
 
+        // Retrieve all timeslots for the court
+        Court court = courtRepo.findById(courtId).orElseThrow(() ->
+                new RuntimeException("Court not found with id: " + courtId));
+        List<TimeSlot> slots = timeSlotRepository.findByVenueId(court.getVenue().getId());
+
         // Check availability for all time slots on the matching dates
-        List<TimeSlotResponse> availableSlots = new ArrayList<>();
-        for (TimeSlot slot : timeSlotRepository.findAll()) {
+        List<TimeSlotResponse> allSlots = new ArrayList<>();
+        for (TimeSlot slot : slots) {
+            TimeSlotResponse slotResponse = mapperSlot(slot);
             boolean isAvailable = true;
+
             for (LocalDate date : matchingDates) {
-                List<TimeSlotResponse> slotsOnDate = getAvailableSlots(courtId, date);
-                if (slotsOnDate.stream().noneMatch(s -> s.getId() == slot.getId() && s.isAvailable())) {
-                    isAvailable = false;
-                    break;
+                List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, date);
+                for (SlotIdCountDTO slotIdCount : slotIdCounts) {
+                    if (slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
+                        isAvailable = false;
+                        break;
+                    }
                 }
+                if (!isAvailable) break;
             }
-            if (isAvailable) {
-                TimeSlotResponse slotResponse = mapperSlot(slot);
-                availableSlots.add(slotResponse);
-            }
+            slotResponse.setAvailable(isAvailable);
+            allSlots.add(slotResponse);
         }
-        return availableSlots;
+        return allSlots;
     }
 
+    // Helper method to retrieve SlotIdCountDTOs
+    private List<SlotIdCountDTO> getSlotIdCounts(long courtId, LocalDate date) {
+        List<Object[]> results = timeSlotRepository.countTimeSlotsByCourtIdAndDate(courtId, date);
+        return results.stream()
+                .map(result -> new SlotIdCountDTO((Long) result[0], (Long) result[1]))
+                .collect(Collectors.toList());
+    }
 
 }
