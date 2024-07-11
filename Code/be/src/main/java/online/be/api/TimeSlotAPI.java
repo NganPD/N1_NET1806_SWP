@@ -2,6 +2,7 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.TimeSlot;
+import online.be.enums.BookingType;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +69,8 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 
-    @GetMapping("/courtId/{courtId}/date/{date}")
-    public ResponseEntity getAvailableTimeSlot(@PathVariable long courtId, @PathVariable LocalDate date){
+    @GetMapping("/courtId/{courtId}/date/{date}/bookingType/{bookingType}")
+    public ResponseEntity getAvailableTimeSlot(@PathVariable long courtId, @PathVariable LocalDate date){//, @PathVariable BookingType bookingType){
         return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
     }
 }

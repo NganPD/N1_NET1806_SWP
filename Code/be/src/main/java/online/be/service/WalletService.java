@@ -241,7 +241,7 @@ public class WalletService {
             transactionRepository.save(transaction);
             return transaction;
         } else {
-            throw new BadRequestException("Cannot found transaction");
+            return null;
         }
 
     }

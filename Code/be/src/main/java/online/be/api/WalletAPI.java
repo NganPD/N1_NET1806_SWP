@@ -50,18 +50,18 @@ public class WalletAPI {
         return ResponseEntity.ok(list);
     }
 
-    @PutMapping("/acceptWithDraw")
-    public ResponseEntity acpWithDraw(@RequestParam("TransactionId") UUID id) throws Exception{
-        Transaction transaction = walletService.acpWithDraw(id);
-        return ResponseEntity.ok(transaction);
-    }
-
-    @PutMapping("/rejectWithDraw")
-    public ResponseEntity rejectWithDraw(@RequestParam("TransactionId") UUID id,
-                                         @RequestParam("reason") String reason){
-        Transaction transaction = walletService.rejectWithDraw(id, reason);
-        return ResponseEntity.ok(transaction);
-    }
+//    @PutMapping("/acceptWithDraw")
+//    public ResponseEntity acpWithDraw(@RequestParam("TransactionId") UUID id) throws Exception{
+//        Transaction transaction = walletService.acpWithDraw(id);
+//        return ResponseEntity.ok(transaction);
+//    }
+//
+//    @PutMapping("/rejectWithDraw")
+//    public ResponseEntity rejectWithDraw(@RequestParam("TransactionId") UUID id,
+//                                         @RequestParam("reason") String reason){
+//        Transaction transaction = walletService.rejectWithDraw(id, reason);
+//        return ResponseEntity.ok(transaction);
+//    }
 
     @GetMapping("/walletDetail/{id}")
     public ResponseEntity walletDetail(@PathVariable long id) throws Exception{

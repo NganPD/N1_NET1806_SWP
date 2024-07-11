@@ -1,3 +1,4 @@
+
 package online.be.service;
 
 import online.be.entity.TimeSlot;
@@ -20,33 +21,32 @@ public class DiscountService {
 
     @Autowired
     TimeSlotRepository timeSlotRepository;
-
-    public Discount createDiscountTable(DiscountRequest request){
-        //check the timeslot id exist or not
-        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotID())
-                .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
-        //if the timeslot exist set the field price
-        //create a new timeslotprice entity
-        Discount slotPrice = new Discount();
-        slotPrice.setBookingType(request.getBookingType());
-        slotPrice.setDiscount(request.getDiscount());
-        slotPrice.setTimeSlot(timeSlot);
-        return discountRepository.save(slotPrice);
-    }
-
-    public Discount updateTimeSlotPrice(long timeSlotId, long discountId, DiscountRequest request){
-        //check the timeslot id
-        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
-        //check the time slot price id
-        Discount discount = discountRepository.findById(discountId)
-                .orElseThrow(()-> new BadRequestException("The time slot price id does not exist"));
-
-        discount.setTimeSlot(timeSlot);
-        discount.setBookingType(request.getBookingType());
-        discount.setDiscount(request.getDiscount());
-        return discountRepository.save(discount);
-    }
+//
+//    public Discount createDiscountTable(DiscountRequest request){
+//        //check the timeslot id exist or not
+//        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotID())
+//                .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
+//        //if the timeslot exist set the field price
+//        //create a new timeslotprice entity
+//        Discount slotPrice = new Discount();
+//        slotPrice.setBookingType(request.getBookingType());
+//        slotPrice.setDiscount(request.getDiscount());
+//        return discountRepository.save(slotPrice);
+//    }
+//
+//    public Discount updateTimeSlotPrice(long timeSlotId, long discountId, DiscountRequest request){
+//        //check the timeslot id
+//        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+//                .orElseThrow(() -> new BadRequestException("The time slot does not exist"));
+//        //check the time slot price id
+//        Discount discount = discountRepository.findById(discountId)
+//                .orElseThrow(()-> new BadRequestException("The time slot price id does not exist"));
+//
+//        discount.setTimeSlot(timeSlot);
+//        discount.setBookingType(request.getBookingType());
+//        discount.setDiscount(request.getDiscount());
+//        return discountRepository.save(discount);
+//    }
 
     public List<Discount> getAllSlotPrice(){
         return discountRepository.findAll();

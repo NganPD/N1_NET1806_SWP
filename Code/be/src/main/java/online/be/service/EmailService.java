@@ -43,6 +43,7 @@ public class EmailService {
             messagingException.printStackTrace();
         }
     }
+
     public void sendMail(Account user, String subject, String description){
 
         try{

@@ -35,12 +35,12 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
 //            @Param("courtId") long courtId,
 //            @Param("timeSlotId") long timeSlotId,
 //            @Param("bookingType") BookingType bookingType);
-
-    @Query("SELECT ts.duration " +
-            "FROM CourtTimeSlot cts " +
-            "JOIN cts.timeSlot ts " +
-            "WHERE cts.id = :courtTimeSlotId")
-    long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
+//
+//    @Query("SELECT ts.duration " +
+//            "FROM CourtTimeSlot cts " +
+//            "JOIN cts.timeSlot ts " +
+//            "WHERE cts.id = :courtTimeSlotId")
+//    long findDurationByCourTimeSlotId(@Param("courtTimeSlotId") long courtTimeSlotId);
 
     CourtTimeSlot findByBookingDetail(@Param("BookingDetail") BookingDetail bookingDetail);
 

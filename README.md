@@ -14,7 +14,7 @@ Badminton Court Booking Platform is a platform designed to streamline the manage
 ##Technology Stack::
 1. Backend: Spring Boot, MySQL, Spring Security
 2. Frontend: React.js
-3. Payment Integration: MoMo or VNPay
+3. Payment Integration: VNPay
 
 ##Link RO_Mapping: https://docs.google.com/spreadsheets/d/1qQMCpwugaEjk_rlcOgAMKcqxJcEkXljYg6GCDU6MwSg/edit?usp=sharing
 

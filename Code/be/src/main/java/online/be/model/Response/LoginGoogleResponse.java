@@ -25,6 +25,5 @@ public class LoginGoogleResponse {
     private Role role;
 
     private Wallet wallet;
-
     private String token;
 }

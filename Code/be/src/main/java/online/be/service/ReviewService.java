@@ -1,3 +1,4 @@
+
 package online.be.service;
 
 import online.be.entity.Account;
@@ -5,9 +6,6 @@ import online.be.entity.Review;
 import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.ReviewRequest;
-import online.be.model.Request.VenueReviewRequest;
-import online.be.repository.AccountRepostory;
-import online.be.repository.AuthenticationRepository;
 import online.be.repository.ReviewRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +41,7 @@ public class ReviewService {
         Review review = new Review();
         review.setComment(request.getFeedback());
         review.setRating(request.getRating());
-        review.setCreatedDate(LocalDate.now());
+        review.setCreatedDate(LocalDateTime.now());
         review.setAccount(user);
         review.setVenue(venue);
 

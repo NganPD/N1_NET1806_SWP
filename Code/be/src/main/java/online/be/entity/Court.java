@@ -28,7 +28,7 @@ public class Court {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 

@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
+public interface
+TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     //Lấy danh sách tất cả các TimeSlot
     List<TimeSlot> findAll();
 
@@ -32,4 +33,5 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     List<Object[]> countTimeSlotsByCourtIdAndDate(@Param("courtId") long courtId, @Param("date") LocalDate date);
     //Get timeslot by venue
     List<TimeSlot>getTimeSlotByVenue_Id(long venueId);
+
 }

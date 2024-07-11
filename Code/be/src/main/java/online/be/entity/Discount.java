@@ -15,11 +15,8 @@ public class Discount {
 
     private double discount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BookingType bookingType;
+    private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "time_slot_id", nullable = false)
-    private TimeSlot timeSlot;
+    @OneToOne(mappedBy = "discount", cascade = CascadeType.ALL)
+    private Booking booking;
 }

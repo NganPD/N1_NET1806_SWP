@@ -1,3 +1,4 @@
+
 package online.be.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -25,9 +26,9 @@ public class Venue {
 
     @Column(nullable = false)
     private String address;
-
+    private int numberOfCourts;
     private String contactInfor;
-
+    private String imageUrl;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private VenueStatus venueStatus;
@@ -36,6 +37,7 @@ public class Venue {
 
     @JsonFormat(pattern = "HH:mm")
     private LocalTime openingHour;
+
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closingHour;
 

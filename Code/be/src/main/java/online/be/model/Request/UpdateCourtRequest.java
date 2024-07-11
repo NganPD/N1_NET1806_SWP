@@ -9,5 +9,5 @@ public class UpdateCourtRequest {
     private String description;
     private CourtStatus status;
     private String amenities;
-    private Long venueId;
+    private long venueId;
 }

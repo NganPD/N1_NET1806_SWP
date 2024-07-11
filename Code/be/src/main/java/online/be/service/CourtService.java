@@ -35,9 +35,15 @@ public class CourtService {
         court.setCourtName(courtRequest.getCourtName());
         court.setStatus(courtRequest.getStatus());
         court.setDescription(courtRequest.getDescription());
-
         court.setVenue(existingVenue);
-        return courtRepository.save(court);
+        courtRepository.save(court);
+
+        //cap nhat lai so luong courts cho venue
+        int numberOfCourts = courtRepository.countByVenueId(existingVenue.getId());
+        existingVenue.setNumberOfCourts(numberOfCourts);
+        //lưu số lượng san
+        venueRepository.save(existingVenue);
+        return court;
     }
     //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
@@ -50,6 +56,7 @@ public class CourtService {
         return court;
     }
 
+
     //show toàn bộ court
     public List<Court> getAllCourts() {
         return courtRepository.findAll();
@@ -57,26 +64,40 @@ public class CourtService {
 
     //update Court
     public Court updateCourt(UpdateCourtRequest courtRequest, long courtId) {
+        Venue existingVenue = venueRepository.findById(courtRequest.getVenueId())
+                .orElseThrow(()-> new BadRequestException("Venue not found"));
         Court existingCourt = courtRepository.findById(courtId)
-                .orElseThrow(()-> new RuntimeException("Court not found "));
+                .orElseThrow(()-> new BadRequestException("Court not found "));
 
         existingCourt.setCourtName(courtRequest.getCourtName());
         existingCourt.setStatus(courtRequest.getStatus());
         existingCourt.setDescription(courtRequest.getDescription());
 
-        return courtRepository.save(existingCourt);
+        existingCourt = courtRepository.save(existingCourt);
+
+        //cap nhat lai so luong courts cho venue
+        int numberOfCourts = courtRepository.countByVenueId(existingVenue.getId());
+        existingVenue.setNumberOfCourts(numberOfCourts);
+        //lưu số lượng san
+        venueRepository.save(existingVenue);
+        return existingCourt;
     }
     //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
     //delete Court
-    public void deleteCourt(Long courtId) {
+    public void deActiveCourt(long courtId) {
         Court court = courtRepository.findById(courtId)
                 .orElseThrow(()->new RuntimeException("Court not found with Id: " + courtId));
         court.setStatus(CourtStatus.INACTIVE);
         courtRepository.save(court);
     }
 
+    public Court activeCourt(long courtId){
+        Court court = courtRepository.findById(courtId)
+                .orElseThrow(()->new RuntimeException("Court not found with Id: " + courtId));
+        court.setStatus(CourtStatus.AVAILABLE);
+        return courtRepository.save(court);
+    }
+
 
 }
-
-

@@ -11,7 +11,4 @@ import java.util.Optional;
 
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
-    List<Discount> findByTimeSlotId(long timeSlotId);
-    Discount findByBookingType(BookingType type);
-
 }

@@ -1,6 +1,7 @@
 package online.be.repository;
 
 import online.be.entity.Venue;
+import online.be.enums.BookingType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

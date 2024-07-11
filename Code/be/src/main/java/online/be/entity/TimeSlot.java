@@ -1,3 +1,4 @@
+
 package online.be.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -17,11 +18,9 @@ public class TimeSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
     private LocalTime startTime;
 
-    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
     private LocalTime endTime;
 
@@ -35,9 +34,5 @@ public class TimeSlot {
 
     @JsonIgnore
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
-    private List<Discount> discounts;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "timeSlot")
     private List<CourtTimeSlot> courtTimeSlots;
 }

@@ -50,7 +50,7 @@ public class VenueService {
         }
         //nếu venue chưa tồn tại trong hệ thống
         Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
-        if (manager != null) {
+        if (manager == null) {
             throw new BadRequestException("Manager not found");
         }
         Venue venue = new Venue();
@@ -65,6 +65,12 @@ public class VenueService {
         venue.setManager(manager);
         //save venue informtion down to database
         try {
+            venue = venueRepository.save(venue);
+            //tính số lượng sân
+            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
+            //cập nhật số lượng sân nhỏ
+            venue.setNumberOfCourts(numberOfCourts);
+            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getMessage());
@@ -104,17 +110,24 @@ public class VenueService {
         venue.setName(updateVenueRequest.getVenueName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
+        venue.setContactInfor(updateVenueRequest.getContactInfor());
         venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
         venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
 
-        //If assigned courts are updated, handle the assignment
-        if (updateVenueRequest.getAssignedCourts() != null) {
-            List<Court> courts = courtRepository.findAllById(updateVenueRequest.getAssignedCourts());
-            venue.setCourts(courts);
-        }
+//        //If assigned courts are updated, handle the assignment
+//        if (updateVenueRequest.getAssignedCourts() != null) {
+//            List<Court> courts = courtRepository.findAllById(updateVenueRequest.getAssignedCourts());
+//            venue.setCourts(courts);
+//        }
         try {
             // Lưu và trả về venue đã được cập nhật
+            venue = venueRepository.save(venue);
+            //tính số lượng sân
+            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
+            //cập nhật số lượng sân nhỏ
+            venue.setNumberOfCourts(numberOfCourts);
+            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             throw new VenueException("Failed to save venue information: " + e.getMessage());
@@ -219,5 +232,8 @@ public class VenueService {
         }
         return reviews;
     }
+
+
+
 }
 

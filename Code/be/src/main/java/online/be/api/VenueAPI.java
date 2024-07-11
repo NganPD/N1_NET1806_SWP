@@ -16,7 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/venue")
+@RequestMapping("api/venues")
 @SecurityRequirement(name = "api")
 public class VenueAPI {
 
@@ -79,16 +79,16 @@ public class VenueAPI {
         Venue venue = venueService.addStaffToVenue(staffId, venueId);
         return ResponseEntity.ok(venue);
     }
-
-    @GetMapping("{venueId}/manager")
-    public ResponseEntity<Account> getManager(@PathVariable long venueId){
-        return ResponseEntity.ok(venueService.getManager(venueId));
-    }
-
-    @GetMapping("{venueId}/staffs")
-    public ResponseEntity<List<Account>> getStaffs(@PathVariable long venueId){
-        return ResponseEntity.ok(venueService.getStaffsByVenueId(venueId));
-    }
+//
+//    @GetMapping("{venueId}/manager")
+//    public ResponseEntity<Account> getManager(@PathVariable long venueId){
+//        return ResponseEntity.ok(venueService.getManager(venueId));
+//    }
+//
+//    @GetMapping("{venueId}/staffs")
+//    public ResponseEntity<List<Account>> getStaffs(@PathVariable long venueId){
+//        return ResponseEntity.ok(venueService.getStaffsByVenueId(venueId));
+//    }
 
     @GetMapping("{venueId}/courts")
     public ResponseEntity getCourtsByVenueId(@PathVariable long venueId){

@@ -1,3 +1,4 @@
+
 package online.be.entity;
 
 import jakarta.persistence.*;
@@ -31,8 +32,6 @@ public class Transaction {
     private String transactionDate;
 
     private Long venueID;
-
-    private Long bookingID;
 
     String accountNumber;
 
