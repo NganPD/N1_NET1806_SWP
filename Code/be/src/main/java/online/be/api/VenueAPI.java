@@ -5,6 +5,7 @@ import online.be.entity.Account;
 import online.be.entity.Venue;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
+import online.be.model.Response.VenueResponse;
 import online.be.service.VenueService;
 import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,13 +54,13 @@ public class VenueAPI {
         List<Venue> venues = venueService.searchVenuesByKeyword(keyword);
         return ResponseEntity.ok(venues);
     }
-
-    //get venue by address
-    @GetMapping("/search-address")
-    public ResponseEntity searchVenuesByAddress(@RequestParam String address){
-        List<Venue> venues = venueService.searchVenuesByAddress(address);
-        return ResponseEntity.ok(venues);
-    }
+//
+//    //get venue by address
+//    @GetMapping("/search-address")
+//    public ResponseEntity searchVenuesByAddress(@RequestParam String address){
+//        List<Venue> venues = venueService.searchVenuesByAddress(address);
+//        return ResponseEntity.ok(venues);
+//    }
 
     @DeleteMapping("/{venueId}")
     public ResponseEntity deleteVenue(@PathVariable long venueId){
@@ -68,10 +69,13 @@ public class VenueAPI {
     }
 
 
-    @GetMapping("/search-operatingHour")
-    public ResponseEntity searchVenuesByOperatingHour(@RequestParam String operatingHours){
-        List<Venue> venues = venueService.searchVenuesByOperatingHours(operatingHours);
-        return ResponseEntity.ok(venues);
+    @GetMapping("/search")
+    public ResponseEntity<List<VenueResponse>> searchVenues(
+            @RequestParam(required = false) String operatingHoursStr,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String timeStr) {
+        List<VenueResponse> venueResponses = venueService.searchVenues(operatingHoursStr, location, timeStr);
+        return ResponseEntity.ok(venueResponses);
     }
 
     @PostMapping("/{venueId}/staff/{staffId}")

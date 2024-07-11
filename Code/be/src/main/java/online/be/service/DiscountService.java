@@ -1,11 +1,7 @@
 
 package online.be.service;
 
-import online.be.entity.TimeSlot;
 import online.be.entity.Discount;
-import online.be.exception.BadRequestException;
-import online.be.model.Request.DiscountRequest;
-import online.be.model.Response.TimeSlotPriceResponse;
 import online.be.repository.DiscountRepository;
 import online.be.repository.TimeSlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;

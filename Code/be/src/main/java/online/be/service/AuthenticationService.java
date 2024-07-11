@@ -1,4 +1,3 @@
-
 package online.be.service;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -173,20 +172,20 @@ public class AuthenticationService implements UserDetailsService {
         emailService.sendMailTemplate(emailDetail);
     }
 
-    public Account resetPassword(ResetPasswordRequest resetPasswordRequest) {
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
         Account account = getCurrentAccount();
         // Kiểm tra account có phải là instance của Account không
-        if (!(account instanceof Account)) {
+        if (account == null) {
             throw new ClassCastException("Đối tượng không phải là Account");
         }
         account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
-        return authenticationRepository.save(account);
+        authenticationRepository.save(account);
     }
 
     public Account getCurrentAccount() {
-        Object currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();// lấy đối tượng tài khoản hiện tại từ session hoặc context
-        if (currentAccount instanceof Account) {
-            return (Account) currentAccount;
+        Account currentAccount = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();// lấy đối tượng tài khoản hiện tại từ session hoặc context
+        if (currentAccount != null) {
+            return currentAccount;
         } else {
             throw new ClassCastException("Đối tượng không phải là Account");
         }
@@ -202,16 +201,5 @@ public class AuthenticationService implements UserDetailsService {
         return authenticationRepository.findAccountByEmail(email);
     }
 
-
-    public Account updateAccount(UpdatedAccountRequest updatedAccountRequest) {
-        Account account = authenticationRepository.findById(updatedAccountRequest.getAccountId())
-                .orElseThrow(() -> new BadRequestException("Account Not Found"));
-        account.setPhone(updatedAccountRequest.getPhone());
-        account.setEmail(updatedAccountRequest.getEmail());
-        account.setFullName(updatedAccountRequest.getFullname());
-        account.setRole(updatedAccountRequest.getRole());
-        //save
-        return authenticationRepository.save(account);
-    }
 
 }
