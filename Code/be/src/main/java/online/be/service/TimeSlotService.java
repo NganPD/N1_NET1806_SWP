@@ -14,12 +14,10 @@ import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,15 +26,14 @@ import java.util.stream.Collectors;
 public class TimeSlotService {
 
     @Autowired
-    private TimeSlotRepository timeSlotRepository;
+    TimeSlotRepository timeSlotRepository;
 
     @Autowired
-    private VenueRepository venueRepository;
+    VenueRepository venueRepository;
 
     @Autowired
     CourtRepository courtRepo;
 
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     // Lưu một TimeSlot mới hoặc cập nhật một TimeSlot đã tồn tại
     public TimeSlot createTimeSlot(TimeSlotRequest timeSlotRequest) {
@@ -165,61 +162,51 @@ public class TimeSlotService {
             LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
             return now.isAfter(expiryTime);
         } catch (DateTimeParseException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
+//            e.printStackTrace();
+//            // Handle the exception as needed
+
             return true;
         }
     }
 
-//    // Get TimeSlots by Venue and Exclude Court on Date
-//    public List<TimeSlot> getAvailableTimeSlotsWithAtLeastOneCourtInVenue(Long venueId, LocalDate date) {
-//        try {
-//            return timeSlotRepository.findAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
-//        } catch (Exception e) {
-//            // Log the exception if needed
-//            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
-//        }
-//    }
-//
-//    public long getAvailableTimeSlotCountForVenueOnDate(Long venueId, LocalDate date) {
-//        try {
-//            List<TimeSlot> list = timeSlotRepository.findAvailableTimeSlotsWithAtLeastOneCourtInVenue(venueId, date);
-//
-//            // Check if list is null (if findAvailableTimeSlotsWithAtLeastOneCourtInVenue can return null)
-//            if (list == null) {
-//                return 0;
-//            }
-//
-//            // Return the size of the list directly
-//            return list.size();
-//        } catch (Exception e) {
-//            // Log the exception if needed
-//            throw new RuntimeException("Failed to fetch time slots by venue and court for date: " + date, e);
-//        }
-//    }
+    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String dayOfWeekStr, String applicationDateStr, int durationMonth, long courtId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate applicationDate = LocalDate.parse(applicationDateStr, formatter);
+        DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
 
-    //update trang thai cua timeslot khi dat lich thanh cong
-    public TimeSlot updateTimeSlotAvailability(long timeSlotId, boolean isAvailable) {
-        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(() -> new BadRequestException("Time slot not found"));
-        return timeSlotRepository.save(timeSlot);
+        // Calculate all the dates that match the given day of the week within the duration
+        List<LocalDate> matchingDates = new ArrayList<>();
+        for (int month = 0; month < durationMonth; month++) {
+            LocalDate startOfMonth = applicationDate.plusMonths(month);
+            LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
+
+            // Get the first matching day of the week in the current month
+            LocalDate firstMatchingDate = startOfMonth.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+
+            // Collect all matching dates in the current month
+            for (LocalDate date = firstMatchingDate; !date.isAfter(endOfMonth); date = date.plusWeeks(1)) {
+                matchingDates.add(date);
+            }
+        }
+
+        // Check availability for all time slots on the matching dates
+        List<TimeSlotResponse> availableSlots = new ArrayList<>();
+        for (TimeSlot slot : timeSlotRepository.findAll()) {
+            boolean isAvailable = true;
+            for (LocalDate date : matchingDates) {
+                List<TimeSlotResponse> slotsOnDate = getAvailableSlots(courtId, date);
+                if (slotsOnDate.stream().noneMatch(s -> s.getId() == slot.getId() && s.isAvailable())) {
+                    isAvailable = false;
+                    break;
+                }
+            }
+            if (isAvailable) {
+                TimeSlotResponse slotResponse = mapperSlot(slot);
+                availableSlots.add(slotResponse);
+            }
+        }
+        return availableSlots;
     }
-//
-//    //kiem tra timeslot con trong hay khong
-//    public boolean isTimeSlotAvailable(long timeSlotId){
-//        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-//                .orElseThrow(()-> new BadRequestException("Time slot not found"));
-//        return timeSlot.isAvailableStatus();
-//    }
 
-//
-//    // Get TimeSlots by Venue and Exclude Court on Date
-//    public List<TimeSlot> getTimeSlotsByVenueAndCourtExcludingDate(Long venueId, Long courtId, LocalDate date) {
-//        try {
-//            return timeSlotRepository.findTimeSlotsByVenueAndCourtExcludingDate(venueId, courtId, date);
-//        } catch (Exception e) {
-//            // Log the exception if needed
-//            throw new RuntimeException("Failed to fetch time slots by venue and court excluding date: " + e.getMessage(), e);
-//        }
-//    }
+
 }
