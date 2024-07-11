@@ -69,8 +69,18 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 
-    @GetMapping("/courtId/{courtId}/date/{date}/bookingType/{bookingType}")
-    public ResponseEntity getAvailableTimeSlot(@PathVariable long courtId, @PathVariable LocalDate date){//, @PathVariable BookingType bookingType){
+   @GetMapping("/available-slots")
+    public ResponseEntity getAvailableTimeSlot(@RequestParam long courtId, @RequestParam LocalDate date){//, @PathVariable BookingType bookingType){
         return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
+    }
+
+    @GetMapping("/available-fixed-slots")
+    public ResponseEntity<List<TimeSlotResponse>> getAvailableSlotByDayOfWeek(
+            @RequestParam String dayOfWeek,
+            @RequestParam String applicationDate,
+            @RequestParam int durationMonth,
+            @RequestParam long courtId) {
+        List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlotByDayOfWeek(dayOfWeek, applicationDate, durationMonth, courtId);
+        return ResponseEntity.ok(availableSlots);
     }
 }
