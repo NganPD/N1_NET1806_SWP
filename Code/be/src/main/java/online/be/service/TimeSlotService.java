@@ -182,24 +182,39 @@ public class TimeSlotService {
             }
         }
 
+        // Retrieve all timeslots for the court
+        Court court = courtRepo.findById(courtId).orElseThrow(() ->
+                new RuntimeException("Court not found with id: " + courtId));
+        List<TimeSlot> slots = timeSlotRepository.findByVenueId(court.getVenue().getId());
+
         // Check availability for all time slots on the matching dates
-        List<TimeSlotResponse> availableSlots = new ArrayList<>();
-        for (TimeSlot slot : timeSlotRepository.findAll()) {
+        List<TimeSlotResponse> allSlots = new ArrayList<>();
+        for (TimeSlot slot : slots) {
+            TimeSlotResponse slotResponse = mapperSlot(slot);
             boolean isAvailable = true;
+
             for (LocalDate date : matchingDates) {
-                List<TimeSlotResponse> slotsOnDate = getAvailableSlots(courtId, date);
-                if (slotsOnDate.stream().noneMatch(s -> s.getId() == slot.getId() && s.isAvailable())) {
-                    isAvailable = false;
-                    break;
+                List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, date);
+                for (SlotIdCountDTO slotIdCount : slotIdCounts) {
+                    if (slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
+                        isAvailable = false;
+                        break;
+                    }
                 }
+                if (!isAvailable) break;
             }
-            if (isAvailable) {
-                TimeSlotResponse slotResponse = mapperSlot(slot);
-                availableSlots.add(slotResponse);
-            }
+            slotResponse.setAvailable(isAvailable);
+            allSlots.add(slotResponse);
         }
-        return availableSlots;
+        return allSlots;
     }
 
+    // Helper method to retrieve SlotIdCountDTOs
+    private List<SlotIdCountDTO> getSlotIdCounts(long courtId, LocalDate date) {
+        List<Object[]> results = timeSlotRepository.countTimeSlotsByCourtIdAndDate(courtId, date);
+        return results.stream()
+                .map(result -> new SlotIdCountDTO((Long) result[0], (Long) result[1]))
+                .collect(Collectors.toList());
+    }
 
 }
