@@ -23,11 +23,11 @@ public class BookingAPI {
     @Autowired
     DiscountService discountService;
 
-    @PostMapping("/flexible")
-    public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
-        Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
-        return ResponseEntity.ok(createdBooking);
-    }
+//    @PostMapping("/flexible")
+//    public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
+//        Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
+//        return ResponseEntity.ok(createdBooking);
+//    }
 
 //    @PostMapping("/payment")
 //    public ResponseEntity payForBooking(@RequestParam long bookingId){

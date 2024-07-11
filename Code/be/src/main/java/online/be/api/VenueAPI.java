@@ -16,7 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/venue")
+@RequestMapping("api/venues")
 @SecurityRequirement(name = "api")
 public class VenueAPI {
 

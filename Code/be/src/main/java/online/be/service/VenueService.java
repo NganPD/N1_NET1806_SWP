@@ -31,7 +31,7 @@ public class VenueService {
     CourtRepository courtRepository;
 
     @Autowired
-    AuthenticationRepository accountRepository;
+    AccountRepostory accountRepository;
 
     @Autowired
     ReviewRepository reviewRepository;
@@ -41,43 +41,36 @@ public class VenueService {
     // Tạo một venue
     public Venue createVenue(CreateVenueRequest createVenueRequest) {
         //chuyển đổi request string thành localtime
-        LocalTime operatingHours = LocalTime.parse(createVenueRequest.getOperatingHours(), timeFormatter);
-        LocalTime closingHours = LocalTime.parse(createVenueRequest.getClosingHours(), timeFormatter);
+        LocalTime openingHour = LocalTime.parse(createVenueRequest.getOpeningHours(), timeFormatter);
+        LocalTime closingHour = LocalTime.parse(createVenueRequest.getClosingHours(), timeFormatter);
         //kiểm tra xem sân tồn tại bên trong hệ thống chưa
         Venue existingVenue = venueRepository.findByName(createVenueRequest.getVenueName());
         if (existingVenue != null) {
             throw new VenueException("Duplicate venue");
         }
-        //check the hour
-        if (operatingHours.isBefore(LocalTime.MIN) || operatingHours.isAfter(LocalTime.MAX)) {
-            throw new DateTimeException("Invalid value for HourOfDay (valid values 0 - 23): ");
-        }
-        //check the hour and minute
-        if (closingHours.isBefore(LocalTime.MIN) || closingHours.isAfter(LocalTime.MAX)) {
-            throw new DateTimeException( "Closing hours must be between 00:00 and 23:59.");
-        }
-        //the closing hours cannot be before operating hours
-        if (closingHours.isBefore(operatingHours)) {
-            throw new DateTimeException("Closing hours cannot be before operating hours.");
-        }
-        //the closing hours cannot be the same as operating hours
-        if (closingHours.equals(operatingHours)) {
-            throw new DateTimeException("Closing hours cannot be the same as operating hours.");
-        }
         //nếu venue chưa tồn tại trong hệ thống
-        Account manager = accountRepository.findById(createVenueRequest.getManagerId()).get();
+        Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
+        if (manager == null) {
+            throw new BadRequestException("Manager not found");
+        }
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
         venue.setAddress(createVenueRequest.getAddress());
-//        venue.setContactInfor(createVenueRequest.());
+        venue.setContactInfor(createVenueRequest.getContactInfor());
         venue.setDescription(createVenueRequest.getDescription());
-        venue.setOpeningHour(operatingHours);
-        venue.setClosingHour(closingHours);
+        venue.setOpeningHour(openingHour);
+        venue.setClosingHour(closingHour);
         venue.setServices(createVenueRequest.getServices());
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
         venue.setManager(manager);
         //save venue informtion down to database
         try {
+            venue = venueRepository.save(venue);
+            //tính số lượng sân
+            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
+            //cập nhật số lượng sân nhỏ
+            venue.setNumberOfCourts(numberOfCourts);
+            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getMessage());
@@ -117,17 +110,24 @@ public class VenueService {
         venue.setName(updateVenueRequest.getVenueName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
+        venue.setContactInfor(updateVenueRequest.getContactInfor());
         venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
         venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
 
-        //If assigned courts are updated, handle the assignment
-        if (updateVenueRequest.getAssignedCourts() != null) {
-            List<Court> courts = courtRepository.findAllById(updateVenueRequest.getAssignedCourts());
-            venue.setCourts(courts);
-        }
+//        //If assigned courts are updated, handle the assignment
+//        if (updateVenueRequest.getAssignedCourts() != null) {
+//            List<Court> courts = courtRepository.findAllById(updateVenueRequest.getAssignedCourts());
+//            venue.setCourts(courts);
+//        }
         try {
             // Lưu và trả về venue đã được cập nhật
+            venue = venueRepository.save(venue);
+            //tính số lượng sân
+            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
+            //cập nhật số lượng sân nhỏ
+            venue.setNumberOfCourts(numberOfCourts);
+            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             throw new VenueException("Failed to save venue information: " + e.getMessage());
@@ -172,8 +172,8 @@ public class VenueService {
 ////    }
 //
     //search by Location
-    public List<Venue> searchVenuesByAddress(String address){
-        return venueRepository.findByAddress(address);
+    public List<Venue> searchVenuesByAddress(String address) {
+        return venueRepository.findByAddressContaining(address);
     }
 //    //search by available slots
 //    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
@@ -185,10 +185,10 @@ public class VenueService {
 //    }
 
 
-    public Venue addStaffToVenue(long staffId, long venueId){
+    public Venue addStaffToVenue(long staffId, long venueId) {
         try {
             Venue venue = venueRepository.findVenueById(venueId);
-            Account staff = accountRepository.findById(staffId).get();
+            Account staff = accountRepository.findUserById(staffId);
 
             //add staff to venue
             staff.setStaffVenue(venue);
@@ -198,35 +198,39 @@ public class VenueService {
             accountRepository.save(staff);
             venueRepository.save(venue);
             return venue;
-        }catch (Exception e){
-            throw new BadRequestException("Error: " +e.getMessage());
+        } catch (Exception e) {
+            throw new BadRequestException("Error: " + e.getMessage());
         }
     }
-//
-//    public Account getManager(long venueId){
-//        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
-//        return manager;
-//    }
-//
-//    public List<Account> getStaffsByVenueId(long venueId){
-//        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
-//        return staffs;
-//    }
 
-    public List<Court> getCourtByVenueId(long venueId){
+    public Account getManager(long venueId) {
+        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
+        return manager;
+    }
+
+    public List<Account> getStaffsByVenueId(long venueId) {
+        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
+        return staffs;
+    }
+
+    public List<Court> getCourtByVenueId(long venueId) {
         Venue venue = venueRepository.findVenueById(venueId);
-        if(venue == null){
+        if (venue == null) {
             throw new NoDataFoundException("Venue not found");
         }
         return courtRepository.findByVenue(venue);
     }
 
-    public List<Review> getReviewByVenueId(long venueId){
+    public List<Review> getReviewByVenueId(long venueId) {
         Venue venue = venueRepository.findVenueById(venueId);
-        if(venue == null){
+        if (venue == null) {
             throw new NoDataFoundException("Venue not found");
         }
-        return reviewRepository.findByVenue(venue);
+        List<Review> reviews = reviewRepository.findByVenue(venue);
+        if (reviews.isEmpty()) {
+            throw new NoDataFoundException("0 search");
+        }
+        return reviews;
     }
 
 

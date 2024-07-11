@@ -10,9 +10,9 @@ import java.util.List;
 public class UpdateVenueRequest {
     private String venueName;
     private String address;
+    private String contactInfor;
     private VenueStatus venueStatus;
     private String operatingHours;
     private String closingHours;
     private String description;
-    private List<Long> assignedCourts;
 }

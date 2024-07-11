@@ -2,6 +2,7 @@ package online.be.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import online.be.entity.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -37,6 +38,24 @@ public class EmailService {
             mimeMessageHelper.setTo(emailDetail.getRecipient());
             mimeMessageHelper.setText(text, true);
             mimeMessageHelper.setSubject(emailDetail.getSubject());
+            javaMailSender.send(mimeMessage);
+        }catch (MessagingException messagingException){
+            messagingException.printStackTrace();
+        }
+    }
+
+    public void sendMail(Account user, String subject, String description){
+
+        try{
+            // Creating a simple mail message
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+
+            // Setting up necessary details
+            mimeMessageHelper.setFrom("admin@gmail.com");
+            mimeMessageHelper.setTo(user.getEmail());
+            mimeMessageHelper.setText(description);
+            mimeMessageHelper.setSubject(subject);
             javaMailSender.send(mimeMessage);
         }catch (MessagingException messagingException){
             messagingException.printStackTrace();
