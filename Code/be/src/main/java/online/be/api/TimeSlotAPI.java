@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.TimeSlot;
 import online.be.enums.BookingType;
 import online.be.model.Request.TimeSlotRequest;
+import online.be.model.Response.TimeSlotResponse;
 import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -69,6 +70,7 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 
+
    @GetMapping("/available-slots")
     public ResponseEntity getAvailableTimeSlot(@RequestParam long courtId, @RequestParam LocalDate date){//, @PathVariable BookingType bookingType){
         return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
@@ -83,4 +85,6 @@ public class TimeSlotAPI {
         List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlotByDayOfWeek(dayOfWeek, applicationDate, durationMonth, courtId);
         return ResponseEntity.ok(availableSlots);
     }
+
 }
+
