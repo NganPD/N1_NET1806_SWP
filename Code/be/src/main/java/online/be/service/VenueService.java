@@ -9,6 +9,7 @@ import online.be.exception.NoDataFoundException;
 import online.be.exception.VenueException;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
+import online.be.model.Response.VenueResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,8 +17,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -35,6 +38,9 @@ public class VenueService {
 
     @Autowired
     ReviewRepository reviewRepository;
+
+    @Autowired
+    TimeSlotService timeSlotService;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -155,10 +161,41 @@ public class VenueService {
         }
     }
 
-    //search by operating hours
-    public List<Venue> searchVenuesByOperatingHours(String operatingHoursStr) {
-        LocalTime operatingHours = LocalTime.parse(operatingHoursStr);
-        return venueRepository.findByOpeningHour(operatingHours);
+    public List<VenueResponse> searchVenues(String operatingHoursStr, String location, String timeStr) {
+        List<Venue> venues = venueRepository.findAll();
+        List<VenueResponse> venueResponses = new ArrayList<>();
+
+        LocalTime time = null;
+        LocalDate currentDateTime = LocalDate.now();
+        if (timeStr != null && !timeStr.isEmpty()) {
+            time = LocalTime.parse(timeStr); // Parse thời gian được cung cấp
+        }
+
+        for (Venue venue : venues) {
+            boolean matchesOperatingHours = true;
+            boolean matchesLocation = true;
+            boolean matchesAvailableSlot = true;
+
+            if (operatingHoursStr != null && !operatingHoursStr.isEmpty()) {
+                matchesOperatingHours = venue.getOpeningHour().toString().contains(operatingHoursStr);
+            }
+
+            if (location != null && !location.isEmpty()) {
+                matchesLocation = venue.getAddress().toLowerCase().contains(location.toLowerCase());
+            }
+
+            if (timeStr != null && !timeStr.isEmpty()) {
+                matchesAvailableSlot = venue.getCourts().stream()
+                        .flatMap(court -> timeSlotService.getAvailableSlots(court.getId(), currentDateTime).stream())
+                        .anyMatch(slot -> slot.isAvailable() && slot.getStartTime().equals(timeStr));
+            }
+
+            if (matchesOperatingHours && matchesLocation && matchesAvailableSlot) {
+                venueResponses.add(mapToVenueResponse(venue));
+            }
+        }
+
+        return venueResponses;
     }
 
     //
@@ -171,10 +208,14 @@ public class VenueService {
 ////        return venues;
 ////    }
 //
-    //search by Location
-    public List<Venue> searchVenuesByAddress(String address) {
-        return venueRepository.findByAddressContaining(address);
-    }
+// <<<<<<< feat/FixBooking
+
+// =======
+//     //search by Location
+//     public List<Venue> searchVenuesByAddress(String address) {
+//         return venueRepository.findByAddressContaining(address);
+//     }
+// >>>>>>> main
 //    //search by available slots
 //    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
 //        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
@@ -233,7 +274,26 @@ public class VenueService {
         return reviews;
     }
 
+    private VenueResponse mapToVenueResponse(Venue venue) {
+        VenueResponse venueResponse = new VenueResponse();
 
+        // Copy fields from Venue to VenueResponse
+        venueResponse.setName(venue.getName());
+        venueResponse.setAddress(venue.getAddress());
+        venueResponse.setContactInfor(venue.getContactInfor());
+        venueResponse.setVenueStatus(venue.getVenueStatus());
+        venueResponse.setServices(venue.getServices());
+        venueResponse.setDescription(venue.getDescription());
+        // Additional fields for VenueResponse
+        venueResponse.setOperatingHours(
+                venue.getOpeningHour().toString() + " - " + venue.getClosingHour().toString()
+        );
+        venueResponse.setNumberOfCourt(venue.getCourts().size());
 
+        // Assume the price is calculated based on some business logic; here it's a placeholder
+        venueResponse.setPrice(venue.getTimeSlots().get(0).getPrice());
+
+        return venueResponse;
+    }
 }
 
