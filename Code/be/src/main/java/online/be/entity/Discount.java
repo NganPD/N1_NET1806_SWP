@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class Discount {
 
     private String description;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "discount", cascade = CascadeType.ALL)
     private Booking booking;
 }
