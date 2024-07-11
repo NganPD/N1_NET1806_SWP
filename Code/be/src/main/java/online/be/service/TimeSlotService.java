@@ -170,8 +170,8 @@ public class TimeSlotService {
         // Calculate all the dates that match the given day of the week within the duration
         List<LocalDate> matchingDates = new ArrayList<>();
         for (int month = 0; month < durationMonth; month++) {
-            LocalDate startOfMonth = applicationDate.plusMonths(month);
-            LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
+            LocalDate startOfMonth = applicationDate.plusDays(month * 30L);
+            LocalDate endOfMonth = startOfMonth.plusDays(29);
 
             // Get the first matching day of the week in the current month
             LocalDate firstMatchingDate = startOfMonth.with(TemporalAdjusters.nextOrSame(dayOfWeek));
