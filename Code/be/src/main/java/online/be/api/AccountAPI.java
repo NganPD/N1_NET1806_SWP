@@ -11,49 +11,55 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/account")
 @SecurityRequirement(name = "api")
 @CrossOrigin("*")
 public class AccountAPI {
+
     @Autowired
-    AccountService accountService;
+    private AccountService accountService;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity createAccount(@RequestBody AccountRequest accountRequest){
+    public ResponseEntity<Account> createAccount(@RequestBody AccountRequest accountRequest){
         Account account = accountService.createAccount(accountRequest);
         return ResponseEntity.ok(account);
     }
 
-    @DeleteMapping("/account/{id}")
+    @DeleteMapping("/{accountId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity lockAccount(@PathVariable long id){
-        Account deletedAccount = accountService.deActiveAccount(id);
+    public ResponseEntity<Void> lockAccount(@PathVariable long accountId){
+        accountService.deActiveAccount(accountId);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{accountId}/activate")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity activeAccount(@PathVariable long id){
-        Account account = accountService.activeAccount(id);
+    public ResponseEntity<Account> activeAccount(@PathVariable long accountId){
+        Account account = accountService.activeAccount(accountId);
         return ResponseEntity.ok(account);
     }
 
-    @PatchMapping("/{id}/role")
+    @PatchMapping("/{accountId}/role")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void assignRole(@PathVariable long id, @RequestParam Role role){
-        accountService.assignRole(id, role);
+    public ResponseEntity<Void> assignRole(@PathVariable long accountId, @RequestParam Role role){
+        accountService.assignRole(accountId, role);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/role/{role}")
-    public ResponseEntity getByRole(@PathVariable Role role){
-        return ResponseEntity.ok(accountService.getByRole(role));
+    public ResponseEntity<List<Account>> getByRole(@PathVariable Role role){
+        List<Account> accounts = accountService.getByRole(role);
+        return ResponseEntity.ok(accounts);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity updateAccount(@RequestBody UpdatedAccountRequest request){
-        return ResponseEntity.ok(accountService.updateAccount(request));
+    @PutMapping("/{accountId}/update")
+    public ResponseEntity<Account> updateAccount(@PathVariable long accountId, @RequestBody UpdatedAccountRequest request){
+        Account updatedAccount = accountService.updateAccount(request, accountId);
+        return ResponseEntity.ok(updatedAccount);
     }
 
 }

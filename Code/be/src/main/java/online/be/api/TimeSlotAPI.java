@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.TimeSlot;
 import online.be.enums.BookingType;
 import online.be.model.Request.TimeSlotRequest;
+import online.be.model.Response.TimeSlotResponse;
 import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
