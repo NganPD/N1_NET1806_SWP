@@ -76,3 +76,4 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
 
     CourtTimeSlot findById(long id);
 }
+

@@ -5,7 +5,7 @@ echo "Deploy files to server..."
 scp -r  target/be.jar root@104.248.224.6:/var/www/be/ #copy file jar day len server
 
 ssh root@104.248.224.6 <<EOF
-pid=\$(sudo lsof -t -i :8080)
+pid=\$(sudo lsof -t -i :8082)
 
 if [ -z "\$pid" ]; then
     echo "Start server..."

@@ -13,4 +13,5 @@ import java.util.List;
 @Repository
 public interface CourtRepository extends JpaRepository<Court, Long> {
     List<Court> findByVenue(Venue venue);
+    int countByVenueId(long venueId);
 }

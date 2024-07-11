@@ -57,8 +57,9 @@ public class Account implements UserDetails {
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "venue_id")
-    private Venue  staffVenue;
+    private Venue staffVenue;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Wallet wallet;
 

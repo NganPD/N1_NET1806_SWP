@@ -41,9 +41,14 @@ public class CourtAPI {
     }
 
     @DeleteMapping("/{courtId}")
-    public ResponseEntity deleteCourt(@PathVariable long courtId){
-        courtService.deleteCourt(courtId);
+    public ResponseEntity deActiveCourt(@PathVariable long courtId){
+        courtService.deActiveCourt(courtId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{courtId}")
+    public ResponseEntity activeCourt(@PathVariable long courtId){
+        return ResponseEntity.ok(courtService.activeCourt(courtId));
     }
 
     @GetMapping

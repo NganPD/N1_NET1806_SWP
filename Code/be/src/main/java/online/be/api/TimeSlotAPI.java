@@ -32,7 +32,7 @@ public class TimeSlotAPI {
     }
 
     // Lấy TimeSlot theo ID
-    @GetMapping("/{id}")
+    @GetMapping("/{timeSlotId}")
     public ResponseEntity<TimeSlot> getTimeSlotById(@PathVariable long timeSlotId) {
         TimeSlot timeSlot = timeSlotService.getTimeSlotById(timeSlotId);
         return ResponseEntity.ok().body(timeSlot);
@@ -51,14 +51,14 @@ public class TimeSlotAPI {
     }
 
     // Cập nhật thông tin một TimeSlot
-    @PutMapping("/{id}")
+    @PutMapping("/{timeSlotId}")
     public ResponseEntity<TimeSlot> updateTimeSlot(@PathVariable long timeSlotId, @RequestBody TimeSlotRequest timeSlotDetails) {
         TimeSlot timeSlot = timeSlotService.updateTimeSlot(timeSlotId, timeSlotDetails);
         return ResponseEntity.ok().body(timeSlot);
     }
 
     // Xóa một TimeSlot
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{timeSlotId}")
     public ResponseEntity<Void> deleteTimeSlot(@PathVariable long timeSlotId) {
         timeSlotService.deleteTimeSlot(timeSlotId);
         return ResponseEntity.noContent().build();

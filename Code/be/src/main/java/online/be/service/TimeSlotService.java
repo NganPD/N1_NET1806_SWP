@@ -37,17 +37,8 @@ public class TimeSlotService {
 
     // Lưu một TimeSlot mới hoặc cập nhật một TimeSlot đã tồn tại
     public TimeSlot createTimeSlot(TimeSlotRequest timeSlotRequest) {
-        if (timeSlotRequest.getStartTime() == null || timeSlotRequest.getEndTime() == null) {
-            throw new BadRequestException("Start time and end time are required");
-        }
-
         LocalTime startTime = LocalTime.parse(timeSlotRequest.getStartTime());
         LocalTime endTime = LocalTime.parse(timeSlotRequest.getEndTime());
-        //validate time range
-        if (startTime.isAfter(endTime)) {
-            throw new BadRequestException("Start time must be before end time");
-        }
-
         //check the overlapping time slots
         List<TimeSlot> existingSlots = timeSlotRepository.findByVenueId(timeSlotRequest.getVenueId());
         for (TimeSlot slot : existingSlots) {
@@ -61,6 +52,7 @@ public class TimeSlotService {
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
+        timeSlot.setPrice(timeSlotRequest.getPrice());
         timeSlot.setDuration(duration);
 
         //Set venue
@@ -81,6 +73,7 @@ public class TimeSlotService {
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
         long duration = Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
         timeSlot.setDuration(duration);
+        timeSlot.setPrice(timeSlotRequest.getPrice());
         venueRepository.findById(timeSlotRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
         return timeSlotRepository.save(timeSlot);
