@@ -6,6 +6,7 @@ import online.be.enums.*;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
 import online.be.exception.DuplicateEntryException;
+import online.be.exception.NoDataFoundException;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
@@ -363,7 +364,8 @@ public class BookingService {
     public Booking cancelBooking(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
         //search user wallet
-        Account customer = booking.getAccount();
+        Account customer = authenticationService.getCurrentAccount();//lấy  tài khoản hiện tại
+        //kiểm tra xem customer này có bookingID giống như bookingID truyền xuống hay không
         Wallet customerWallet = customer.getWallet();
         //admin wallet
         Account admin = accountRepostory.findAdmin();
@@ -438,9 +440,12 @@ public class BookingService {
         return transferTransaction;
     }
 
-    public List<Booking> getBookingHistory(){
-        Account customer = authenticationService.getCurrentAccount();
-        return bookingRepo.findBookingByAccount_Id(customer.getId());
+    public List<Booking> getBookingByUserId(long userId){
+        List<Booking> bookings = bookingRepo.findBookingByAccount_Id(userId);
+        if(bookings.isEmpty()){
+            throw new NoDataFoundException("0 Booking History");
+        }
+        return bookings;
     }
 
 }

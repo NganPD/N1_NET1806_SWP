@@ -15,7 +15,6 @@ import java.util.List;
 @Repository
 public interface BookingDetailRepostiory extends JpaRepository<BookingDetail, Long> {
 
-
     List<BookingDetail> findByBookingId(long bookingId);
 
     @Query("SELECT SUM(bd.price) FROM BookingDetail bd " +

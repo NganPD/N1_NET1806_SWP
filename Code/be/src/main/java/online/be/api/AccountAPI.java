@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Account;
 import online.be.enums.Role;
 import online.be.model.Request.AccountRequest;
+import online.be.model.Request.UpdatedAccountRequest;
 import online.be.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class AccountAPI {
     AccountService accountService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity createAccount(@RequestBody AccountRequest accountRequest){
         Account account = accountService.createAccount(accountRequest);
         return ResponseEntity.ok(account);
@@ -32,12 +34,14 @@ public class AccountAPI {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity activeAccount(@PathVariable long id){
         Account account = accountService.activeAccount(id);
         return ResponseEntity.ok(account);
     }
 
-    @PutMapping("/{id}/role")
+    @PatchMapping("/{id}/role")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void assignRole(@PathVariable long id, @RequestParam Role role){
         accountService.assignRole(id, role);
     }
@@ -46,4 +50,10 @@ public class AccountAPI {
     public ResponseEntity getByRole(@PathVariable Role role){
         return ResponseEntity.ok(accountService.getByRole(role));
     }
+
+    @PutMapping("/update")
+    public ResponseEntity updateAccount(@RequestBody UpdatedAccountRequest request){
+        return ResponseEntity.ok(accountService.updateAccount(request));
+    }
+
 }

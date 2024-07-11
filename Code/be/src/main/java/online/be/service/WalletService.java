@@ -69,7 +69,7 @@ public class WalletService {
         String tmnCode = VNPayConfig.vnp_TmpCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl = "http://goodminton.online/myProfile/wallet?id=" + transactionReturn.getTransactionID();
+        String returnUrl = "http://goodminton.online/profile/wallet?id=" + transactionReturn.getTransactionID();
 
         String currCode = "VND";
         Map<String, String> vnpParams = new TreeMap<>();

@@ -6,9 +6,7 @@ import online.be.enums.Role;
 
 @Data
 public class UpdatedAccountRequest {
-    private Long accountId;
     private String fullname;
     private String phone;
     private String email;
-    private Role role;
 }

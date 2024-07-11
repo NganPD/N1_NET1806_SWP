@@ -10,6 +10,7 @@ import java.time.LocalTime;
 public class CreateVenueRequest {
     private String venueName;
     private String address;
+    private String imageUrl;
     private VenueStatus venueStatus;
     private String contactInfor;
     private String openingHours;

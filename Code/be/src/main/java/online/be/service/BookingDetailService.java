@@ -5,6 +5,7 @@ import online.be.entity.*;
 import online.be.enums.BookingType;
 import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
+import online.be.exception.NoDataFoundException;
 import online.be.repository.*;
 import online.be.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,20 @@ public class BookingDetailService {
             throw new RuntimeException("Something went wrong, please try again");
         }
         // Save and return the BookingDetail
+        return detail;
+    }
+
+    public List<BookingDetail> getBookingDetailByBookingId(long bookingId){
+        List<BookingDetail> details = detailRepo.findByBookingId(bookingId);
+        if(details.isEmpty()){
+            throw new NoDataFoundException("Nothing to show");
+        }
+        return details;
+    }
+
+    public BookingDetail getBookingDetailById(long bookingDetailId){
+        BookingDetail detail = detailRepo.findById(bookingDetailId)
+                .orElseThrow(()-> new BadRequestException("Booking Detail not found"));
         return detail;
     }
 }

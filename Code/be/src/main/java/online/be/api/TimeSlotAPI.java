@@ -56,13 +56,6 @@ public class TimeSlotAPI {
         return ResponseEntity.ok().body(timeSlot);
     }
 
-    // Xóa một TimeSlot
-    @DeleteMapping("/{timeSlotId}")
-    public ResponseEntity<Void> deleteTimeSlot(@PathVariable long timeSlotId) {
-        timeSlotService.deleteTimeSlot(timeSlotId);
-        return ResponseEntity.noContent().build();
-    }
-
     // Lấy danh sách TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     @GetMapping("/start/{start}/end/{end}")
     public ResponseEntity<List<TimeSlot>> getTimeSlotsByStartTimeBetween(@PathVariable LocalTime start, @PathVariable LocalTime end) {

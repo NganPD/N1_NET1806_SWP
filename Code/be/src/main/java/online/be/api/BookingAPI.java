@@ -23,37 +23,36 @@ public class BookingAPI {
     @Autowired
     DiscountService discountService;
 
-//    @PostMapping("/flexible")
-//    public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
-//        Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
-//        return ResponseEntity.ok(createdBooking);
-//    }
+    @PostMapping("/flexible")
+    public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
+        Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
+        return ResponseEntity.ok(createdBooking);
+    }
 
-//    @PostMapping("/payment")
-//    public ResponseEntity payForBooking(@RequestParam long bookingId){
-//        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId));
-//    }
-//
-//    @PostMapping("/{bookingId}/cancel")
-//    public ResponseEntity cancelBooking(@PathVariable long bookingId){
-//        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
-//    }
-//
+    @PostMapping("/payment")
+    public ResponseEntity payForBooking(@RequestParam long bookingId){
+        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId));
+    }
+
+    @PostMapping("/{bookingId}/cancel")
+    public ResponseEntity cancelBooking(@PathVariable long bookingId){
+        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+    }
+
 //    @PostMapping("/{bookingId}/processComission")
 //    public ResponseEntity processCommision(@PathVariable long bookingId){
 //        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
 //    }
-//
-//    @GetMapping("/booking-history")
-//    public ResponseEntity getBookingHistory(){
-//        return ResponseEntity.ok(bookingService.getBookingHistory());
-//    }
 
-    //    @GetMapping("/{bookingId}")
+    @GetMapping("/booking-history")
+    public ResponseEntity getBookingHistory(@PathVariable long accountId){
+        return ResponseEntity.ok(bookingService.getBookingByUserId(accountId));
+    }
+
+//        @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
 //        Booking Booking = bookingService.getBookingById(bookingId);
 //        return ResponseEntity.ok().body(Booking);
-//    }
 //
 //
 //    @GetMapping
