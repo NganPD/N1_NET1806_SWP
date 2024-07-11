@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/wallet")
 @SecurityRequirement(name = "api")
 @CrossOrigin("*")
 public class WalletAPI {
@@ -25,16 +26,16 @@ public class WalletAPI {
     @Autowired
     WalletService walletService;
 
-    @PostMapping("/request-recharge-vnpay")
+    @PostMapping("/recharge-vnpay-url")
     public ResponseEntity createUrl(@RequestBody RechargeRequest request)
             throws NoSuchAlgorithmException, InvalidKeyException, Exception {
         String url = walletService.createUrl(request);
         return ResponseEntity.ok(url);
     }
 
-    @PostMapping("/recharge/{id}")
-    public ResponseEntity recharge(@PathVariable UUID id) throws Exception{
-        Wallet wallet = walletService.recharge(id);
+    @PostMapping("/recharge/{transactionId}")
+    public ResponseEntity recharge(@PathVariable UUID transactionId) throws Exception{
+        Wallet wallet = walletService.recharge(transactionId);
         return ResponseEntity.ok(wallet);
     }
 

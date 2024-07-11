@@ -10,6 +10,7 @@ import online.be.exception.BadRequestException;
 import online.be.exception.ResourceNotFoundException;
 import online.be.model.EmailDetail;
 import online.be.model.Request.AccountRequest;
+import online.be.model.Request.UpdatedAccountRequest;
 import online.be.repository.AccountRepostory;
 import online.be.repository.VenueRepository;
 import online.be.repository.WalletRepository;
@@ -67,12 +68,12 @@ public class AccountService {
             case STAFF:
                 account.setRole(Role.STAFF);
                 break;
-            case ADMIN:
-                account.setRole(Role.ADMIN);
-                break;
+            default:
+                throw new BadRequestException("Role is invalid. Please enter STAFF or MANAGER");
         }
         try {
-            walletRepository.save(wallet);
+            wallet = walletRepository.save(wallet);
+            account.setWallet(wallet);
             account = accountRepository.save(account);
         }catch (DataIntegrityViolationException e){
             System.out.println(e.getMessage());
@@ -127,5 +128,13 @@ public class AccountService {
         return accountRepository.findByRole(role);
     }
 
-
+    public Account updateAccount(UpdatedAccountRequest updatedAccountRequest, long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new BadRequestException("Account Not Found"));
+        account.setPhone(updatedAccountRequest.getPhone());
+        account.setEmail(updatedAccountRequest.getEmail());
+        account.setFullName(updatedAccountRequest.getFullname());
+        //save
+        return accountRepository.save(account);
+    }
 }

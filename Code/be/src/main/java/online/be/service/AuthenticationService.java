@@ -1,9 +1,11 @@
+
 package online.be.service;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import online.be.entity.Account;
+import online.be.entity.Wallet;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
 import online.be.exception.BadRequestException;
@@ -12,6 +14,7 @@ import online.be.model.Request.*;
 import online.be.model.Response.AccountResponse;
 import online.be.model.Response.LoginGoogleResponse;
 import online.be.repository.AuthenticationRepository;
+import online.be.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,6 +47,9 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     EmailService emailService;
 
+    @Autowired
+    WalletRepository walletRepository;
+
     public Account register(RegisterRequest registerRequest) {
         //registerRequest: thông tin ngừoi dùng yêu cầu
 
@@ -63,7 +69,11 @@ public class AuthenticationService implements UserDetailsService {
         account.setActive(true);
         account.setEmail(registerRequest.getEmail());
         account.setFullName(registerRequest.getFullName());
-
+        Wallet wallet = new Wallet();
+        wallet.setBalance(0);
+        wallet.setAccount(account);
+        walletRepository.save(wallet);
+        account.setWallet(wallet);
         try {
             account = authenticationRepository.save(account);
         } catch (DataIntegrityViolationException e) {
@@ -119,6 +129,7 @@ public class AuthenticationService implements UserDetailsService {
         accountResponse.setRole(account.getRole());
         accountResponse.setId(account.getId());
         accountResponse.setActive(account.isActive());
+        accountResponse.setWallet(account.getWallet());
         return accountResponse;
     }
 
@@ -134,12 +145,18 @@ public class AuthenticationService implements UserDetailsService {
                 account.setEmail(firebaseToken.getEmail());
                 account.setActive(true);
                 account.setRole(Role.CUSTOMER);
+                Wallet wallet = new Wallet();
+                wallet.setBalance(0);
+                wallet.setAccount(account);
+                walletRepository.save(wallet);
+                account.setWallet(wallet);
                 authenticationRepository.save(account);
             }
             accountResponse.setEmail(account.getEmail());
             accountResponse.setFullName(account.getFullName());
             accountResponse.setId(account.getId());
             accountResponse.setRole(account.getRole());
+            accountResponse.setWallet(account.getWallet());
 
             //sinh ra token và gán vảo response
             String token = tokenService.generateToken(account);
@@ -200,6 +217,8 @@ public class AuthenticationService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return authenticationRepository.findAccountByEmail(email);
     }
+
+
 
 
 }
