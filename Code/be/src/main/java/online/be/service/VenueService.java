@@ -286,6 +286,8 @@ public class VenueService {
         venueResponse.setServices(venue.getServices());
         venueResponse.setDescription(venue.getDescription());
         venueResponse.setCourts(venue.getCourts());
+        venueResponse.setClosingHour(venue.getClosingHour());
+        venueResponse.setOpeningHour(venue.getOpeningHour());
         // Additional fields for VenueResponse
         venueResponse.setOperatingHours(
                 venue.getOpeningHour().toString() + " - " + venue.getClosingHour().toString()
