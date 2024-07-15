@@ -1,89 +1,91 @@
 import React, { useState, useEffect } from "react";
+import api from "../../../config/axios";
 
 const CourtManagement = () => {
   const [courts, setCourts] = useState([]);
+  const token = localStorage.getItem("token");
+
+  const fetchVenues = async () => {
+    try {
+      const response = await api.get("/venues");
+      console.log(response.data);
+      setCourts(response.data);
+    } catch (error) {
+      console.error("Error fetching courts data", error);
+    }
+  };
 
   useEffect(() => {
-    // Fake data for courts
-    const fakeCourts = [
-      {
-        id: 1,
-        name: "Sân Cầu Lông A",
-        location: "Quận 1, TP.HCM",
-        courts: 5,
-        price: "200,000 VND/giờ",
-        image: "https://via.placeholder.com/150",
-        availableTimes: ["08:00", "10:00", "12:00", "14:00", "16:00"],
-      },
-      {
-        id: 2,
-        name: "Sân Cầu Lông B",
-        location: "Quận 3, TP.HCM",
-        courts: 3,
-        price: "180,000 VND/giờ",
-        image: "https://via.placeholder.com/150",
-        availableTimes: ["09:00", "11:00", "13:00", "15:00", "17:00"],
-      },
-      {
-        id: 3,
-        name: "Sân Cầu Lông C",
-        location: "Quận 5, TP.HCM",
-        courts: 4,
-        price: "150,000 VND/giờ",
-        image: "https://via.placeholder.com/150",
-        availableTimes: ["08:30", "10:30", "12:30", "14:30", "16:30"],
-      },
-      {
-        id: 4,
-        name: "Sân Cầu Lông D",
-        location: "Quận 7, TP.HCM",
-        courts: 6,
-        price: "220,000 VND/giờ",
-        image: "https://via.placeholder.com/150",
-        availableTimes: ["09:30", "11:30", "13:30", "15:30", "17:30"],
-      },
-      {
-        id: 5,
-        name: "Sân Cầu Lông E",
-        location: "Quận 9, TP.HCM",
-        courts: 2,
-        price: "170,000 VND/giờ",
-        image: "https://via.placeholder.com/150",
-        availableTimes: ["08:00", "10:00", "12:00", "14:00", "16:00"],
-      },
-    ];
-    setCourts(fakeCourts);
+    fetchVenues();
   }, []);
 
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/venues/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCourts(courts.filter((court) => court.venueId !== id));
+    } catch (error) {
+      console.error("Failed to delete court:", error);
+    }
+  };
+
   return (
-    <div className=" bg-white p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        Quản lý thông tin Sân cầu lông
-      </h2>
-      <table className="ml-2 min-w-full">
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Quản lý thông tin Sân cầu lông</h2>
+      <table className="min-w-full border-collapse border border-gray-300">
         <thead>
-          <tr>
-            <th className="py-2">ID</th>
-            <th className="py-2">Tên sân</th>
-            <th className="py-2">Khu vực</th>
-            <th className="py-2">Số sân</th>
-            <th className="py-2">Giá</th>
-            <th className="py-2">Hành động</th>
+          <tr className="bg-gray-100">
+            <th className="py-2 px-4 border border-gray-300">ID</th>
+            <th className="py-2 px-4 border border-gray-300">Tên địa điểm</th>
+            <th className="py-2 px-4 border border-gray-300">Hình Ảnh</th>
+            <th className="py-2 px-4 border border-gray-300">Trạng thái địa điểm</th>
+            <th className="py-2 px-4 border border-gray-300">Liên hệ chúng tôi</th>
+            <th className="py-2 px-4 border border-gray-300">Giờ mở cửa</th>
+            <th className="py-2 px-4 border border-gray-300">Giờ đóng cửa</th>
+            <th className="py-2 px-4 border border-gray-300">Miêu tả</th>
+            <th className="py-2 px-4 border border-gray-300">Dịch vụ</th>
+            <th className="py-2 px-4 border border-gray-300">Hành động</th>
           </tr>
         </thead>
         <tbody>
           {courts.map((court) => (
-            <tr key={court.id}>
-              <td className="py-2">{court.id}</td>
-              <td className="py-2">{court.name}</td>
-              <td className="py-2">{court.location}</td>
-              <td className="py-2">{court.courts}</td>
-              <td className="py-2">{court.price}</td>
-              <td className="py-2">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded">
+            <tr key={court.venueId} className="hover:bg-gray-100">
+              <td className="py-2 px-4 border border-gray-300 text-center">
+                {court.venueId}
+              </td>
+              <td className="py-2 px-4 border border-gray-300 text-center">
+                {court.name}
+              </td>
+              <td className="py-2 px-4 border border-gray-300">
+                <img src={court.imageUrl} alt={court.name} className="h-16 w-16 object-cover mx-auto"/>
+              </td>
+              <td className="py-2 px-4 border border-gray-300 text-center">
+                {court.venueStatus}
+              </td>
+              <td className="py-2 px-4 border border-gray-300">
+                {court.contactInfor}
+              </td>
+              <td className="py-2 px-4 border border-gray-300 text-center">
+                {court.openingHour}
+              </td>
+              <td className="py-2 px-4 border border-gray-300 text-center">
+                {court.closingHour}
+              </td>
+              <td className="py-2 px-4 border border-gray-300">
+                {court.description}
+              </td>
+              <td className="py-2 px-4 border border-gray-300">
+                {court.services}
+              </td>
+              <td className="py-2 px-4 border border-gray-300 text-center">
+                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
                   Chỉnh sửa
                 </button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded ml-2">
+                <button
+                  onClick={() => handleDelete(court.venueId)}
+                  className="bg-red-500 text-white px-4 py-2 rounded ml-2 hover:bg-red-700"
+                >
                   Xóa
                 </button>
               </td>
