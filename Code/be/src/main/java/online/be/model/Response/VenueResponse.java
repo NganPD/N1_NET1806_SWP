@@ -13,4 +13,5 @@ public class VenueResponse extends Venue {
     private String operatingHours;
     private int numberOfCourt;
     private double price;
+    private double rating;
 }

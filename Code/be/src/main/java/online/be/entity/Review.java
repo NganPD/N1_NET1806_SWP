@@ -19,7 +19,7 @@ public class Review {
     private String comment;
 
     @Column(nullable = false)
-    private int rating;
+    private double rating;
 
     @Column(nullable = false)
     private LocalDateTime createdDate;

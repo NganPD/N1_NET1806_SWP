@@ -88,7 +88,7 @@ public class VenueService {
 
 
     // Lấy venue bằng ID
-    public Venue getVenueById(long venueId) {
+    public VenueResponse getVenueById(long venueId) {
         // Sử dụng findById của repository để tìm venue theo ID
         Venue venue = venueRepository.findById(venueId).get();
         if (venue == null) {
@@ -98,7 +98,8 @@ public class VenueService {
                 throw new RuntimeException(e);
             }
         }
-        return venue;
+        VenueResponse response = mapToVenueResponse(venue);
+        return  response;
         //Tự handle lỗi để front end nhận được
     }
 
@@ -289,6 +290,7 @@ public class VenueService {
         venueResponse.setVenueStatus(venue.getVenueStatus());
         venueResponse.setServices(venue.getServices());
         venueResponse.setDescription(venue.getDescription());
+        venueResponse.setCourts(venue.getCourts());
         // Additional fields for VenueResponse
         venueResponse.setOperatingHours(
                 venue.getOpeningHour().toString() + " - " + venue.getClosingHour().toString()
@@ -296,8 +298,13 @@ public class VenueService {
         venueResponse.setNumberOfCourt(venue.getCourts().size());
 
         // Assume the price is calculated based on some business logic; here it's a placeholder
-        venueResponse.setPrice(venue.getPricingList().get(0).getPricePerHour());
-
+        venueResponse.setPrice(venue.getTimeSlots().get(0).getPrice());
+        double rating = 0;
+        List<Review> reviews = venue.getReviews();
+        for (Review review : reviews){
+            rating += rating;
+        }
+        venueResponse.setRating(rating/reviews.size());
         return venueResponse;
     }
 }

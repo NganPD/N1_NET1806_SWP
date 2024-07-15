@@ -21,7 +21,6 @@ public class CourtTimeSlot {
     private long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private SlotStatus status;
 
     @ManyToOne
