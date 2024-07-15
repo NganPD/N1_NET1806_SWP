@@ -7,8 +7,8 @@ import java.util.List;
 @Data
 public class FixedScheduleBookingRequest {
     private String applicationStartDate;
-    private List<FixedTimeSlot> fixedTimeSlots;
     private int durationInMonths;
+    private List<FixedTimeSlot> fixedTimeSlots;
 
     @Data
     public static class FixedTimeSlot {

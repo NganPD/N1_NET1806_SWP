@@ -6,7 +6,6 @@ import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
 import online.be.service.BookingService;
-import online.be.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +18,6 @@ import java.time.LocalDate;
 public class BookingAPI {
     @Autowired
     BookingService bookingService;
-
-    @Autowired
-    DiscountService discountService;
 
     @PostMapping("/flexible")
     public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
@@ -84,9 +80,9 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
-    @PostMapping("/flexible-schedule/hours/{hours}/id/{id}")
-    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id){
-        Booking booking = bookingService.purchaseFlexibleHours(hours,id);
+    @PostMapping("/purchase-hours/hours/{hours}/id/{id}/applicationDate/{applicationDate}")
+    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable LocalDate applicationDate){
+        Booking booking = bookingService.purchaseFlexibleHours(hours, id, applicationDate);
         return ResponseEntity.ok(booking);
     }
 }

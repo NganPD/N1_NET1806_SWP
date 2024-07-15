@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -29,9 +28,6 @@ public class BookingDetailService {
     CourtRepository courtRepo;
 
     @Autowired
-    DiscountService discountService;
-
-    @Autowired
     TimeSlotService timeSlotService;
 
     @Autowired
@@ -40,7 +36,7 @@ public class BookingDetailService {
     @Autowired
     DateTimeUtils utils;
 
-    public BookingDetail createBookingDetail(BookingType bookingType, String date, Court court, TimeSlot slot){
+    public BookingDetail createBookingDetail(BookingType bookingType, LocalDate date, Court court, TimeSlot slot){
         // Create a new Court time slot
         CourtTimeSlot courtTimeSlot = new CourtTimeSlot();
 //        //Retrieve Time slot and court, catch ResourceNotFoundException
@@ -48,22 +44,17 @@ public class BookingDetailService {
 //                new BadRequestException("TimeSlot not found with id: " + slotId));
 //        Court court = courtRepo.findById(courtId).orElseThrow(() ->
 //                new BadRequestException("Court not found with id: " + courtId));
-        if (date == null || date.isEmpty()) {
+        if (date == null) {
             throw new IllegalArgumentException("Date string is null or empty");
         }
         try {
-            // Parse the check-in date
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            LocalDate checkInDate = LocalDate.parse(date, formatter);
             courtTimeSlot.setTimeSlot(slot);
             courtTimeSlot.setCourt(court);
-            courtTimeSlot.setCheckInDate(checkInDate);
-            courtTimeSlot.setStatus(SlotStatus.BOOKED);
-            courtTimeSlotRepo.save(courtTimeSlot);
+            courtTimeSlot.setCheckInDate(date);
         } catch (DateTimeParseException | IllegalArgumentException e) {
             throw new RuntimeException("Failed to parse date or invalid date format: " + e.getMessage(), e);
         } catch (Exception e){
-            throw new RuntimeException("Something went wrong, please try again!");
+            throw new RuntimeException("CourtTimeSlot cannot be created!");
         }
 
         double price = slot.getPrice();
@@ -73,11 +64,11 @@ public class BookingDetailService {
             detail.setDuration(slot.getDuration());
             detail.setPrice(price);
             detail.setCourtTimeSlot(courtTimeSlot);
-            courtTimeSlot.setStatus(SlotStatus.BOOKED);
+            courtTimeSlot.setStatus(SlotStatus.AVAILABLE);
+            courtTimeSlotRepo.save(courtTimeSlot);
         }catch (Exception e){
             throw new RuntimeException("Something went wrong, please try again");
         }
-        // Save and return the BookingDetail
         return detail;
     }
 
@@ -90,8 +81,7 @@ public class BookingDetailService {
     }
 
     public BookingDetail getBookingDetailById(long bookingDetailId){
-        BookingDetail detail = detailRepo.findById(bookingDetailId)
+        return detailRepo.findById(bookingDetailId)
                 .orElseThrow(()-> new BadRequestException("Booking Detail not found"));
-        return detail;
     }
 }
