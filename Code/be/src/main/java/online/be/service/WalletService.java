@@ -1,5 +1,6 @@
 package online.be.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import online.be.config.VNPayConfig;
 import online.be.entity.Account;
@@ -114,7 +115,6 @@ public class WalletService {
             urlBuilder.append("&");
         }
         urlBuilder.deleteCharAt(urlBuilder.length() - 1); // Remove last '&'
-
         return urlBuilder.toString();
     }
 
@@ -293,4 +293,38 @@ public class WalletService {
         return wallet;
     }
 
+    public String processVNPayResult(Map<String, String> fields) throws Exception {
+        String signValue = VNPayConfig.hashAllFields(fields);
+
+        String orderCode = fields.get("vnp_TxnRef");
+        String amount = fields.get("vnp_Amount");
+        String vnpResponseCode = fields.get("vnp_ResponseCode");
+        String paymentDate = fields.get("vnp_PayDate");
+        String vnpTransactionStatus = fields.get("vnp_TransactionStatus");
+        String vnpSecureHash = fields.get("vnp_SecureHash");
+
+        Transaction transaction = transactionRepository.findByTransactionID(UUID.fromString(orderCode));
+        if(transaction == null){
+            throw new BadRequestException("Transaction not found");
+        }
+
+        if (signValue.equals(vnpSecureHash)) {
+            if ("00".equals(vnpTransactionStatus)) {
+                Wallet wallet = recharge(transaction.getTransactionID());
+
+                String successSubject = "Nạp tiền thành công";
+                String successBody = "Bạn đã nạp thành công số tiền " + amount + " vào ví của mình.";
+                emailService.sendMail(transaction.getTo().getAccount(), successSubject, successBody);
+
+                return "success";
+            } else {
+                transaction.setTransactionType(TransactionEnum.FAILED);
+                transactionRepository.save(transaction);
+
+                return "failure";
+            }
+        } else {
+            throw new Exception("Mã vnp_SecureHash không đúng");
+        }
+    }
 }

@@ -147,7 +147,7 @@ public class VenueService {
         Venue existingVenue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new BadRequestException("Venue not found with ID: " + venueId));
         //Tự handle lỗi để front end nhận được
-        existingVenue.setVenueStatus(VenueStatus.INACTIVE);
+        existingVenue.setVenueStatus(VenueStatus.CLOSE);
         venueRepository.save(existingVenue);//lưu thay đổi
     }
 
@@ -274,6 +274,11 @@ public class VenueService {
         return reviews;
     }
 
+    public int numberOfVenues(){
+        List<Venue> venueList = venueRepository.findAll();
+        return venueList.size();
+    }
+
     private VenueResponse mapToVenueResponse(Venue venue) {
         VenueResponse venueResponse = new VenueResponse();
 
@@ -291,7 +296,7 @@ public class VenueService {
         venueResponse.setNumberOfCourt(venue.getCourts().size());
 
         // Assume the price is calculated based on some business logic; here it's a placeholder
-        venueResponse.setPrice(venue.getTimeSlots().get(0).getPrice());
+        venueResponse.setPrice(venue.getPricingList().get(0).getPricePerHour());
 
         return venueResponse;
     }

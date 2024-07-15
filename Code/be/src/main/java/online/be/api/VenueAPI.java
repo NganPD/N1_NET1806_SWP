@@ -104,6 +104,10 @@ public class VenueAPI {
         return ResponseEntity.ok(venueService.getReviewByVenueId(venueId));
     }
 
+    @GetMapping("/number-venues")
+    public ResponseEntity getNumberOfVenues(){
+        return ResponseEntity.ok(venueService.numberOfVenues());
+    }
 
 
 
