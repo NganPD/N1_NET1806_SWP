@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -103,6 +102,12 @@ public class TimeSlotService {
         }
     }
 
+    public List<TimeSlotResponse> testGetAvailableSlots(long venueId){
+        List<TimeSlot> timeSlots = getAllSlotByVenue(venueId);
+        List<TimeSlotResponse> timeSlotResponses = new ArrayList<>();
+        return  timeSlotResponses;
+    }
+
     // Xoá một TimeSlot
     public void deleteTimeSlot(Long timeSlotId) {
         if (!timeSlotRepository.existsById(timeSlotId)) {
@@ -111,7 +116,7 @@ public class TimeSlotService {
         timeSlotRepository.deleteById(timeSlotId);
     }
 
-    public TimeSlotResponse mapperSlot(TimeSlot slot){
+    public TimeSlotResponse mapperSlot(TimeSlot slot) {
         TimeSlotResponse slotResponse = new TimeSlotResponse();
         slotResponse.setId(slot.getId());
         slotResponse.setDuration(slot.getDuration());
@@ -121,50 +126,35 @@ public class TimeSlotService {
         return slotResponse;
     }
 
-    public List<TimeSlotResponse> getAvailableSlots(long courtId, LocalDate date){
+    public List<TimeSlotResponse> getAvailableSlots(long courtId, LocalDate date) {
         Court court = courtRepo.findById(courtId).orElseThrow(() ->
                 new RuntimeException("Court not found with id: " + courtId));
-        List<TimeSlot> slots = timeSlotRepository.findByVenueId(court.getVenue().getId());
+        List<TimeSlot> slots = getAllSlotByVenue(court.getVenue().getId());
+
+        List<SlotIdCountDTO> list = getSlotIdCounts(courtId, date);
+
         List<TimeSlotResponse> slotResponses = new ArrayList<>();
-        List<SlotIdCountDTO> list = new ArrayList<>();
-        List<Object[]> results = timeSlotRepository.countTimeSlotsByCourtIdAndDate(courtId, date);
-        list = results.stream()
-                .map(result -> new SlotIdCountDTO((Long) result[0], (Long) result[1]))
-                .collect(Collectors.toList());
-        for (TimeSlot slot: slots){
+        for (TimeSlot slot : slots) {
             TimeSlotResponse slotResponse = mapperSlot(slot);
 
-            if(date.equals(LocalDate.now()) || date.isBefore(LocalDate.now())){
+            if (date.equals(LocalDate.now()) || date.isBefore(LocalDate.now())) {
                 slotResponse.setAvailable(!isSlotExpired(date, slot.getStartTime()));
             }
 
-            for (SlotIdCountDTO slotIdCountDTO: list){
-                if (slot.getId() == slotIdCountDTO.getSlotId() && slotIdCountDTO.getCount() == 1){
+            for (SlotIdCountDTO slotIdCountDTO : list) {
+                if (slot.getId() == slotIdCountDTO.getSlotId() && slotIdCountDTO.getCount() == 1) {
                     slotResponse.setAvailable(false);
+                    break;
                 }
             }
+
             slotResponses.add(slotResponse);
         }
+
         return slotResponses;
     }
-    // Check if the slot date and time has already passed
-    private boolean isSlotExpired(LocalDate slotDate, LocalTime slotStartTime) {
-        try {
-            LocalDateTime slotDateTime = LocalDateTime.of(slotDate, slotStartTime);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
-            return now.isAfter(expiryTime);
-        } catch (DateTimeParseException e) {
-//            e.printStackTrace();
-//            // Handle the exception as needed
 
-            return true;
-        }
-    }
-
-    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String dayOfWeekStr, String applicationDateStr, int durationMonth, long courtId) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate applicationDate = LocalDate.parse(applicationDateStr, formatter);
+    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String dayOfWeekStr, LocalDate applicationDate, int durationMonth, long courtId) {
         DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
 
         // Calculate all the dates that match the given day of the week within the duration
@@ -185,9 +175,8 @@ public class TimeSlotService {
         // Retrieve all timeslots for the court
         Court court = courtRepo.findById(courtId).orElseThrow(() ->
                 new RuntimeException("Court not found with id: " + courtId));
-        List<TimeSlot> slots = timeSlotRepository.findByVenueId(court.getVenue().getId());
+        List<TimeSlot> slots = getAllSlotByVenue(court.getVenue().getId());
 
-        // Check availability for all time slots on the matching dates
         List<TimeSlotResponse> allSlots = new ArrayList<>();
         for (TimeSlot slot : slots) {
             TimeSlotResponse slotResponse = mapperSlot(slot);
@@ -196,25 +185,45 @@ public class TimeSlotService {
             for (LocalDate date : matchingDates) {
                 List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, date);
                 for (SlotIdCountDTO slotIdCount : slotIdCounts) {
-                    if (slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
+                    if (slot.getId()== slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
                         isAvailable = false;
                         break;
                     }
                 }
                 if (!isAvailable) break;
             }
+
             slotResponse.setAvailable(isAvailable);
             allSlots.add(slotResponse);
         }
+
         return allSlots;
+    }
+
+    // New method to get all slots by venue
+    private List<TimeSlot> getAllSlotByVenue(long venueId) {
+        return timeSlotRepository.findByVenueId(venueId);
     }
 
     // Helper method to retrieve SlotIdCountDTOs
     private List<SlotIdCountDTO> getSlotIdCounts(long courtId, LocalDate date) {
         List<Object[]> results = timeSlotRepository.countTimeSlotsByCourtIdAndDate(courtId, date);
-        return results.stream()
-                .map(result -> new SlotIdCountDTO((Long) result[0], (Long) result[1]))
-                .collect(Collectors.toList());
+        List<SlotIdCountDTO> slotIdCounts = new ArrayList<>();
+        for (Object[] result : results) {
+            slotIdCounts.add(new SlotIdCountDTO((Long) result[0], (Long) result[1]));
+        }
+        return slotIdCounts;
     }
 
+    // Check if the slot date and time has already passed
+    private boolean isSlotExpired(LocalDate slotDate, LocalTime slotStartTime) {
+        try {
+            LocalDateTime slotDateTime = LocalDateTime.of(slotDate, slotStartTime);
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
+            return now.isAfter(expiryTime);
+        } catch (DateTimeParseException e) {
+            return true;
+        }
+    }
 }

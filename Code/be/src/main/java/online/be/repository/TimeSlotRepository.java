@@ -28,7 +28,7 @@ TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     // Custom query to get count of time slots for a specific courtId and checkInDate
     @Query(value = "SELECT a.time_slot_id, COUNT(a.time_slot_id) " +
             "FROM court_time_slot a " +
-            "WHERE a.court_id = :courtId AND a.check_in_date = :date " +
+            "WHERE a.court_id = :courtId AND a.check_in_date = :date AND a.status = 'UNAVAILABLE' " +
             "GROUP BY a.time_slot_id", nativeQuery = true)
     List<Object[]> countTimeSlotsByCourtIdAndDate(@Param("courtId") long courtId, @Param("date") LocalDate date);
     //Get timeslot by venue

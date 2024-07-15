@@ -43,7 +43,6 @@ public class Venue {
 
     private String description;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Court> courts;
 
