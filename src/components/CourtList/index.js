@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CourtCard from "../CourtCard";
+import api from "../../config/axios";
 
 const CourtList = () => {
   const courtData = [
@@ -14,7 +15,7 @@ const CourtList = () => {
       operatingHours: { start: "07:00 AM", end: "10:00 PM" },
       availableTimes: [
         { time: "14:00 - 15:30", status: true },
-        { time: "15:30 - 17:00", status: false },
+        { time: "15:30 - 17:00", status: false},
         { time: "17:00 - 18:30", status: true },
         { time: "18:30 - 20:00", status: true },
         { time: "20:00 - 21:30", status: true },
@@ -73,6 +74,27 @@ const CourtList = () => {
     },
     // Thêm dữ liệu khác ở đây
   ];
+
+
+  const [data, setData] = useState([])
+
+  const fetch = async() => {
+    try {
+      const response = await api.get("/venues")
+      console.log(response.data)
+      setData(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetch()
+  }, [])
+
+
+
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -179,7 +201,7 @@ const CourtList = () => {
         </div>
       </div>
       <div className="flex flex-wrap justify-center bg-white p-4 rounded-lg shadow-md">
-        {currentCourts.map((court) => (
+        {data?.map((court) => (
           <CourtCard key={court.id} court={court} />
         ))}
       </div>
@@ -194,11 +216,10 @@ const CourtList = () => {
         {[...Array(totalPages)].map((_, index) => (
           <button
             key={index}
-            className={`px-4 py-2 mx-2 ${
-              currentPage === index + 1
+            className={`px-4 py-2 mx-2 ${currentPage === index + 1
                 ? "bg-blue-700 text-white"
                 : "bg-blue-500 text-white"
-            } rounded hover:bg-blue-600`}
+              } rounded hover:bg-blue-600`}
             onClick={() => setCurrentPage(index + 1)}
           >
             {index + 1}
