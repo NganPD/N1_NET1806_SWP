@@ -49,8 +49,4 @@ public class Booking {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
-//    @JsonIgnore
-//    @OneToOne
-//    @JoinColumn(name = "discount_id")
-//    private Discount discount;
 }
