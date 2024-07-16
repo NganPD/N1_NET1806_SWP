@@ -1,5 +1,6 @@
 package online.be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +21,12 @@ public class Pricing {
 
     private double pricePerHour;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "timeslot_id")
     private TimeSlot timeSlot;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "venue_id")
     private Venue venue;

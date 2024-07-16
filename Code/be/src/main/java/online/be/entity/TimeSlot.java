@@ -34,6 +34,7 @@ public class TimeSlot {
     @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CourtTimeSlot> courtTimeSlots;
 
+
     @OneToMany(mappedBy = "timeSlot", cascade = CascadeType.ALL)
     private List<Pricing> pricingList;
 

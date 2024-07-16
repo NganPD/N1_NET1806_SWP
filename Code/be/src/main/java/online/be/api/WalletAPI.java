@@ -36,12 +36,12 @@ public class WalletAPI {
         return ResponseEntity.ok(url);
     }
 
-    @PostMapping("/result")
-    public ResponseEntity processVnPayResult(@RequestParam Map<String, String> fields)
-            throws Exception{
-        String response = walletService.processVNPayResult(fields);
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/result")
+//    public ResponseEntity processVnPayResult(@RequestParam Map<String, String> fields)
+//            throws Exception{
+//        String response = walletService.processVNPayResult(fields);
+//        return ResponseEntity.ok(response);
+//    }
 
     @PostMapping("/recharge/{transactionId}")
     public ResponseEntity recharge(@PathVariable UUID transactionId) throws Exception{

@@ -49,11 +49,10 @@ public class WalletService {
 
 
     public String createUrl(RechargeRequest rechargeRequest)
-            throws NoSuchAlgorithmException, InvalidKeyException,
-            Exception {
+            throws NoSuchAlgorithmException, InvalidKeyException, Exception {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        LocalDateTime createDate = LocalDateTime.now();
-        String formattedCreateDate = createDate.format(formatter);
+        LocalDateTime createdDate = LocalDateTime.now();
+        String formattedCreateDate = createdDate.format(formatter);
 
         Account user = authenticationService.getCurrentAccount();
         String orderId = UUID.randomUUID().toString().substring(0, 6);
@@ -67,10 +66,10 @@ public class WalletService {
         transaction.setDescription("Recharge");
         Transaction transactionReturn = transactionRepository.save(transaction);
 
-        String tmnCode = VNPayConfig.vnp_TmpCode;
+        String tmnCode = VNPayConfig.vnp_TmnCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl =  "http://goodminton.online/profile/?id=" + transactionReturn.getTransactionID();
+        String returnUrl = "http://goodminton.online/profile?id=" + transactionReturn.getTransactionID();
 
         // Gửi email thông báo
         String subject = "Nạp tiền đang chờ xử lý";
@@ -87,11 +86,12 @@ public class WalletService {
         vnpParams.put("vnp_TxnRef", orderId);
         vnpParams.put("vnp_OrderInfo", "Thanh toan cho ma GD: " + orderId);
         vnpParams.put("vnp_OrderType", "other");
-        vnpParams.put("vnp_Amount", rechargeRequest.getAmount() + "00");
+        vnpParams.put("vnp_Amount", rechargeRequest.getAmount() + "00"); // Convert to VNPAY format
         vnpParams.put("vnp_ReturnUrl", returnUrl);
         vnpParams.put("vnp_CreateDate", formattedCreateDate);
         vnpParams.put("vnp_IpAddr", "104.248.224.6");
 
+        // Tính toán mã kiểm tra (checksum)
         StringBuilder signDataBuilder = new StringBuilder();
         for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
             signDataBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.toString()));
@@ -106,6 +106,7 @@ public class WalletService {
 
         vnpParams.put("vnp_SecureHash", signed);
 
+        // Tạo URL
         StringBuilder urlBuilder = new StringBuilder(vnpUrl);
         urlBuilder.append("?");
         for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
@@ -115,12 +116,11 @@ public class WalletService {
             urlBuilder.append("&");
         }
         urlBuilder.deleteCharAt(urlBuilder.length() - 1); // Remove last '&'
+
         return urlBuilder.toString();
     }
 
-
-    private String generateHMAC(String secretKey, String signData)
-            throws NoSuchAlgorithmException, InvalidKeyException {
+    private String generateHMAC(String secretKey, String signData) throws NoSuchAlgorithmException, InvalidKeyException {
         Mac hmacSha512 = Mac.getInstance("HmacSHA512");
         SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
         hmacSha512.init(keySpec);
@@ -132,6 +132,7 @@ public class WalletService {
         }
         return result.toString();
     }
+
 
 //    public PaymentResponse createVnPayPayment(RechargeRequest request)
 //    throws NoSuchAlgorithmException, InvalidKeyException, Exception{
@@ -170,7 +171,6 @@ public class WalletService {
 //        return paymentResponse;
 //    }
 
-
     public Wallet recharge(UUID id) {
         Account user = authenticationService.getCurrentAccount();
         Transaction transaction = transactionRepository.findByTransactionID(id);
@@ -180,7 +180,7 @@ public class WalletService {
                 wallet.setBalance(wallet.getBalance() + transaction.getAmount());
             }
         } else {
-            throw new RuntimeException("Reload");
+            throw new BadRequestException("Reload");
         }
         transaction.setTransactionType(TransactionEnum.RECHARGE);
 
@@ -291,40 +291,5 @@ public class WalletService {
         Transaction transaction = transactionRepository.findByTransactionID(transactionId);
         Wallet wallet = walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
         return wallet;
-    }
-
-    public String processVNPayResult(Map<String, String> fields) throws Exception {
-        String signValue = VNPayConfig.hashAllFields(fields);
-
-        String orderCode = fields.get("vnp_TxnRef");
-        String amount = fields.get("vnp_Amount");
-        String vnpResponseCode = fields.get("vnp_ResponseCode");
-        String paymentDate = fields.get("vnp_PayDate");
-        String vnpTransactionStatus = fields.get("vnp_TransactionStatus");
-        String vnpSecureHash = fields.get("vnp_SecureHash");
-
-        Transaction transaction = transactionRepository.findByTransactionID(UUID.fromString(orderCode));
-        if(transaction == null){
-            throw new BadRequestException("Transaction not found");
-        }
-
-        if (signValue.equals(vnpSecureHash)) {
-            if ("00".equals(vnpTransactionStatus)) {
-                Wallet wallet = recharge(transaction.getTransactionID());
-
-                String successSubject = "Nạp tiền thành công";
-                String successBody = "Bạn đã nạp thành công số tiền " + amount + " vào ví của mình.";
-                emailService.sendMail(transaction.getTo().getAccount(), successSubject, successBody);
-
-                return "success";
-            } else {
-                transaction.setTransactionType(TransactionEnum.FAILED);
-                transactionRepository.save(transaction);
-
-                return "failure";
-            }
-        } else {
-            throw new Exception("Mã vnp_SecureHash không đúng");
-        }
     }
 }
