@@ -213,6 +213,19 @@ public class BookingService {
             throw new IllegalArgumentException("Total hour must be positive");
         }
 
+        Venue venue = venueRepo.findById(venueId).orElseThrow(() ->
+                new BadRequestException("Venue not found")
+        );
+
+        // Retrieve pricing for flexible booking
+        double flexiblePricePerHour = venue.getPricingList().stream()
+                .filter(p -> p.getBookingType().equals(BookingType.FLEXIBLE))
+                .mapToDouble(Pricing::getPricePerHour)
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Flexible pricing not found"));
+
+        //calculate price
+        double totalPrice = flexiblePricePerHour * totalHour;
         // Create booking entity
         Booking booking = new Booking();
         booking.setAccount(user);
@@ -222,8 +235,7 @@ public class BookingService {
         booking.setTotalTimes(totalHour);
         booking.setRemainingTimes(totalHour);
         booking.setApplicationDate(applicationDate);
-        double price = venueRepo.findVenueById(venueId).getTimeSlots().get(0).getPrice();
-        booking.setTotalPrice(price * totalHour);
+        booking.setTotalPrice(totalPrice);
         // Save booking
         try {
             return bookingRepo.save(booking);
@@ -275,51 +287,105 @@ public class BookingService {
     }
 
 
-    public Transaction processBookingPayment(long bookingId) {
-        //search booking
-        Booking booking = bookingRepo.findBookingById(bookingId);
-        if (booking == null) {
-            throw new BadRequestException("Booking not found");
-        }
-        //search user wallet
-        Account customer = authenticationService.getCurrentAccount();
-        Wallet customerWallet = customer.getWallet();
-        //admin wallet
-        Account admin = accountRepostory.findAdmin();
-        Wallet adminWallet = admin.getWallet();
-        double amount = booking.getTotalPrice();
+    public Transaction processBookingPayment(long bookingId, long venueId) {
+        // Start transaction
+        try {
+            // Search for the booking
+            Booking booking = bookingRepo.findBookingById(bookingId);
+            if (booking == null) {
+                throw new BadRequestException("Booking not found");
+            }
 
-        if (customerWallet.getBalance() >= amount) {
+            // Search for the user's wallet
+            Account customer = authenticationService.getCurrentAccount();
+            Wallet customerWallet = customer.getWallet();
+
+            // Get the admin wallet
+            List<Account> adminList = accountRepostory.findByRole(Role.ADMIN);
+            if(adminList.isEmpty()){
+                throw new BadRequestException("Admin account not found");
+            }
+            Account admin = adminList.get(0);
+            Wallet adminWallet = admin.getWallet();
+
+            // Ensure customer and admin do not use the same wallet
+            if (customerWallet.equals(adminWallet)) {
+                throw new BadRequestException("Cannot process payment using the same wallet for customer and admin.");
+            }
+
+            double amount = booking.getTotalPrice();
+            if (customerWallet.getBalance() < amount) {
+                throw new BadRequestException("Customer does not have enough balance.");
+            }
+
+            // Process payment
+            updateBalances(customerWallet, adminWallet, amount);
             booking.setStatus(BookingStatus.CONFIRMED);
-            customerWallet.setBalance(customerWallet.getBalance() - (float) amount);
-            adminWallet.setBalance(adminWallet.getBalance() + (float) amount);
-
-            walletRepository.save(adminWallet);
-            walletRepository.save(customerWallet);
             bookingRepo.save(booking);
 
-            Transaction transaction = new Transaction();
-            transaction.setTransactionDate(LocalDateTime.now().toString());
-            transaction.setFrom(customerWallet);
-            transaction.setTo(adminWallet);
-            transaction.setBooking(booking);
-            transaction.setVenueID(booking.getBookingDetailList().get(0).getCourtTimeSlot().getCourt().getVenue().getId());
-            transaction.setTransactionType(TransactionEnum.COMPLETED);
-            transaction.setAmount((float) booking.getTotalPrice());
-            transaction.setDescription("Pay for booking");
-
+            // Create and save the transaction
+            Venue venue = venueRepo.findVenueById(venueId);
+            if(venue == null){
+                throw new BadRequestException("Venue not found");
+            }
+            Transaction transaction = createTransaction(customerWallet, adminWallet, booking, amount);
+            transactionRepository.save(transaction);
 
             // Send email notification
-            String subject = "Booking Payment Confirmation";
-            String description = "Dear " + customer.getFullName() + ",\n\n" + "Your payment of " + amount + " for booking ID " + bookingId + " has been successfully processed.\n" + "Thank you for your booking!\n\n" + "Best regards,\ngoodminton.online";
+            sendPaymentConfirmationEmail(customer, amount, bookingId,venue);
 
-            emailService.sendMail(customer, subject, description);
+            return transaction;
+        } catch (Exception e) {
+            // Rollback transaction if necessary and handle exception
+            throw new RuntimeException("Error processing booking payment", e);
+        }
+    }
 
-            return transactionRepository.save(transaction);
-        } else {
-            throw new BadRequestException("Customer does not have enough balance.");
+    private void updateBalances(Wallet customerWallet, Wallet adminWallet, double amount) {
+        customerWallet.setBalance(customerWallet.getBalance() - (float) amount);
+        adminWallet.setBalance(adminWallet.getBalance() + (float) amount);
+        walletRepository.save(adminWallet);
+        walletRepository.save(customerWallet);
+    }
+
+    private Transaction createTransaction(Wallet fromWallet, Wallet toWallet, Booking booking, double amount) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionDate(LocalDateTime.now().toString());
+        transaction.setFrom(fromWallet);
+        transaction.setTo(toWallet);
+        transaction.setBooking(booking);
+        transaction.setTransactionType(TransactionEnum.COMPLETED);
+        transaction.setAmount((float) amount);
+        transaction.setDescription("Pay for booking");
+        return transaction;
+    }
+
+    private void sendPaymentConfirmationEmail(Account customer, double amount, long bookingId, Venue venue) {
+        // Lấy danh sách chi tiết booking
+        List<BookingDetail> bookingDetails = bookingDetailRepo.findByBookingId(bookingId);
+
+        // Tạo chuỗi chi tiết booking
+        StringBuilder bookingDetailsString = new StringBuilder();
+        for (BookingDetail detail : bookingDetails) {
+            bookingDetailsString.append(String.format("Date: %s, Time: %s - %s, Court: %s\n",
+                    detail.getCourtTimeSlot().getCheckInDate(),
+                    detail.getCourtTimeSlot().getTimeSlot().getStartTime(),
+                    detail.getCourtTimeSlot().getTimeSlot().getEndTime(),
+                    detail.getCourtTimeSlot().getCourt().getCourtName()));
         }
 
+        // Tạo subject và description của email
+        String subject = "Booking Payment Confirmation";
+        String description = String.format(
+                "Dear %s,\n\nYour payment of %.2f for booking ID %d has been successfully processed.\n\n" +
+                        "Venue: %s\n" +
+                        "Booking Details:\n%s\n" +
+                        "Thank you for your booking!\n\n" +
+                        "Best regards,\ngoodminton.online",
+                customer.getFullName(), amount, bookingId, venue.getName(), bookingDetailsString.toString());
+
+        // Gửi email
+        emailService.sendMail(customer, subject, description);
     }
 
     //cancel booking
@@ -330,7 +396,7 @@ public class BookingService {
         //kiểm tra xem customer này có bookingID giống như bookingID truyền xuống hay không
         Wallet customerWallet = customer.getWallet();
         //admin wallet
-        Account admin = accountRepostory.findAdmin();
+        Account admin = accountRepostory.findByRole(Role.ADMIN).get(0);
         Wallet adminWallet = admin.getWallet();
         if (booking != null) {
             if (isValidCancellation(booking)) {
@@ -427,4 +493,12 @@ public class BookingService {
         return bookingRepo.save(booking);
     }
 
+    public List<Booking> getBookingHistory(){
+        Account user = authenticationService.getCurrentAccount();
+        List<Booking> bookingList = bookingRepo.findBookingByAccount_Id(user.getId());
+        if(bookingList.isEmpty()){
+            throw new BadRequestException("No Booking research");
+        }
+        return bookingList;
+    }
 }

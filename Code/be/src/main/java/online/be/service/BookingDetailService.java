@@ -57,7 +57,20 @@ public class BookingDetailService {
             throw new RuntimeException("CourtTimeSlot cannot be created!");
         }
 
-        double price = slot.getPrice();
+        // Retrieve price for the booking type
+        double price;
+        try {
+            // Get pricing based on booking type from TimeSlot or Court
+            Pricing pricing = slot.getPricingList().stream()
+                    .filter(p -> p.getBookingType().equals(bookingType))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Pricing not found for booking type: " + bookingType));
+
+            price = pricing.getPricePerHour();
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to retrieve price for the given booking type: " + e.getMessage());
+        }
+
         // Create and populate the BookingDetail object
         BookingDetail detail = new BookingDetail();
         try {

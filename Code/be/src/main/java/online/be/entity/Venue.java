@@ -61,4 +61,7 @@ public class Venue {
     @JsonIgnore
     @OneToMany(mappedBy = "staffVenue", cascade = CascadeType.ALL)
     private List<Account> staffs;
+
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
+    private List<Pricing> pricingList;
 }

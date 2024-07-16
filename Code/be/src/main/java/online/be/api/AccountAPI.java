@@ -62,4 +62,9 @@ public class AccountAPI {
         return ResponseEntity.ok(updatedAccount);
     }
 
+    @GetMapping("/number-customers")
+    public ResponseEntity getNumberOfCourts(){
+        int numberOfCustomers = accountService.numberOfCustomerAccount();
+        return ResponseEntity.ok(numberOfCustomers);
+    }
 }

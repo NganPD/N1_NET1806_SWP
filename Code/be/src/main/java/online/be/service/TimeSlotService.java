@@ -50,7 +50,6 @@ public class TimeSlotService {
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
-        timeSlot.setPrice(timeSlotRequest.getPrice());
         timeSlot.setDuration(duration);
 
         //Set venue
@@ -71,7 +70,6 @@ public class TimeSlotService {
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
         long duration = Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
         timeSlot.setDuration(duration);
-        timeSlot.setPrice(timeSlotRequest.getPrice());
         venueRepository.findById(timeSlotRequest.getVenueId())
                 .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
         return timeSlotRepository.save(timeSlot);

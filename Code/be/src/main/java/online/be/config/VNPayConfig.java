@@ -14,11 +14,12 @@ import java.util.*;
 @Configuration
 public class VNPayConfig {
 
-    public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    public static String vnp_PayUrl =  "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:3000/payment";
-    public static String vnp_TmpCode = "3A3E41SB";
-    public static String vnp_HashSecret = "2V9JXJM4YFKOE12UVWC4UMN1X69EZ4CV";
+    public static String vnp_TmnCode = "MHMAFI72";
+    public static String vnp_HashSecret = "Y3CVT3KVKHWQQHXP8E1WBFLHZ46G9UDY";
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
 
     public static String md5(String message){
         String digest= null;
@@ -43,7 +44,7 @@ public class VNPayConfig {
             byte[] hash = md.digest(message.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder(2*hash.length);
             for (byte b:hash){
-                sb.append(String.format("02x", b & 0xff));
+                sb.append(String.format("%02x", b & 0xff));
             }
             return sb.toString();
         }catch(NoSuchAlgorithmException ex){
