@@ -137,4 +137,10 @@ public class AccountService {
         //save
         return accountRepository.save(account);
     }
+
+    //số lượng người dùng trong hệ thống
+    public int numberOfCustomerAccount(){
+        List<Account> customers = accountRepository.findByRole(Role.CUSTOMER);
+        return customers.size();
+    }
 }

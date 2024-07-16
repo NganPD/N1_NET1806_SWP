@@ -12,6 +12,8 @@ import java.util.List;
 public class VenueResponse extends Venue {
     private String operatingHours;
     private int numberOfCourt;
-    private double price;
+    private double fixedPrice;
+    private double dailyPrice;
+    private double flexiblePrice;
     private double rating;
 }

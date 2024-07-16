@@ -1,6 +1,7 @@
 package online.be.service;
 
 import online.be.entity.*;
+import online.be.enums.BookingType;
 import online.be.enums.Role;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class VenueService {
@@ -148,7 +150,7 @@ public class VenueService {
         Venue existingVenue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new BadRequestException("Venue not found with ID: " + venueId));
         //Tự handle lỗi để front end nhận được
-        existingVenue.setVenueStatus(VenueStatus.INACTIVE);
+        existingVenue.setVenueStatus(VenueStatus.CLOSE);
         venueRepository.save(existingVenue);//lưu thay đổi
     }
 
@@ -275,6 +277,11 @@ public class VenueService {
         return reviews;
     }
 
+    public int numberOfVenues(){
+        List<Venue> venueList = venueRepository.findAll();
+        return venueList.size();
+    }
+
     private VenueResponse mapToVenueResponse(Venue venue) {
         VenueResponse venueResponse = new VenueResponse();
 
@@ -295,7 +302,14 @@ public class VenueService {
         venueResponse.setNumberOfCourt(venue.getCourts().size());
 
         // Assume the price is calculated based on some business logic; here it's a placeholder
-        venueResponse.setPrice(venue.getTimeSlots().get(0).getPrice());
+        double fixedPrice = getPricingForScheduleType(venue, BookingType.FIXED);
+        double dailyPrice = getPricingForScheduleType(venue, BookingType.DAILY);
+        double flexiblePrice = getPricingForScheduleType(venue, BookingType.FLEXIBLE);
+
+        venueResponse.setDailyPrice(dailyPrice);
+        venueResponse.setFixedPrice(fixedPrice);
+        venueResponse.setFlexiblePrice(flexiblePrice);
+
         double rating = 0;
         List<Review> reviews = venue.getReviews();
         for (Review review : reviews){
@@ -303,6 +317,18 @@ public class VenueService {
         }
         venueResponse.setRating(rating/reviews.size());
         return venueResponse;
+    }
+
+    private double getPricingForScheduleType(Venue venue, BookingType bookingType) {
+        List<Pricing> pricings = venue.getPricingList().stream()
+                .filter(p -> p.getBookingType().equals(bookingType))
+                .collect(Collectors.toList());
+
+        double totalPrice = 0;
+        for (Pricing pricing : pricings) {
+            totalPrice += pricing.getPricePerHour();  // Hoặc phương thức tính giá khác
+        }
+        return pricings.isEmpty() ? 0 : totalPrice / pricings.size(); // Tính giá trung bình
     }
 }
 

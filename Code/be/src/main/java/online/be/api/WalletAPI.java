@@ -1,9 +1,11 @@
 package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import online.be.entity.Transaction;
 import online.be.entity.Wallet;
 import online.be.model.Request.RechargeRequest;
+import online.be.model.Response.PaymentResponse;
 import online.be.model.Response.TransactionResponse;
 import online.be.model.Response.WalletResponse;
 import online.be.service.WalletService;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -32,6 +35,13 @@ public class WalletAPI {
         String url = walletService.createUrl(request);
         return ResponseEntity.ok(url);
     }
+
+//    @PostMapping("/result")
+//    public ResponseEntity processVnPayResult(@RequestParam Map<String, String> fields)
+//            throws Exception{
+//        String response = walletService.processVNPayResult(fields);
+//        return ResponseEntity.ok(response);
+//    }
 
     @PostMapping("/recharge/{transactionId}")
     public ResponseEntity recharge(@PathVariable UUID transactionId) throws Exception{
@@ -51,18 +61,18 @@ public class WalletAPI {
         return ResponseEntity.ok(list);
     }
 
-//    @PutMapping("/acceptWithDraw")
-//    public ResponseEntity acpWithDraw(@RequestParam("TransactionId") UUID id) throws Exception{
-//        Transaction transaction = walletService.acpWithDraw(id);
-//        return ResponseEntity.ok(transaction);
-//    }
-//
-//    @PutMapping("/rejectWithDraw")
-//    public ResponseEntity rejectWithDraw(@RequestParam("TransactionId") UUID id,
-//                                         @RequestParam("reason") String reason){
-//        Transaction transaction = walletService.rejectWithDraw(id, reason);
-//        return ResponseEntity.ok(transaction);
-//    }
+    @PutMapping("/acceptWithDraw")
+    public ResponseEntity acpWithDraw(@RequestParam("TransactionId") UUID id) throws Exception{
+        Transaction transaction = walletService.acpWithDraw(id);
+        return ResponseEntity.ok(transaction);
+    }
+
+    @PutMapping("/rejectWithDraw")
+    public ResponseEntity rejectWithDraw(@RequestParam("TransactionId") UUID id,
+                                         @RequestParam("reason") String reason){
+        Transaction transaction = walletService.rejectWithDraw(id, reason);
+        return ResponseEntity.ok(transaction);
+    }
 
     @GetMapping("/walletDetail/{id}")
     public ResponseEntity walletDetail(@PathVariable long id) throws Exception{

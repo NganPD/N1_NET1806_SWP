@@ -25,9 +25,9 @@ public class BookingAPI {
         return ResponseEntity.ok(createdBooking);
     }
 
-    @PostMapping("/payment")
-    public ResponseEntity payForBooking(@RequestParam long bookingId){
-        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId));
+    @PostMapping("/payment/{bookingId}/{venueId}")
+    public ResponseEntity payForBooking(@RequestParam long bookingId, @PathVariable long venueId){
+        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
     }
 
     @PostMapping("/{bookingId}/cancel")
@@ -40,9 +40,14 @@ public class BookingAPI {
 //        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
 //    }
 
-    @GetMapping("/booking-history")
-    public ResponseEntity getBookingHistory(@PathVariable long accountId){
+    @GetMapping("/booking-history/{accountId}")
+    public ResponseEntity getBookingHistoryByAccount(@PathVariable long accountId){
         return ResponseEntity.ok(bookingService.getBookingByUserId(accountId));
+    }
+
+    @GetMapping("/booking-history")
+    public ResponseEntity getBookingHistory(){
+        return ResponseEntity.ok(bookingService.getBookingHistory());
     }
 
 //        @GetMapping("/{bookingId}")

@@ -23,9 +23,7 @@ public class TimeSlot {
 
     @Column(nullable = false)
     private LocalTime endTime;
-
     private long duration;
-    private double price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -33,6 +31,11 @@ public class TimeSlot {
     private Venue venue;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CourtTimeSlot> courtTimeSlots;
+
+
+    @OneToMany(mappedBy = "timeSlot", cascade = CascadeType.ALL)
+    private List<Pricing> pricingList;
+
 }
