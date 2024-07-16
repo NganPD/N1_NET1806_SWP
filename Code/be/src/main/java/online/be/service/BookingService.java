@@ -111,7 +111,6 @@ public class BookingService {
             throw new RuntimeException("Something went wrong, please try again!");
         }
     }
-
     public Booking createFixedScheduleBooking(FixedScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
         LocalDate applicationStartDate = LocalDate.parse(bookingRequest.getApplicationStartDate());
@@ -120,24 +119,22 @@ public class BookingService {
         Booking booking = new Booking();
         List<BookingDetail> details = new ArrayList<>();
 
-        for (FixedScheduleBookingRequest.FixedTimeSlot fixedTimeSlot : bookingRequest.getFixedTimeSlots()) {
-            DayOfWeek dayOfWeek = DayOfWeek.valueOf(fixedTimeSlot.getDayOfWeek().toUpperCase());
+        for (String dayOfWeekStr : bookingRequest.getDayOfWeek()) {
+            DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
 
             List<TimeSlot> timeSlots = new ArrayList<>();
-            for (Long timeslotId : fixedTimeSlot.getTimeslot()) {
+            for (Long timeslotId : bookingRequest.getTimeslot()) {
                 TimeSlot timeSlot = timeSlotRepo.findById(timeslotId).orElseThrow(() ->
                         new BadRequestException("Timeslot not found: " + timeslotId));
                 timeSlots.add(timeSlot);
             }
 
-            // Retrieve court by id
-            Court court = courtRepo.findById(fixedTimeSlot.getCourt()).orElseThrow(() ->
-                    new BadRequestException("Court not found with id: " + fixedTimeSlot.getCourt()));
+            Court court = courtRepo.findById(bookingRequest.getCourt()).orElseThrow(() ->
+                    new BadRequestException("Court not found with id: " + bookingRequest.getCourt()));
 
             for (int month = 0; month < bookingRequest.getDurationInMonths(); month++) {
                 LocalDate endOfMonth = applicationStartDate.plusDays(29);
 
-                // Find the first booking day in the month
                 LocalDate firstBookingDay = applicationStartDate.with(TemporalAdjusters.nextOrSame(dayOfWeek));
 
                 for (LocalDate date = firstBookingDay; !date.isAfter(endOfMonth); date = date.plusWeeks(1)) {

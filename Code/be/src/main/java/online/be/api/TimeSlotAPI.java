@@ -2,12 +2,10 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.TimeSlot;
-import online.be.enums.BookingType;
 import online.be.model.Request.TimeSlotRequest;
 import online.be.model.Response.TimeSlotResponse;
 import online.be.service.TimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,13 +67,14 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
     }
 
-    @GetMapping("/available-fixed-slots")
+    @GetMapping("/timeslots/available-fixed-slots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableSlotByDayOfWeek(
-            @RequestParam String dayOfWeek,
-            @RequestParam LocalDate applicationDate,
-            @RequestParam int durationMonth,
-            @RequestParam long courtId) {
-        List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlotByDayOfWeek(dayOfWeek, applicationDate, durationMonth, courtId);
+            @RequestParam("applicationStartDate") LocalDate applicationStartDate,
+            @RequestParam("durationInMonths") int durationInMonths,
+            @RequestParam("dayOfWeek") List<String> dayOfWeek,
+            @RequestParam("court") long court) {
+
+        List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlotByDayOfWeek(applicationStartDate, durationInMonths, dayOfWeek, court);
         return ResponseEntity.ok(availableSlots);
     }
 

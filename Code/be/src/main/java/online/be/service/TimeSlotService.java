@@ -19,7 +19,6 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TimeSlotService {
@@ -152,21 +151,24 @@ public class TimeSlotService {
         return slotResponses;
     }
 
-    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String dayOfWeekStr, LocalDate applicationDate, int durationMonth, long courtId) {
-        DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
+    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(LocalDate applicationStartDate, int durationMonths, List<String> dayOfWeeks, long courtId) {
+        List<TimeSlotResponse> allSlots = new ArrayList<>();
 
-        // Calculate all the dates that match the given day of the week within the duration
-        List<LocalDate> matchingDates = new ArrayList<>();
-        for (int month = 0; month < durationMonth; month++) {
-            LocalDate startOfMonth = applicationDate.plusDays(month * 30L);
-            LocalDate endOfMonth = startOfMonth.plusDays(29);
+        // Calculate all the dates that match the given days of the week within the duration
+        List<LocalDate> allMatchingDates = new ArrayList<>();
+        for (String dayOfWeekStr : dayOfWeeks) {
+            DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
+            LocalDate applicationDate = applicationStartDate;
+            for (int month = 0; month < durationMonths; month++) {
+                LocalDate endOfMonth = applicationDate.plusDays(29);
 
-            // Get the first matching day of the week in the current month
-            LocalDate firstMatchingDate = startOfMonth.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+                LocalDate firstMatchingDate = applicationDate.with(TemporalAdjusters.nextOrSame(dayOfWeek));
 
-            // Collect all matching dates in the current month
-            for (LocalDate date = firstMatchingDate; !date.isAfter(endOfMonth); date = date.plusWeeks(1)) {
-                matchingDates.add(date);
+                // Collect all matching dates in the current month
+                for (LocalDate date = firstMatchingDate; !date.isAfter(endOfMonth); date = date.plusWeeks(1)) {
+                    allMatchingDates.add(date);
+                }
+                applicationDate = applicationDate.plusMonths(1);
             }
         }
 
@@ -175,28 +177,33 @@ public class TimeSlotService {
                 new RuntimeException("Court not found with id: " + courtId));
         List<TimeSlot> slots = getAllSlotByVenue(court.getVenue().getId());
 
-        List<TimeSlotResponse> allSlots = new ArrayList<>();
+        // Check availability for each time slot
         for (TimeSlot slot : slots) {
             TimeSlotResponse slotResponse = mapperSlot(slot);
             boolean isAvailable = true;
 
-            for (LocalDate date : matchingDates) {
+            // Check availability for each date in allMatchingDates
+            for (LocalDate date : allMatchingDates) {
                 List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, date);
                 for (SlotIdCountDTO slotIdCount : slotIdCounts) {
-                    if (slot.getId()== slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
+                    if (slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
                         isAvailable = false;
                         break;
                     }
                 }
-                if (!isAvailable) break;
+                if (!isAvailable) {
+                    break;
+                }
             }
 
+            // Set availability for the slot
             slotResponse.setAvailable(isAvailable);
             allSlots.add(slotResponse);
         }
 
         return allSlots;
     }
+
 
     // New method to get all slots by venue
     private List<TimeSlot> getAllSlotByVenue(long venueId) {
