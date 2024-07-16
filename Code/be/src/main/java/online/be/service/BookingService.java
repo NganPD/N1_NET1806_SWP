@@ -328,11 +328,11 @@ public class BookingService {
             if(venue == null){
                 throw new BadRequestException("Venue not found");
             }
-            Transaction transaction = createTransaction(customerWallet, adminWallet, booking, amount, venue);
+            Transaction transaction = createTransaction(customerWallet, adminWallet, booking, amount);
             transactionRepository.save(transaction);
 
             // Send email notification
-            sendPaymentConfirmationEmail(customer, amount, bookingId);
+            sendPaymentConfirmationEmail(customer, amount, bookingId,venue);
 
             return transaction;
         } catch (Exception e) {
@@ -348,23 +348,43 @@ public class BookingService {
         walletRepository.save(customerWallet);
     }
 
-    private Transaction createTransaction(Wallet fromWallet, Wallet toWallet, Booking booking, double amount, Venue venue) {
+    private Transaction createTransaction(Wallet fromWallet, Wallet toWallet, Booking booking, double amount) {
         Transaction transaction = new Transaction();
         transaction.setTransactionDate(LocalDateTime.now().toString());
         transaction.setFrom(fromWallet);
         transaction.setTo(toWallet);
         transaction.setBooking(booking);
-        transaction.setVenueID(venue.getId());
         transaction.setTransactionType(TransactionEnum.COMPLETED);
         transaction.setAmount((float) amount);
         transaction.setDescription("Pay for booking");
         return transaction;
     }
 
-    private void sendPaymentConfirmationEmail(Account customer, double amount, long bookingId) {
+    private void sendPaymentConfirmationEmail(Account customer, double amount, long bookingId, Venue venue) {
+        // Lấy danh sách chi tiết booking
+        List<BookingDetail> bookingDetails = bookingDetailRepo.findByBookingId(bookingId);
+
+        // Tạo chuỗi chi tiết booking
+        StringBuilder bookingDetailsString = new StringBuilder();
+        for (BookingDetail detail : bookingDetails) {
+            bookingDetailsString.append(String.format("Date: %s, Time: %s - %s, Court: %s\n",
+                    detail.getCourtTimeSlot().getCheckInDate(),
+                    detail.getCourtTimeSlot().getTimeSlot().getStartTime(),
+                    detail.getCourtTimeSlot().getTimeSlot().getEndTime(),
+                    detail.getCourtTimeSlot().getCourt().getCourtName()));
+        }
+
+        // Tạo subject và description của email
         String subject = "Booking Payment Confirmation";
-        String description = String.format("Dear %s,\n\nYour payment of %.2f for booking ID %d has been successfully processed.\nThank you for your booking!\n\nBest regards,\ngoodminton.online",
-                customer.getFullName(), amount, bookingId);
+        String description = String.format(
+                "Dear %s,\n\nYour payment of %.2f for booking ID %d has been successfully processed.\n\n" +
+                        "Venue: %s\n" +
+                        "Booking Details:\n%s\n" +
+                        "Thank you for your booking!\n\n" +
+                        "Best regards,\ngoodminton.online",
+                customer.getFullName(), amount, bookingId, venue.getName(), bookingDetailsString.toString());
+
+        // Gửi email
         emailService.sendMail(customer, subject, description);
     }
 
