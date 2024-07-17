@@ -5,6 +5,7 @@ import online.be.enums.*;
 import online.be.exception.BadRequestException;
 import online.be.exception.DuplicateEntryException;
 import online.be.exception.NoDataFoundException;
+import online.be.model.FlexibleTimeSlot;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.*;
 
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class BookingService {
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
         LocalDate bookingDate = LocalDate.now();
-        LocalDate checkInDate = LocalDate.parse(bookingRequest.getCheckInDate());//application date
+        LocalDate checkInDate = LocalDate.parse(bookingRequest.getCheckInDate());
 
         // Retrieve and sort the timeslots based on startTime
         List<TimeSlot> timeSlots = bookingRequest.getTimeslot()
@@ -194,7 +194,7 @@ public class BookingService {
             throw new RuntimeException("Something went wrong, please try again", e);
         }
     }
-    public Booking checkIn(long id, LocalDate checkInDate) {
+    public Booking checkIn(long id, String date) {
         Booking booking = bookingRepo.findById(id).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
         List<BookingDetail> details = booking.getBookingDetailList();
         int count = details.size();
@@ -228,7 +228,7 @@ public class BookingService {
     public BookingResponse purchaseFlexibleHours(int totalHour, long venueId, LocalDate applicationDate) {
         // Load current user
         Account user = authenticationService.getCurrentAccount();
-
+        LocalDate applicationDate = LocalDate.parse(date);
         // Validate total hour
         if (totalHour <= 0) {
             throw new IllegalArgumentException("Total hour must be positive");
@@ -275,7 +275,7 @@ public class BookingService {
         LocalDate applicationDate = booking.getApplicationDate();
 
         try {
-            for (FlexibleBookingRequest.FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
+            for (/*FlexibleBookingRequest.*/FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
                 LocalDate endOfMonth = booking.getApplicationDate().plusDays(29);
                 List<TimeSlot> timeSlots = new ArrayList<>();
                 for (Long timeslotId : flexibleTimeSlot.getTimeslot()) {

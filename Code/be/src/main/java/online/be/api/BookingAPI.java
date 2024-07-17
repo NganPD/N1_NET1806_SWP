@@ -80,13 +80,13 @@ public class BookingAPI {
     }
 
     @PatchMapping("/bookingId/{bookingId}/checkInDate/{checkInDate}")
-    public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable LocalDate checkInDate){
+    public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable String checkInDate){
         Booking booking = bookingService.checkIn(bookingId, checkInDate);
         return ResponseEntity.ok(booking);
     }
 
     @PostMapping("/purchase-hours/hours/{hours}/id/{id}/applicationDate/{applicationDate}")
-    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable LocalDate applicationDate){
+    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable String applicationDate){
         Booking booking = bookingService.purchaseFlexibleHours(hours, id, applicationDate);
         return ResponseEntity.ok(booking);
     }
