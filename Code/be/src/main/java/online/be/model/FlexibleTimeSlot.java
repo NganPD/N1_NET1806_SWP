@@ -1,15 +1,12 @@
-package online.be.model.Request;
+package online.be.model;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class DailyScheduleBookingRequest {
-
+public class FlexibleTimeSlot {
     private String checkInDate;
-
     private long court;
-
     private List<Long> timeslot;
 }
