@@ -24,11 +24,11 @@ public class BookingAPI {
         Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
         return ResponseEntity.ok(createdBooking);
     }
-
-    @PostMapping("/payment/{bookingId}/{venueId}")
-    public ResponseEntity payForBooking(@RequestParam long bookingId, @PathVariable long venueId){
-        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
-    }
+//
+//    @PostMapping("/payment/{bookingId}/{venueId}")
+//    public ResponseEntity payForBooking(@RequestParam long bookingId, @PathVariable long venueId){
+//        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
+//    }
 
     @PostMapping("/{bookingId}/cancel")
     public ResponseEntity cancelBooking(@PathVariable long bookingId){

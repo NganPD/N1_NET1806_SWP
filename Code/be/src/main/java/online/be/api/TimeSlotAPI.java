@@ -67,12 +67,12 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
     }
 
-    @GetMapping("/timeslots/available-fixed-slots")
+    @GetMapping("/available-fixed-slots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableSlotByDayOfWeek(
             @RequestParam("applicationStartDate") LocalDate applicationStartDate,
             @RequestParam("durationInMonths") int durationInMonths,
             @RequestParam("dayOfWeek") List<String> dayOfWeek,
-            @RequestParam("court") long court) {
+            @RequestParam("court") Long court) {
 
         List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlotByDayOfWeek(applicationStartDate, durationInMonths, dayOfWeek, court);
         return ResponseEntity.ok(availableSlots);
