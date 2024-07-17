@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.*;
 
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -198,6 +199,7 @@ public class BookingService {
         Booking booking = bookingRepo.findById(id).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
         List<BookingDetail> details = booking.getBookingDetailList();
         int count = details.size();
+        LocalDate checkInDate = LocalDate.parse(date);
         int duration = 0;
         for (BookingDetail detail : details) {
             if (detail.getCourtTimeSlot().getCheckInDate().equals(checkInDate)) {
@@ -225,7 +227,7 @@ public class BookingService {
     //Tự tạo hiển thị không có Booking
 
     //mua số giờ chơi cho loại lịch linh hoạt
-    public BookingResponse purchaseFlexibleHours(int totalHour, long venueId, LocalDate applicationDate) {
+    public BookingResponse purchaseFlexibleHours(int totalHour, long venueId, String date) {
         // Load current user
         Account user = authenticationService.getCurrentAccount();
         LocalDate applicationDate = LocalDate.parse(date);
