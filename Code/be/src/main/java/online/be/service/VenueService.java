@@ -189,7 +189,7 @@ public class VenueService {
 
             if (timeStr != null && !timeStr.isEmpty()) {
                 matchesAvailableSlot = venue.getCourts().stream()
-                        .flatMap(court -> timeSlotService.getAvailableSlots(court.getId(), currentDateTime).stream())
+                        .flatMap(court -> timeSlotService.getAvailableSlots(court.getId(), String.valueOf(currentDateTime)).stream())
                         .anyMatch(slot -> slot.isAvailable() && slot.getStartTime().equals(timeStr));
             }
 

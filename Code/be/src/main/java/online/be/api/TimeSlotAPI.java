@@ -57,22 +57,22 @@ public class TimeSlotAPI {
 
     // Lấy danh sách TimeSlot theo thời gian bắt đầu nằm trong một khoảng thời gian
     @GetMapping("/start/{start}/end/{end}")
-    public ResponseEntity<List<TimeSlot>> getTimeSlotsByStartTimeBetween(@PathVariable LocalTime start, @PathVariable LocalTime end) {
+    public ResponseEntity<List<TimeSlot>> getTimeSlotsByStartTimeBetween(@PathVariable String start, @PathVariable String end) {
         return ResponseEntity.ok(timeSlotService.findByStartTimeBetween(start, end));
     }
 
 
    @GetMapping("/available-slots")
-    public ResponseEntity getAvailableTimeSlot(@RequestParam long courtId, @RequestParam LocalDate date){//, @PathVariable BookingType bookingType){
+    public ResponseEntity getAvailableTimeSlot(@RequestParam Long courtId, @RequestParam String date){//, @PathVariable BookingType bookingType){
         return ResponseEntity.ok(timeSlotService.getAvailableSlots(courtId,date));
     }
 
-    @GetMapping("/timeslots/available-fixed-slots")
+    @GetMapping("/available-fixed-slots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableSlotByDayOfWeek(
-            @RequestParam("applicationStartDate") LocalDate applicationStartDate,
+            @RequestParam("applicationStartDate") String applicationStartDate,
             @RequestParam("durationInMonths") int durationInMonths,
             @RequestParam("dayOfWeek") List<String> dayOfWeek,
-            @RequestParam("court") long court) {
+            @RequestParam("court") Lgong court) { // Long instead of long to handle null values
 
         List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlotByDayOfWeek(applicationStartDate, durationInMonths, dayOfWeek, court);
         return ResponseEntity.ok(availableSlots);

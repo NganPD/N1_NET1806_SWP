@@ -2,9 +2,11 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Booking;
+
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
+import online.be.model.Response.BookingResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +27,10 @@ public class BookingAPI {
         return ResponseEntity.ok(createdBooking);
     }
 
-    @PostMapping("/payment/{bookingId}/{venueId}")
-    public ResponseEntity payForBooking(@RequestParam long bookingId, @PathVariable long venueId){
-        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
-    }
+//    @PostMapping("/payment/{bookingId}/{venueId}")
+//    public ResponseEntity payForBooking(@RequestParam long bookingId, @PathVariable long venueId){
+//        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
+//    }
 
     @PostMapping("/{bookingId}/cancel")
     public ResponseEntity cancelBooking(@PathVariable long bookingId){
@@ -80,13 +82,13 @@ public class BookingAPI {
     }
 
     @PatchMapping("/bookingId/{bookingId}/checkInDate/{checkInDate}")
-    public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable LocalDate checkInDate){
+    public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable String checkInDate){
         Booking booking = bookingService.checkIn(bookingId, checkInDate);
         return ResponseEntity.ok(booking);
     }
 
     @PostMapping("/purchase-hours/hours/{hours}/id/{id}/applicationDate/{applicationDate}")
-    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable LocalDate applicationDate){
+    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable String applicationDate){
         Booking booking = bookingService.purchaseFlexibleHours(hours, id, applicationDate);
         return ResponseEntity.ok(booking);
     }
