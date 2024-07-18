@@ -95,8 +95,8 @@ public class AuthenticationService implements UserDetailsService {
             emailDetail.setLink("http://goodminton.online/");
             emailService.sendMailTemplate(emailDetail);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            String msg = e.getMessage();
+            throw new BadRequestException(msg);
         }
 
         // nhờ repo => save xuống db
@@ -163,11 +163,8 @@ public class AuthenticationService implements UserDetailsService {
             accountResponse.setToken(token);
 
         } catch (FirebaseAuthException ex) {
-            ex.printStackTrace();// Tự handle exception để front end hiểu.
             throw new AuthException("Firebase Authentication failed. Please try again later");
         }catch(Exception e){
-            //các ngoại lệ khác
-            e.printStackTrace();
             throw new AuthException("An unexpected error occured! Please try again later");
         }
         return accountResponse;

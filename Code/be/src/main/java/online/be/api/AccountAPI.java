@@ -67,4 +67,10 @@ public class AccountAPI {
         int numberOfCustomers = accountService.numberOfCustomerAccount();
         return ResponseEntity.ok(numberOfCustomers);
     }
+
+    @GetMapping("/{identifierString}/find-account-by-identifier")
+    public ResponseEntity getAccountByIdentifier(@PathVariable String identifierString){
+        Account account = accountService.findAccountByEmailOrPhone(identifierString);
+        return ResponseEntity.ok(account);
+    }
 }

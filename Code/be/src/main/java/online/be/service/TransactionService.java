@@ -2,20 +2,12 @@
 package online.be.service;
 
 import online.be.entity.Account;
-import online.be.entity.Booking;
 import online.be.entity.Transaction;
 import online.be.entity.Wallet;
-import online.be.enums.BookingStatus;
-import online.be.enums.Role;
-import online.be.enums.TransactionEnum;
-import online.be.exception.BadRequestException;
-import online.be.model.Response.PaymentResponse;
 import online.be.model.Response.TransactionResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -33,13 +25,7 @@ public class TransactionService {
     TransactionRepository transactionRepository;
 
     @Autowired
-    AccountRepostory accountRepostory;
-
-    @Autowired
     BookingRepository bookingRepository;
-
-    @Autowired
-    VenueRepository venueRepository;
 
     public List<TransactionResponse> getTransactionById() {
         List<TransactionResponse> listTransactionResponse = new ArrayList<>();
@@ -55,7 +41,7 @@ public class TransactionService {
             transactionResponseDTO.setDescription(transaction.getDescription());
             transactionResponseDTO.setTransactionDate(transaction.getTransactionDate());
             if(transaction.getBooking() != null){
-                transactionResponseDTO.setBooking(bookingRepository.findBookingById((long)transaction.getBooking().getId()));
+                transactionResponseDTO.setBooking(bookingRepository.findBookingById(transaction.getBooking().getId()));
             }
             transactionResponseDTO.setFrom(transaction.getFrom());
             transactionResponseDTO.setTo(transaction.getTo());
@@ -88,7 +74,7 @@ public class TransactionService {
             transactionResponseDTO.setDescription(transaction.getDescription());
             transactionResponseDTO.setTransactionDate(transaction.getTransactionDate());
             if(transaction.getBooking() != null){
-                transactionResponseDTO.setBooking(bookingRepository.findBookingById((long)transaction.getBooking().getId()));
+                transactionResponseDTO.setBooking(bookingRepository.findBookingById(transaction.getBooking().getId()));
             }
 
             transactionResponseDTO.setFrom(transaction.getFrom());

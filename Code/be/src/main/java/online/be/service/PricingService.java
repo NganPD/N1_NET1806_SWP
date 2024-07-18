@@ -67,7 +67,8 @@ public class PricingService {
 
     //lay theo id
     public Pricing getPricigById(long pricingId){
-        Pricing pricing = pricingRepository.findById(pricingId).get();
+        Pricing pricing = pricingRepository.findById(pricingId).orElseThrow(()
+                -> new BadRequestException("Pricing not found with Id: " + pricingId));
         if(pricing == null){
             throw new BadRequestException("Pricing not found");
         }
