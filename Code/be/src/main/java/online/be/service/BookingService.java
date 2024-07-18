@@ -9,8 +9,9 @@ import online.be.model.FlexibleTimeSlot;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
+
 import online.be.model.Response.BookingResponse;
-import online.be.model.Response.VenueResponse;
+import online.be.model.Response.VenueRespon;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,7 +26,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
