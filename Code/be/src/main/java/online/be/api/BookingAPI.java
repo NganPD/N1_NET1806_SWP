@@ -5,12 +5,14 @@ import online.be.entity.Booking;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
+import online.be.model.Response.BookingResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/booking")
@@ -40,10 +42,10 @@ public class BookingAPI {
 //        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
 //    }
 
-    @GetMapping("/booking-history/{accountId}")
-    public ResponseEntity getBookingHistoryByAccount(@PathVariable long accountId){
-        return ResponseEntity.ok(bookingService.getBookingByUserId(accountId));
-    }
+//    @GetMapping("/booking-history/{accountId}")
+//    public ResponseEntity getBookingHistoryByAccount(@PathVariable long accountId){
+//        return ResponseEntity.ok(bookingService.getBookingByUserId(accountId));
+//    }
 
     @GetMapping("/booking-history")
     public ResponseEntity getBookingHistory(){
@@ -89,5 +91,10 @@ public class BookingAPI {
     public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable String applicationDate){
         Booking booking = bookingService.purchaseFlexibleHours(hours, id, applicationDate);
         return ResponseEntity.ok(booking);
+    }
+
+    @GetMapping("/{bookingId}/remaining-times")
+    public int getRemainingTimes(@PathVariable("bookingId") long bookingId){
+        return bookingService.getRemainingTimes(bookingId);
     }
 }

@@ -69,7 +69,7 @@ public class WalletService {
         String tmnCode = VNPayConfig.vnp_TmnCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl = "http://goodminton.online/profile?id=" + transactionReturn.getTransactionID();
+        String returnUrl = "http://localhost:3000/profile?id=" + transactionReturn.getTransactionID();
 
         // Gửi email thông báo
         String subject = "Nạp tiền đang chờ xử lý";
