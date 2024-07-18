@@ -3,6 +3,7 @@ package online.be.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import online.be.entity.Account;
+import online.be.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,10 +16,11 @@ import online.be.model.EmailDetail;
 public class EmailService {
 
     @Autowired
-    private TemplateEngine templateEngine;
+    TemplateEngine templateEngine;
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    JavaMailSender javaMailSender;
+
     public void sendMailTemplate(EmailDetail emailDetail){
         try{
             Context context = new Context();
@@ -40,7 +42,7 @@ public class EmailService {
             mimeMessageHelper.setSubject(emailDetail.getSubject());
             javaMailSender.send(mimeMessage);
         }catch (MessagingException messagingException){
-            messagingException.printStackTrace();
+            throw new BadRequestException(messagingException.getMessage());
         }
     }
 
@@ -58,7 +60,7 @@ public class EmailService {
             mimeMessageHelper.setSubject(subject);
             javaMailSender.send(mimeMessage);
         }catch (MessagingException messagingException){
-            messagingException.printStackTrace();
+            throw new BadRequestException(messagingException.getMessage());
         }
     }
 }

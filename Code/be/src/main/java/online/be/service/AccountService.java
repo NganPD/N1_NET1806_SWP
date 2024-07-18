@@ -2,7 +2,6 @@
 package online.be.service;
 
 import online.be.entity.Account;
-import online.be.entity.Venue;
 import online.be.entity.Wallet;
 import online.be.enums.Role;
 import online.be.exception.AuthException;
@@ -11,36 +10,25 @@ import online.be.exception.ResourceNotFoundException;
 import online.be.model.EmailDetail;
 import online.be.model.Request.AccountRequest;
 import online.be.model.Request.UpdatedAccountRequest;
-import online.be.repository.AccountRepostory;
-import online.be.repository.VenueRepository;
+import online.be.repository.AccountRepository;
 import online.be.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
-import static java.rmi.server.LogStream.log;
 
 @Service
 public class AccountService {
     @Autowired
-    AccountRepostory accountRepository;
+    AccountRepository accountRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
     EmailService emailService;
-
-    @Autowired
-    VenueRepository venueRepository;
 
     @Autowired
     WalletRepository walletRepository;
@@ -92,21 +80,21 @@ public class AccountService {
             emailService.sendMailTemplate(emailDetail);
         } catch (Exception e) {
             String msg = e.getMessage();
-            throw new RuntimeException(msg);
+            throw new BadRequestException(msg);
         }
         return account;
     }
 
     public Account deActiveAccount(long id) {
         Account account = accountRepository.findById(id).orElseThrow(
-                ()-> new BadRequestException("Account does not exist!")
-        );
+                ()-> new BadRequestException("Account does not exist!"));
         account.setActive(false);
         return accountRepository.save(account);
     }
 
     public Account activeAccount(long id){
-        Account account = accountRepository.findById(id).get();
+        Account account = accountRepository.findById(id).orElseThrow(()
+                -> new ResourceNotFoundException("Account not found with Id: "+id));
         if(account != null){
             account.setActive(true);
             return accountRepository.save(account);
@@ -116,7 +104,8 @@ public class AccountService {
     }
 
     public void assignRole(long accountId, Role role){
-        Account account = accountRepository.findById(accountId).get();
+        Account account = accountRepository.findById(accountId).orElseThrow(
+                ()-> new BadRequestException("Account does not exist!"));
         if(account == null){
             throw new AuthException("Account not found");
         }
@@ -142,5 +131,9 @@ public class AccountService {
     public int numberOfCustomerAccount(){
         List<Account> customers = accountRepository.findByRole(Role.CUSTOMER);
         return customers.size();
+    }
+
+    public Account findAccountByEmailOrPhone(String identifierString){
+        return accountRepository.findAccountByEmailOrPhone(identifierString);
     }
 }

@@ -1,18 +1,15 @@
 package online.be.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import online.be.config.VNPayConfig;
 import online.be.entity.Account;
 import online.be.entity.Transaction;
 import online.be.entity.Wallet;
-import online.be.enums.Role;
 import online.be.enums.TransactionEnum;
 import online.be.exception.BadRequestException;
 import online.be.exception.BookingException;
 import online.be.model.Request.RechargeRequest;
 import online.be.model.Request.WithDrawRequest;
-import online.be.model.Response.PaymentResponse;
 import online.be.model.Response.TransactionResponse;
 import online.be.repository.TransactionRepository;
 import online.be.repository.WalletRepository;
@@ -33,8 +30,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class WalletService {
 
-    private final VNPayConfig vnPayConfig;
-
     @Autowired
     AuthenticationService authenticationService;
 
@@ -49,7 +44,7 @@ public class WalletService {
 
 
     public String createUrl(RechargeRequest rechargeRequest)
-            throws NoSuchAlgorithmException, InvalidKeyException, Exception {
+            throws Exception {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         LocalDateTime createdDate = LocalDateTime.now();
         String formattedCreateDate = createdDate.format(formatter);
@@ -94,9 +89,9 @@ public class WalletService {
         // Tính toán mã kiểm tra (checksum)
         StringBuilder signDataBuilder = new StringBuilder();
         for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
-            signDataBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.toString()));
+            signDataBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             signDataBuilder.append("=");
-            signDataBuilder.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString()));
+            signDataBuilder.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
             signDataBuilder.append("&");
         }
         signDataBuilder.deleteCharAt(signDataBuilder.length() - 1); // Remove last '&'
@@ -110,9 +105,9 @@ public class WalletService {
         StringBuilder urlBuilder = new StringBuilder(vnpUrl);
         urlBuilder.append("?");
         for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
-            urlBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.toString()));
+            urlBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             urlBuilder.append("=");
-            urlBuilder.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString()));
+            urlBuilder.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
             urlBuilder.append("&");
         }
         urlBuilder.deleteCharAt(urlBuilder.length() - 1); // Remove last '&'
@@ -132,44 +127,6 @@ public class WalletService {
         }
         return result.toString();
     }
-
-
-//    public PaymentResponse createVnPayPayment(RechargeRequest request)
-//    throws NoSuchAlgorithmException, InvalidKeyException, Exception{
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-//        LocalDateTime createDate = LocalDateTime.now();
-//        String formattedCreateDate = createDate.format(formatter);
-//
-//        Account user = authenticationService.getCurrentAccount();
-//
-//        Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
-//
-//        Transaction transaction = new Transaction();
-//        transaction.setAmount(Float.parseFloat(request.getAmount()));
-//        transaction.setTransactionType(TransactionEnum.PENDING);
-//        transaction.setTo(wallet);
-//        transaction.setDescription("Recharge");
-//        transaction.setTransactionDate(formattedCreateDate);
-//        Transaction transactionReturn = transactionRepository.save(transaction);
-//
-//        int amount = Integer.parseInt(request.getAmount());
-//        String orderInfo = "Recharge";
-//        String orderType = "other";
-//        String bankCode = null; // Set the bank code if required
-//        String locale = "vn";
-//
-//        String returnUrl = "";
-//        if (user.getRole().equals(Role.CUSTOMER)) {
-//            returnUrl = "http://mycremo.art/profile/wallet?id=" + transactionReturn.getTransactionID(); //ví của customer
-//        } else if (user.getRole().equals(Role.ADMIN)) {
-//            returnUrl = "http://mycremo.art/creator-manage/wallet?id=" + transactionReturn.getTransactionID(); //ví của admin
-//        }
-//
-//        PaymentResponse paymentResponse = new PaymentResponse();
-//        paymentResponse.setPaymentUrl(createUrl(request));
-//
-//        return paymentResponse;
-//    }
 
     public Wallet recharge(UUID id) {
         Account user = authenticationService.getCurrentAccount();
@@ -267,13 +224,7 @@ public class WalletService {
     }
 
     public void threadSendMail(Account user, String subject, String description) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                emailService.sendMail(user, subject, description);
-            }
-
-        };
+        Runnable r = () -> emailService.sendMail(user, subject, description);
         new Thread(r).start();
     }
 
@@ -289,7 +240,6 @@ public class WalletService {
 
     public Wallet getWalletByTransactionId(UUID transactionId) {
         Transaction transaction = transactionRepository.findByTransactionID(transactionId);
-        Wallet wallet = walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
-        return wallet;
+        return walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
     }
 }

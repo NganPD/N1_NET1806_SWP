@@ -4,7 +4,6 @@ package online.be.service;
 import online.be.entity.Court;
 import online.be.entity.CourtTimeSlot;
 import online.be.entity.TimeSlot;
-import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.CourtTimeSlotRequest;
 import online.be.repository.CourtRepository;
@@ -41,26 +40,11 @@ public class CourtTimeSlotService {
         return courtTimeSlotRepository.save(courtTimeSlot);
     }
 
-    //get
     public CourtTimeSlot getCourtTimeSlotById(long courtTimeSlotId){
-        CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(courtTimeSlotId);
-        return courtTimeSlot;
+        return courtTimeSlotRepository.findById(courtTimeSlotId);
     }
 
-    //get all
     public List<CourtTimeSlot> getAll(){
         return courtTimeSlotRepository.findAll();
     }
-
-//    //update
-//    public CourtTimeSlot updateCourtTimeSlot(long courtTimeSlotId, CourtTimeSlotRequest request){
-//        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotId())
-//                .orElseThrow(()-> new BadRequestException("TimeSlot ID not found"));
-//        Court court = courtRepository.findById(request.getCourtId())
-//                .orElseThrow(()-> new BadRequestException("Court ID not found"));
-//        CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(courtTimeSlotId)
-//                .orElseThrow(()-> new BadRequestException("Court Time Slot not found"));
-//        courtTimeSlot.setCourt(court);
-//        courtTimeSlot.setTimeSlot(ti);
-//    }
 }

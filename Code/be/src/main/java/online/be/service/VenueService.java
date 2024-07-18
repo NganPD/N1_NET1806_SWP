@@ -2,29 +2,24 @@ package online.be.service;
 
 import online.be.entity.*;
 import online.be.enums.BookingType;
-import online.be.enums.Role;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
-import online.be.exception.BookingException;
 import online.be.exception.NoDataFoundException;
 import online.be.exception.VenueException;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
+import online.be.model.Response.TimeSlotResponse;
 import online.be.model.Response.VenueResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class VenueService {
@@ -36,7 +31,7 @@ public class VenueService {
     CourtRepository courtRepository;
 
     @Autowired
-    AccountRepostory accountRepository;
+    AccountRepository accountRepository;
 
     @Autowired
     ReviewRepository reviewRepository;
@@ -92,7 +87,8 @@ public class VenueService {
     // Lấy venue bằng ID
     public VenueResponse getVenueById(long venueId) {
         // Sử dụng findById của repository để tìm venue theo ID
-        Venue venue = venueRepository.findById(venueId).get();
+        Venue venue = venueRepository.findById(venueId).orElseThrow(()
+        -> new BadRequestException("Venue cannot found with Id: "+venueId));
         if (venue == null) {
             try {
                 throw new VenueException("Venue not found");
@@ -100,8 +96,7 @@ public class VenueService {
                 throw new RuntimeException(e);
             }
         }
-        VenueResponse response = mapToVenueResponse(venue);
-        return  response;
+        return mapToVenueResponse(venue);
         //Tự handle lỗi để front end nhận được
     }
 
@@ -123,12 +118,6 @@ public class VenueService {
         venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
         venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
-
-//        //If assigned courts are updated, handle the assignment
-//        if (updateVenueRequest.getAssignedCourts() != null) {
-//            List<Court> courts = courtRepository.findAllById(updateVenueRequest.getAssignedCourts());
-//            venue.setCourts(courts);
-//        }
         try {
             // Lưu và trả về venue đã được cập nhật
             venue = venueRepository.save(venue);
@@ -149,7 +138,6 @@ public class VenueService {
         // Trước tiên kiểm tra xem venue có tồn tại hay không
         Venue existingVenue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new BadRequestException("Venue not found with ID: " + venueId));
-        //Tự handle lỗi để front end nhận được
         existingVenue.setVenueStatus(VenueStatus.CLOSE);
         venueRepository.save(existingVenue);//lưu thay đổi
     }
@@ -168,11 +156,7 @@ public class VenueService {
         List<Venue> venues = venueRepository.findAll();
         List<VenueResponse> venueResponses = new ArrayList<>();
 
-        LocalTime time = null;
         LocalDate currentDateTime = LocalDate.now();
-        if (timeStr != null && !timeStr.isEmpty()) {
-            time = LocalTime.parse(timeStr); // Parse thời gian được cung cấp
-        }
 
         for (Venue venue : venues) {
             boolean matchesOperatingHours = true;
@@ -188,9 +172,19 @@ public class VenueService {
             }
 
             if (timeStr != null && !timeStr.isEmpty()) {
-                matchesAvailableSlot = venue.getCourts().stream()
-                        .flatMap(court -> timeSlotService.getAvailableSlots(court.getId(), String.valueOf(currentDateTime), venue.getId()).stream())
-                        .anyMatch(slot -> slot.isAvailable() && slot.getStartTime().equals(timeStr));
+                matchesAvailableSlot = false;
+                for (Court court : venue.getCourts()) {
+                    List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlots(court.getId(), String.valueOf(currentDateTime), venue.getId());
+                    for (TimeSlotResponse slot : availableSlots) {
+                        if (slot.isAvailable() && slot.getStartTime().equals(timeStr)) {
+                            matchesAvailableSlot = true;
+                            break;
+                        }
+                    }
+                    if (matchesAvailableSlot) {
+                        break;
+                    }
+                }
             }
 
             if (matchesOperatingHours && matchesLocation && matchesAvailableSlot) {
@@ -198,36 +192,9 @@ public class VenueService {
             }
         }
 
+
         return venueResponses;
     }
-
-    //
-////    //search by opening hours and closing hours
-////    public List<Venue> getByOpeningHour(String openingHour){
-////        List<Venue> venues = venueRepository.findByOpeningHours(openingHour);
-////        if(venues.isEmpty()){
-////            throw new RuntimeException("No Valid Data");
-////        }
-////        return venues;
-////    }
-//
-// <<<<<<< feat/FixBooking
-
-// =======
-//     //search by Location
-//     public List<Venue> searchVenuesByAddress(String address) {
-//         return venueRepository.findByAddressContaining(address);
-//     }
-// >>>>>>> main
-//    //search by available slots
-//    public List<Venue> getVenueWithAvailableSlots(LocalTime startTime, LocalTime endTime) {
-//        List<Venue> venues = venueRepository.findVenueWithAvailableSlots(startTime, endTime);
-//        if (venues.isEmpty()) {
-//            throw new NoDataFoundException("0 search");
-//        }
-//        return venues;
-//    }
-
 
     public Venue addStaffToVenue(long staffId, long venueId) {
         try {
@@ -248,13 +215,11 @@ public class VenueService {
     }
 
     public Account getManager(long venueId) {
-        Account manager = accountRepository.findManagerByAssignedVenue_Id(venueId);
-        return manager;
+        return accountRepository.findManagerByAssignedVenue_Id(venueId);
     }
 
     public List<Account> getStaffsByVenueId(long venueId) {
-        List<Account> staffs = accountRepository.findStaffByStaffVenue_Id(venueId);
-        return staffs;
+        return accountRepository.findStaffByStaffVenue_Id(venueId);
     }
 
     public List<Court> getCourtByVenueId(long venueId) {
@@ -320,10 +285,12 @@ public class VenueService {
     }
 
     private double getPricingForScheduleType(Venue venue, BookingType bookingType) {
-        List<Pricing> pricings = venue.getPricingList().stream()
-                .filter(p -> p.getBookingType().equals(bookingType))
-                .collect(Collectors.toList());
-
+        List<Pricing> pricings = new ArrayList<>();
+        for (Pricing p : venue.getPricingList()) {
+            if (p.getBookingType().equals(bookingType)) {
+                pricings.add(p);
+            }
+        }
         double totalPrice = 0;
         for (Pricing pricing : pricings) {
             totalPrice += pricing.getPricePerHour();  // Hoặc phương thức tính giá khác

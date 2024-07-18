@@ -1,13 +1,10 @@
 package online.be.model.Response;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import online.be.entity.*;
-import online.be.enums.VenueStatus;
-import online.be.exception.VenueException;
 
-import java.time.LocalTime;
-import java.util.List;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class VenueResponse extends Venue {
     private String operatingHours;
