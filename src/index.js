@@ -30,11 +30,15 @@ import { PersistGate } from "redux-persist/integration/react";
 import CourtStaffCheckin from "./components/CourtStaff/ManageCourtCheckin";
 import CourtStaffLayout from "./layouts/CourtStaffLayout";
 import { GlobalStateProvider } from "./components/context/GlobalStateContext";
-
+import UserProfile from "./components/UserProfile";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
+
     <PersistGate loading={null} persistor={persistor}>
+      <ToastContainer />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>
@@ -46,7 +50,9 @@ root.render(
             <Route path="courts" element={<CourtList />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/court-details" element={<CourtDetails />} />
+            <Route path="/court-details/:id" element={<CourtDetails />} />
+            <Route path="/profile" element={<UserProfile />} />
+            {/* Thêm route cho UserProfile */}
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="accounts" element={<AccountManagement />} />

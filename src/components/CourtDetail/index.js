@@ -101,23 +101,23 @@ const CourtDetails = () => {
     console.log(selectedSlot)
     // console.log(first)
   }
-    const [slots, setSlots] = useState([])
-  const [courtSelect,setCourtSelect] = useState([])
-    const fetchSlot = async () => {
- 
-      try {
-        const response = await api.get(`/timeslots/available-fixed-slots?dayOfWeek=${startDate}&applicationDate=${selectedDate}&durationMonth=${months}&courtId=${selectedCourt}`)
-        console.log(response.data)
-        setSlots(response.data)
-      } catch (error) {
-        console.log(error)
-      }
+  const [slots, setSlots] = useState([])
+  const [courtSelect, setCourtSelect] = useState([])
+  const fetchSlot = async () => {
+
+    try {
+      const response = await api.get(`/timeslots/available-fixed-slots?dayOfWeek=${startDate}&applicationDate=${selectedDate}&durationMonth=${months}&courtId=${selectedCourt}`)
+      console.log(response.data)
+      setSlots(response.data)
+    } catch (error) {
+      console.log(error)
     }
-  
-    useEffect(() => {
-      fetchSlot()
-    }, [selectedDate,months,startDate,selectedCourt])
-  
+  }
+
+  useEffect(() => {
+    fetchSlot()
+  }, [selectedDate, months, startDate, selectedCourt])
+
   const validateStep1 = () => {
     const newErrors = {};
     if (!bookingType) {
@@ -296,13 +296,13 @@ const CourtDetails = () => {
     setSelectedSlot(selectedOption);
     // console.log(selectedOption);
   };
-  
+
 
   const handleChange2 = (selectedOption) => {
     setStartDate(selectedOption);
     // console.log(selectedOption);
   };
-  
+
   const options = data?.courts?.map((item) => ({
     value: item.id,
     label: item.courtName
@@ -398,16 +398,16 @@ const CourtDetails = () => {
               </div>
               <div className="mb-4">
                 <label className="block mb-2">Chọn thứ bắt đầu:</label>
-                <Select   mode="tags"
+                <Select mode="tags"
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   value={startDate}
                   onChange={handleChange2}
-                  options={daysOfWeek.map((item) =>({
-                    label : item.label,
+                  options={daysOfWeek.map((item) => ({
+                    label: item.label,
                     value: item.value
                   }))}
                 >
-          
+
                 </Select>
                 {errors.startDate && (
                   <p className="text-red-500 text-sm mt-1">
@@ -422,9 +422,9 @@ const CourtDetails = () => {
                   value={courtSelect}
                   onChange={(e) => setCourtSelect(e)}
                   options={courtData.map((item) => ({
-                    value : item.id,
-                    label : item.courtName,
-                    disabled: item.status =="INACTIVE"
+                    value: item.id,
+                    label: item.courtName,
+                    disabled: item.status == "INACTIVE"
                   }))}
                 />
                 {errors.selectedCourt && (
@@ -436,16 +436,16 @@ const CourtDetails = () => {
               <div className="mb-4">
                 <label className="block mb-2">Chọn giờ:</label>
                 <Select
-    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-    mode="tags"
-    style={{ width: '100%' }}
-    placeholder="Chọn giờ"
-    onChange={handleChange}
-    options={slots.map((item) => ({
-      value: item.id,
-      label: `${item.startTime} - ${item.endTime}`
-    }))}
-  />
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  mode="tags"
+                  style={{ width: '100%' }}
+                  placeholder="Chọn giờ"
+                  onChange={handleChange}
+                  options={slots.map((item) => ({
+                    value: item.id,
+                    label: `${item.startTime} - ${item.endTime}`
+                  }))}
+                />
 
                 {errors.selectedTime && (
                   <p className="text-red-500 text-sm mt-1">

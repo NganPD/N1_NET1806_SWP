@@ -1,6 +1,5 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
-import { FaSearch, FaShoppingCart } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/counterSlice";
 import Swal from "sweetalert2";
@@ -8,10 +7,10 @@ import Swal from "sweetalert2";
 const Header = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
-  console.log("user", user);
 
   const handleLogout = () => {
     dispatch(logout());
+    localStorage.removeItem("token");
     Swal.fire({
       icon: "success",
       title: "Logout successfully!",
@@ -49,7 +48,7 @@ const Header = () => {
             >
               Sân cầu lông
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/news"
               className="text-white hover:text-yellow-500 px-4 py-2"
               activeClassName="text-yellow-500"
@@ -62,7 +61,7 @@ const Header = () => {
               activeClassName="text-yellow-500"
             >
               Chia sẻ kiến thức
-            </NavLink>
+            </NavLink> */}
             <NavLink
               to="/contact"
               className="text-white hover:text-yellow-500 px-4 py-2"
@@ -70,23 +69,30 @@ const Header = () => {
             >
               Liên hệ
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/about"
               className="text-white hover:text-yellow-500 px-4 py-2"
               activeClassName="text-yellow-500"
             >
               Về chúng tôi
-            </NavLink>
+            </NavLink> */}
           </nav>
+
           {user ? (
-            <h2
-              style={{
-                cursor: "pointer",
-              }}
-              onClick={handleLogout}
-            >
-              Logout
-            </h2>
+            <div className="flex items-center space-x-4">
+              <NavLink
+                to="/profile"
+                className="text-white hover:text-yellow-500"
+              >
+                Xin chào, {user.name}
+              </NavLink>
+              <button
+                className="bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-yellow-500 hover:text-white"
+                onClick={handleLogout}
+              >
+                Đăng xuất
+              </button>
+            </div>
           ) : (
             <div className="flex items-center space-x-4">
               <Link

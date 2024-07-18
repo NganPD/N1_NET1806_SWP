@@ -32,9 +32,24 @@ const LoginForm = () => {
         timer: 2000,
       }).then(() => {
         localStorage.setItem("token", res.data.token);
+        console.log(res.data.token);
         dispatch(login(res.data));
-        navigate("/");
+
+        // Get user role from response
+        const role = res.data.role;
+        // console.log("🚀 ~ onSubmit ~ role:", role);
+
+        // Navigate based on user role
+        if (role === "ADMIN") {
+          navigate("/admin");
+        } else if(role==="MANAGER") {
+          navigate("/court-manager");
+        }else if(role==="STAFF"){
+          navigate("/court-staff")
+        }
       });
+      // console.log("🚀 ~ onSubmit ~ res.data.token:", res.data.token);
+      // console.log("🚀 ~ onSubmit ~ res.data.token:", res.data.token);
     } catch (error) {
       console.log(error);
       Swal.fire({
@@ -63,7 +78,16 @@ const LoginForm = () => {
       }).then(() => {
         localStorage.setItem("token", res.data.token);
         dispatch(login(res.data));
-        navigate("/users");
+
+        // Get user role from response
+        const role = res.data.role;
+
+        // Navigate based on user role
+        if (role === "ADMIN") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       });
     } catch (error) {
       console.log(error);

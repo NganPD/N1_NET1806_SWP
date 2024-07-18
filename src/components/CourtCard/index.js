@@ -7,39 +7,38 @@ const CourtCard = ({ court }) => {
   const navigate = useNavigate();
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
-  console.log("user", user);
   const handleViewDetails = () => {
-    // if(!user){
-    //   navigate("/login");
-    // }else{
-    //   navigate("/court-details", { state: { court } });
-    // }
-    navigate("/court-details", { state: { court } });
+    if(!user){
+      navigate("/login");
+    }else{
+      navigate("/court-details", { state: { court } });
+    }
+   
   };
 
   return (
-    <div className="max-w-sm rounded overflow-hidden shadow-lg m-4 transition-transform transform hover:scale-105 hover:shadow-xl bg-white">
-      <img className="w-full h-48 object-cover" src={court.image} alt="Court" />
+    <div onClick={() => navigate(`/court-details/${court.id}`, { state: { court }})} className="max-w-sm rounded overflow-hidden shadow-lg m-4 transition-transform transform hover:scale-105 hover:shadow-xl bg-white">
+      <img className="w-full h-48 object-cover" src={court.imageUrl} alt="Court" />
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2 text-blue-600">{court.name}</div>
         <p className="text-gray-700 text-base">Khu vực: {court.location}</p>
-        <p className="text-gray-700 text-base">Số sân: {court.courts}</p>
+        <p className="text-gray-700 text-base">Số sân: {court.numberOfCourts}</p>
         <div className="flex items-center mb-2">
-          <div className="text-yellow-500">
+          {/* <div className="text-yellow-500">
             {"★".repeat(court.rating)}
             {"☆".repeat(5 - court.rating)}
-          </div>
-          <span className="ml-2 text-gray-600">({court.rating} sao)</span>
+          </div> */}
+          {/* <span className="ml-2 text-gray-600">({court.rating} sao)</span> */}
         </div>
         <div className="mb-2">
           <span className="text-lg font-semibold">Giờ mở cửa:</span>
-          <p className="text-gray-700 text-base">10:00 AM </p>
+          <p className="text-gray-700 text-base">{court.openingHour} </p>
         </div>
         <div className="mb-2">
           <span className="text-lg font-semibold">Giờ hoạt động:</span>
-          <p className="text-gray-700 text-base">05:00 AM - 10:00 PM</p>
+          <p className="text-gray-700 text-base">{court.openingHour} AM - {court.closingHour} PM</p>
         </div>
-        <div className="flex flex-wrap space-x-2 mt-2">
+        {/* <div className="flex flex-wrap space-x-2 mt-2">
           {court.amenities.map((amenity, index) => (
             <span
               key={index}
@@ -48,7 +47,7 @@ const CourtCard = ({ court }) => {
               {amenity}
             </span>
           ))}
-        </div>
+        </div> */}
       </div>
       <div className="px-6 pt-4 pb-2">
         <button
