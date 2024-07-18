@@ -9,11 +9,9 @@ import online.be.model.Request.UpdateCourtRequest;
 import online.be.repository.CourtRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 public class CourtService {
@@ -49,7 +47,7 @@ public class CourtService {
 
     //lấy court dựa trên id
     public Court getCourtById(long courtId) {
-        Court court = courtRepository.findById(courtId).get();
+        Court court = courtRepository.findById(courtId).orElseThrow(() -> new BadRequestException("Cpurt not found with Id: "+ courtId));
         if (court == null) {
             throw new BadRequestException("CourtId is not existed: " + courtId);
         }
@@ -87,14 +85,14 @@ public class CourtService {
     //delete Court
     public void deActiveCourt(long courtId) {
         Court court = courtRepository.findById(courtId)
-                .orElseThrow(()->new RuntimeException("Court not found with Id: " + courtId));
+                .orElseThrow(()->new BadRequestException("Court not found with Id: " + courtId));
         court.setStatus(CourtStatus.INACTIVE);
         courtRepository.save(court);
     }
 
     public Court activeCourt(long courtId){
         Court court = courtRepository.findById(courtId)
-                .orElseThrow(()->new RuntimeException("Court not found with Id: " + courtId));
+                .orElseThrow(()->new BadRequestException("Court not found with Id: " + courtId));
         court.setStatus(CourtStatus.AVAILABLE);
         return courtRepository.save(court);
     }

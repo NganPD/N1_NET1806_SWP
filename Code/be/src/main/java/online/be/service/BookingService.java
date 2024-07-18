@@ -3,7 +3,6 @@ package online.be.service;
 import online.be.entity.*;
 import online.be.enums.*;
 import online.be.exception.BadRequestException;
-import online.be.exception.DuplicateEntryException;
 import online.be.exception.NoDataFoundException;
 import online.be.model.FlexibleTimeSlot;
 import online.be.model.Request.DailyScheduleBookingRequest;
@@ -11,22 +10,18 @@ import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
 
 import online.be.model.Response.BookingResponse;
-import online.be.model.Response.VenueRespon;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.*;
 
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -56,7 +51,7 @@ public class BookingService {
     AuthenticationService authenticationService;
 
     @Autowired
-    AccountRepostory accountRepostory;
+    AccountRepository accountRepository;
 
     @Autowired
     CourtRepository courtRepo;
@@ -74,12 +69,22 @@ public class BookingService {
         LocalDate checkInDate = LocalDate.parse(bookingRequest.getCheckInDate());
 
         // Retrieve and sort the timeslots based on startTime
-        List<TimeSlot> timeSlots = bookingRequest.getTimeslot()
-                .stream()
-                .map(slotId -> timeSlotRepo.findById(slotId)
-                        .orElseThrow(() -> new BadRequestException("Timeslot not found: " + slotId)))
-                .sorted(Comparator.comparing(TimeSlot::getStartTime))
-                .collect(Collectors.toList());
+        List<Long> slotIds = bookingRequest.getTimeslot();
+        List<TimeSlot> timeSlots = new ArrayList<>();
+
+        for (Long slotId : slotIds) {
+            TimeSlot timeSlot = timeSlotRepo.findById(slotId)
+                    .orElseThrow(() -> new BadRequestException("Timeslot not found: " + slotId));
+            timeSlots.add(timeSlot);
+        }
+
+//        timeSlots.sort(new Comparator<TimeSlot>() {
+//            @Override
+//            public int compare(TimeSlot ts1, TimeSlot ts2) {
+//                return ts1.getStartTime().compareTo(ts2.getStartTime());
+//            }
+//        });
+
 
         // Retrieve court by id
         Court court = courtRepo.findById(bookingRequest.getCourt())
@@ -114,21 +119,13 @@ public class BookingService {
             processBookingPayment(booking.getId(),venueId);
             return booking;
         } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
-                if (sqlException.getErrorCode() == 1062) {
-                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
-                }
-            }
             throw new BadRequestException("This slot is booked.");
-        }catch (DateTimeParseException e){
-            throw new BadRequestException("Invalid date format for check-in date");
-        }catch (NoDataFoundException e){
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("Invalid date format for check-in date: " + e.getParsedString());
+        } catch (NoDataFoundException e) {
             throw new BadRequestException("No data found: " + e.getMessage());
-        }catch (BadRequestException e){
+        } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Something went wrong, please try again!");
         }
     }
     public Booking createFixedScheduleBooking(FixedScheduleBookingRequest bookingRequest) {
@@ -185,14 +182,7 @@ public class BookingService {
             booking.setApplicationDate(applicationStartDate);
             return bookingRepo.save(booking);
         } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
-                if (sqlException.getErrorCode() == 1062) {
-                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
-                }
-            }
-            throw new RuntimeException("This slot is booked.");
-        } catch (Exception e) {
-            throw new RuntimeException("Something went wrong, please try again", e);
+            throw new BadRequestException("This slot is booked.");
         }
     }
     public Booking checkIn(long id, String date) {
@@ -265,8 +255,8 @@ public class BookingService {
             Booking savedBooking = bookingRepo.save(booking);
             processBookingPayment(savedBooking.getId(), venueId);
             return mapToBookingResponse(savedBooking, venueId);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to create booking", ex);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("This slot is booked.");
         }
     }
 
@@ -301,17 +291,9 @@ public class BookingService {
             booking.setBookingDetailList(details);
             return bookingRepo.save(booking);
         } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof SQLIntegrityConstraintViolationException sqlException) {
-                if (sqlException.getErrorCode() == 1062) {
-                    throw new DuplicateEntryException("Duplicate entry detected: " + sqlException.getMessage());
-                }
-            }
-            throw new RuntimeException("Failed to save booking: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create flexible booking: " + e.getMessage(), e);
+            throw new BadRequestException("Failed to save booking: " + e.getMessage());
         }
     }
-
 
     private Transaction processBookingPayment(long bookingId, long venueId) {
         // Start transaction
@@ -327,7 +309,7 @@ public class BookingService {
             Wallet customerWallet = customer.getWallet();
 
             // Get the admin wallet
-            List<Account> adminList = accountRepostory.findByRole(Role.ADMIN);
+            List<Account> adminList = accountRepository.findByRole(Role.ADMIN);
             if(adminList.isEmpty()){
                 throw new BadRequestException("Admin account not found");
             }
@@ -424,7 +406,7 @@ public class BookingService {
         //kiểm tra xem customer này có bookingID giống như bookingID truyền xuống hay không
         Wallet customerWallet = customer.getWallet();
         //admin wallet
-        Account admin = accountRepostory.findByRole(Role.ADMIN).get(0);
+        Account admin = accountRepository.findByRole(Role.ADMIN).get(0);
         Wallet adminWallet = admin.getWallet();
         if (booking != null) {
             if (isValidCancellation(booking)) {

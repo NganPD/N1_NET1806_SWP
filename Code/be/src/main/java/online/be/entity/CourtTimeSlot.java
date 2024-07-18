@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import online.be.enums.BookingStatus;
 import online.be.enums.SlotStatus;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.time.LocalDate;
 

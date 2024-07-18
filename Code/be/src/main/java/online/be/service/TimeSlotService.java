@@ -100,14 +100,6 @@ public class TimeSlotService {
         }
     }
 
-    // Xoá một TimeSlot
-    public void deleteTimeSlot(Long timeSlotId) {
-        if (!timeSlotRepository.existsById(timeSlotId)) {
-            throw new ResourceNotFoundException("TimeSlot with id " + timeSlotId + " not found");
-        }
-        timeSlotRepository.deleteById(timeSlotId);
-    }
-
     public TimeSlotResponse mapperSlot(TimeSlot slot) {
         TimeSlotResponse slotResponse = new TimeSlotResponse();
         slotResponse.setId(slot.getId());
@@ -132,23 +124,21 @@ public class TimeSlotService {
                 TimeSlotResponse slotResponse = mapperSlot(slot);
                 if (checkInDate != null) {
                     if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
-                        slotResponse.setAvailable(!isSlotExpired(checkInDate, slot.getStartTime()));
+                        slotResponse.setAvailable(isSlotExpired(checkInDate, slot.getStartTime()));
                     }
                     slotResponses.add(slotResponse);
                 } else {
                     slotResponses.add(slotResponse);
                 }
             }
-            return slotResponses;
         } else {
-            Court court = courtRepo.findById(courtId).orElseThrow(() -> new BadRequestException("Court not found"));
             List<SlotIdCountDTO> list = getSlotIdCounts(courtId, checkInDate);
 
             for (TimeSlot slot : slots) {
                 TimeSlotResponse slotResponse = mapperSlot(slot);
 
                 if (checkInDate != null && (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now()))) {
-                    slotResponse.setAvailable(!isSlotExpired(checkInDate, slot.getStartTime()));
+                    slotResponse.setAvailable(isSlotExpired(checkInDate, slot.getStartTime()));
                 }
 
                 for (SlotIdCountDTO slotIdCountDTO : list) {
@@ -159,8 +149,8 @@ public class TimeSlotService {
                 }
                 slotResponses.add(slotResponse);
             }
-            return slotResponses;
         }
+        return slotResponses;
     }
 
     public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String date, Integer durationMonths, List<String> dayOfWeeks, Long courtId) {
@@ -277,9 +267,9 @@ public class TimeSlotService {
             LocalDateTime slotDateTime = LocalDateTime.of(slotDate, slotStartTime);
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
-            return now.isAfter(expiryTime);
+            return !now.isAfter(expiryTime);
         } catch (DateTimeParseException e) {
-            return true;
+            return false;
         }
     }
 }
