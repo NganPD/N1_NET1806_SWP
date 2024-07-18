@@ -2,11 +2,9 @@ package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.entity.Booking;
-
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
-import online.be.model.Response.BookingResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +24,7 @@ public class BookingAPI {
         Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
         return ResponseEntity.ok(createdBooking);
     }
-
+//
 //    @PostMapping("/payment/{bookingId}/{venueId}")
 //    public ResponseEntity payForBooking(@RequestParam long bookingId, @PathVariable long venueId){
 //        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
