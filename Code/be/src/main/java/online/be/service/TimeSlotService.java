@@ -118,60 +118,105 @@ public class TimeSlotService {
         return slotResponse;
     }
 
-    public List<TimeSlotResponse> getAvailableSlots(long courtId, String date) {
-        Court court = courtRepo.findById(courtId).orElseThrow(() ->
-                new RuntimeException("Court not found with id: " + courtId));
-        List<TimeSlot> slots = getAllSlotByVenue(court.getVenue().getId());
-
-        LocalDate checkInDate = LocalDate.parse(date);
-
-        List<SlotIdCountDTO> list = getSlotIdCounts(courtId, checkInDate);
-
+    public List<TimeSlotResponse> getAvailableSlots(Long courtId, String date, long venueId) {
+        List<TimeSlot> slots = getAllSlotByVenue(venueId);
         List<TimeSlotResponse> slotResponses = new ArrayList<>();
-        for (TimeSlot slot : slots) {
-            TimeSlotResponse slotResponse = mapperSlot(slot);
+        LocalDate checkInDate = null;
 
-            if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
-                slotResponse.setAvailable(!isSlotExpired(checkInDate, slot.getStartTime()));
-            }
-
-            for (SlotIdCountDTO slotIdCountDTO : list) {
-                if (slot.getId() == slotIdCountDTO.getSlotId() && slotIdCountDTO.getCount() == 1) {
-                    slotResponse.setAvailable(false);
-                    break;
-                }
-            }
-
-            slotResponses.add(slotResponse);
+        if (date != null && !date.isEmpty()) {
+            checkInDate = LocalDate.parse(date);
         }
 
-        return slotResponses;
+        if (courtId == null) {
+            for (TimeSlot slot : slots) {
+                TimeSlotResponse slotResponse = mapperSlot(slot);
+                if (checkInDate != null) {
+                    if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
+                        slotResponse.setAvailable(!isSlotExpired(checkInDate, slot.getStartTime()));
+                    }
+                    slotResponses.add(slotResponse);
+                } else {
+                    slotResponses.add(slotResponse);
+                }
+            }
+            return slotResponses;
+        } else {
+            Court court = courtRepo.findById(courtId).orElseThrow(() -> new BadRequestException("Court not found"));
+            List<SlotIdCountDTO> list = getSlotIdCounts(courtId, checkInDate);
+
+            for (TimeSlot slot : slots) {
+                TimeSlotResponse slotResponse = mapperSlot(slot);
+
+                if (checkInDate != null && (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now()))) {
+                    slotResponse.setAvailable(!isSlotExpired(checkInDate, slot.getStartTime()));
+                }
+
+                for (SlotIdCountDTO slotIdCountDTO : list) {
+                    if (slot.getId() == slotIdCountDTO.getSlotId() && slotIdCountDTO.getCount() == 1) {
+                        slotResponse.setAvailable(false);
+                        break;
+                    }
+                }
+                slotResponses.add(slotResponse);
+            }
+            return slotResponses;
+        }
     }
 
-    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String date, int durationMonths, List<String> dayOfWeeks, long courtId) {
+    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String date, Integer durationMonths, List<String> dayOfWeeks, Long courtId) {
         List<TimeSlotResponse> allSlots = new ArrayList<>();
 
-        // Calculate all the dates that match the given days of the week within the duration
-        List<LocalDate> allMatchingDates = new ArrayList<>();
-        for (String dayOfWeekStr : dayOfWeeks) {
-            DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
-            LocalDate applicationDate = LocalDate.parse(date);
-            for (int month = 0; month < durationMonths; month++) {
-                LocalDate endOfMonth = applicationDate.plusDays(29);
-
-                LocalDate firstMatchingDate = applicationDate.with(TemporalAdjusters.nextOrSame(dayOfWeek));
-
-                // Collect all matching dates in the current month
-                for (LocalDate dateMatch = firstMatchingDate; !dateMatch.isAfter(endOfMonth); dateMatch = dateMatch.plusWeeks(1)) {
-                    allMatchingDates.add(dateMatch);
-                }
-                applicationDate = applicationDate.plusMonths(1);
+        // Check if all parameters are null
+        if (date == null || durationMonths == null || dayOfWeeks == null || courtId == null) {
+            // Get all slots if no parameters are provided
+            List<TimeSlot> slots = getAllSlots();
+            for (TimeSlot slot : slots) {
+                TimeSlotResponse slotResponse = mapperSlot(slot);
+                slotResponse.setAvailable(true); // Assume all slots are available
+                allSlots.add(slotResponse);
             }
+            return allSlots;
         }
 
-        // Retrieve all timeslots for the court
+        // Validate and parse date
+        LocalDate applicationDate;
+        try {
+            applicationDate = LocalDate.parse(date);
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("Invalid date format: " + date);
+        }
+
+        // Validate durationMonths
+        if (durationMonths == null) {
+            throw new BadRequestException("Duration is null");
+        }
+
+        // Validate dayOfWeeks
+        if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
+            throw new BadRequestException("Day of weeks cannot be null or empty");
+        }
+
+        // Calculate all matching dates for the given dayOfWeeks and durationMonths
+        List<LocalDate> allMatchingDates = new ArrayList<>();
+        for (int month = 0; month < durationMonths; month++) {
+            for (String dayOfWeekStr : dayOfWeeks) {
+                DayOfWeek dayOfWeek;
+                try {
+                    dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new BadRequestException("Invalid day of week: " + dayOfWeekStr);
+                }
+                LocalDate firstMatchingDate = applicationDate.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+                for (LocalDate dateMatch = firstMatchingDate; !dateMatch.isAfter(applicationDate.plusMonths(1).minusDays(1)); dateMatch = dateMatch.plusWeeks(1)) {
+                    allMatchingDates.add(dateMatch);
+                }
+            }
+            applicationDate = applicationDate.plusMonths(1);
+        }
+
+        // Get all time slots for the court
         Court court = courtRepo.findById(courtId).orElseThrow(() ->
-                new RuntimeException("Court not found with id: " + courtId));
+                new BadRequestException("Court not found with id: " + courtId));
         List<TimeSlot> slots = getAllSlotByVenue(court.getVenue().getId());
 
         // Check availability for each time slot
@@ -179,16 +224,17 @@ public class TimeSlotService {
             TimeSlotResponse slotResponse = mapperSlot(slot);
             boolean isAvailable = true;
 
-            // Check availability for each date in allMatchingDates
             for (LocalDate dateMatch : allMatchingDates) {
-                List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, dateMatch);
-                for (SlotIdCountDTO slotIdCount : slotIdCounts) {
-                    if (slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1) {
-                        isAvailable = false;
-                        break;
-                    }
+                if (dateMatch.isBefore(LocalDate.now())) {
+                    continue; // Skip past dates
                 }
-                if (!isAvailable) {
+
+                List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, dateMatch);
+                boolean slotOccupied = slotIdCounts.stream()
+                        .anyMatch(slotIdCount -> slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1);
+
+                if (slotOccupied) {
+                    isAvailable = false;
                     break;
                 }
             }
@@ -200,6 +246,14 @@ public class TimeSlotService {
 
         return allSlots;
     }
+
+    // Method to get all slots of a venue
+    private List<TimeSlot> getAllSlots() {
+        return timeSlotRepository.findAll(); // Assumes timeSlotRepository is the repository for TimeSlot
+    }
+
+
+
 
 
     // New method to get all slots by venue

@@ -97,4 +97,6 @@ public class BookingDetailService {
         return detailRepo.findById(bookingDetailId)
                 .orElseThrow(()-> new BadRequestException("Booking Detail not found"));
     }
+
+
 }

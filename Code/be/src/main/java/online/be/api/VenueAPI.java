@@ -25,8 +25,8 @@ public class VenueAPI {
     VenueService venueService;
 
     @PostMapping
-    public ResponseEntity<Venue> createVenue(@RequestBody CreateVenueRequest createVenueRequest){
-        Venue createdVenue = venueService.createVenue(createVenueRequest);
+    public ResponseEntity createVenue(@RequestBody CreateVenueRequest request){
+        Venue createdVenue = venueService.createVenue(request);
         return ResponseEntity.ok().body(createdVenue);
     }
 

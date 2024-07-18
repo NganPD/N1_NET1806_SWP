@@ -31,25 +31,26 @@ public class Transaction {
 
     private String transactionDate;
 
-    private Long venueID;
+    private String venueName;
+    private String venueAddress;
 
-    String accountNumber;
+    private String accountNumber;
 
-    String accountName;
+    private String accountName;
 
-    String bankName;
+    private String bankName;
 
-    String reasonWithdrawReject;
+    private String reasonWithdrawReject;
 
     @ManyToOne
     @JoinColumn(name = "from_id")
-    Wallet from;
+    private Wallet from;
 
     @ManyToOne
     @JoinColumn(name = "to_id")
-    Wallet to;
+    private Wallet to;
 
     @ManyToOne
     @JoinColumn(name = "booking_id")
-    Booking booking;
+    private Booking booking;
 }
