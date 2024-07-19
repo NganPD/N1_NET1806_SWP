@@ -12,7 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+
+import java.util.List;
+
 import java.time.LocalDate;
+
 import java.util.Map;
 import java.util.List;
 
@@ -96,30 +101,10 @@ public class BookingAPI {
     }
 
 
-    @GetMapping("/court/{courtId}/month/{month}/year/{year}")
-    public ResponseEntity<Map<String, Object>> getRevenueData(
-            @PathVariable Long courtId,
-            @PathVariable int month,
-            @PathVariable int year) {
-        Map<String, Object> revenueData = bookingService.getRevenueData(courtId, month, year);
-        if (revenueData != null && !revenueData.isEmpty()) {
-            return new ResponseEntity<>(revenueData, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-    }
-
-    @GetMapping("/venue/{venueId}/month/{month}/year/{year}")
-    public ResponseEntity<Map<String, Object>> getVenueRevenueData(
-            @PathVariable Long venueId,
-            @PathVariable int month,
-            @PathVariable int year) {
-        Map<String, Object> revenueData = bookingService.getVenueRevenueData(venueId, month, year);
-        if (revenueData != null && !revenueData.isEmpty()) {
-            return new ResponseEntity<>(revenueData, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @GetMapping("/api/revenue")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenue(@RequestParam int month, @RequestParam int year) {
+        List<Map<String, Object>> revenueData = bookingService.getMonthlyRevenue(month, year);
+        return ResponseEntity.ok(revenueData);
     }
 
 

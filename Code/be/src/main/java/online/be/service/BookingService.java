@@ -271,10 +271,10 @@ public class BookingService {
         Booking booking = bookingRepo.findBookingById(request.getBookingId());
         List<BookingDetail> details = new ArrayList<>();
         LocalDate applicationDate = booking.getApplicationDate();
-        long duration = 0;
 
+        long totalDuration = 0;
         try {
-            for (/*FlexibleBookingRequest.*/FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
+            for (FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
                 LocalDate endOfMonth = booking.getApplicationDate().plusDays(29);
                 List<TimeSlot> timeSlots = new ArrayList<>();
                 for (Long timeslotId : flexibleTimeSlot.getTimeslot()) {
@@ -288,15 +288,22 @@ public class BookingService {
                 if (checkInDate.isAfter(endOfMonth)){
                     throw new BadRequestException("Check-in Date is over the month you bought");
                 }
+
                 for (TimeSlot slot : timeSlots) {
                     BookingDetail detail = detailService.createBookingDetail(BookingType.FLEXIBLE, checkInDate, court, slot);
                     detail.setBooking(booking);
                     details.add(detail);
 
+                    totalDuration += detail.getDuration(); // Tính tổng duration
                 }
-                for (BookingDetail detail : details){
-                    booking.setRemainingTimes(booking.getRemainingTimes()- (int)detail.getDuration());
-                }
+            }
+
+            // Trừ totalDuration từ remainingTimes của booking
+            booking.setRemainingTimes((int) (booking.getRemainingTimes() - totalDuration));
+
+            // Kiểm tra xem remainingTimes có hợp lệ không
+            if (booking.getRemainingTimes() < 0) {
+                throw new BadRequestException("Remaining time is not enough for the new bookings.");
             }
 
             booking.setBookingDetailList(details);
@@ -466,9 +473,37 @@ public class BookingService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         transaction.setTransactionDate(now.format(formatter));
 
-         transactionRepository.save(transaction);
+        transactionRepository.save(transaction);
 
         booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepo.save(booking);
+        return transaction;
+    }
+
+    public Transaction confirmRefundFlexible(Booking booking, BookingDetail bookingDetail) {
+        // Kiểm tra nếu chi tiết booking hợp lệ
+        if (bookingDetail == null) {
+            throw new BadRequestException("Chi tiết booking không hợp lệ");
+        }
+
+        // Xóa chi tiết booking
+        bookingDetailService.deleteBookingDetail(bookingDetail.getId());
+
+        // Hoàn lại thời gian cho booking
+        booking.setRemainingTimes((int) (booking.getRemainingTimes() + bookingDetail.getDuration()));
+        bookingRepo.save(booking);
+
+        // Tạo giao dịch để lưu
+        Transaction transaction = new Transaction();
+        transaction.setBooking(booking);
+        transaction.setTransactionType(TransactionEnum.REFUND); // Chỉ tạo giao dịch hủy
+        transaction.setVenueId(booking.getVenueId());
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        transaction.setTransactionDate(now.format(formatter));
+
+        transactionRepository.save(transaction);
+
         bookingRepo.save(booking);
         return transaction;
     }
@@ -608,41 +643,30 @@ public class BookingService {
         return null;
     }
 
+    public List<Map<String, Object>> getMonthlyRevenue(int month, int year) {
+        List<Object[]> results = bookingDetailRepo.findRevenueByCourtAndBookingType(month, year);
+        Map<String, Map<String, Object>> revenueMap = new HashMap<>();
 
-    public Map<String, Object> getRevenueData(Long courtId, int month, int year) {
-        List<Object[]> revenueData = bookingDetailRepo.findRevenueByCourtIdAndMonth(courtId, month, year);
+        for (Object[] result : results) {
+            String courtName = (String) result[0];
+            String bookingType = ((BookingType) result[1]).name().toLowerCase();
+            Double totalRevenue = (Double) result[2];
 
-        Map<String, Object> data = new HashMap<>();
-        List<String> labels = new ArrayList<>();
-        List<Double> revenue = new ArrayList<>();
-
-        for (Object[] row : revenueData) {
-            labels.add(row[0].toString());
-            revenue.add((Double) row[1]);
+            revenueMap.putIfAbsent(courtName, new HashMap<>());
+            revenueMap.get(courtName).put(bookingType, totalRevenue);
         }
 
-        data.put("labels", labels);
-        data.put("revenues", revenue);
-
-        return data;
-    }
-
-    public Map<String, Object> getVenueRevenueData(Long venueId, int month, int year) {
-        List<Object[]> revenueData = bookingDetailRepo.findRevenueByVenueIdAndMonth(venueId, month, year);
-
-        List<String> labels = new ArrayList<>();
-        List<Double> revenues = new ArrayList<>();
-
-        for (Object[] row : revenueData) {
-            labels.add("Court " + row[0]);
-            revenues.add((Double) row[1]);
+        List<Map<String, Object>> revenueList = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Object>> entry : revenueMap.entrySet()) {
+            Map<String, Object> courtRevenue = new HashMap<>();
+            courtRevenue.put("name", entry.getKey());
+            courtRevenue.put("fixed", entry.getValue().getOrDefault("fixed", 0.0));
+            courtRevenue.put("daily", entry.getValue().getOrDefault("daily", 0.0));
+            courtRevenue.put("flexible", entry.getValue().getOrDefault("flexible", 0.0));
+            revenueList.add(courtRevenue);
         }
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("labels", labels);
-        data.put("revenues", revenues);
-
-        return data;
+        return revenueList;
     }
 
     public int getRemainingTimes(long bookingId){
