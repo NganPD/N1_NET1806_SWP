@@ -251,6 +251,7 @@ public class VenueService {
         VenueResponse venueResponse = new VenueResponse();
 
         // Copy fields from Venue to VenueResponse
+        venueResponse.setId(venue.getId());
         venueResponse.setName(venue.getName());
         venueResponse.setAddress(venue.getAddress());
         venueResponse.setContactInfor(venue.getContactInfor());
@@ -260,6 +261,7 @@ public class VenueService {
         venueResponse.setCourts(venue.getCourts());
         venueResponse.setClosingHour(venue.getClosingHour());
         venueResponse.setOpeningHour(venue.getOpeningHour());
+        venueResponse.setPricingList(venue.getPricingList());
         // Additional fields for VenueResponse
         venueResponse.setOperatingHours(
                 venue.getOpeningHour().toString() + " - " + venue.getClosingHour().toString()
@@ -296,6 +298,15 @@ public class VenueService {
             totalPrice += pricing.getPricePerHour();  // Hoặc phương thức tính giá khác
         }
         return pricings.isEmpty() ? 0 : totalPrice / pricings.size(); // Tính giá trung bình
+    }
+
+    public VenueResponse getVenueByManagerId(long managerId){
+        Venue venue = venueRepository.findVenueByManagerId(managerId);
+        if(venue == null){
+            throw new BadRequestException("Not found manager");
+        }
+        VenueResponse response = mapToVenueResponse(venue);
+        return response;
     }
 }
 

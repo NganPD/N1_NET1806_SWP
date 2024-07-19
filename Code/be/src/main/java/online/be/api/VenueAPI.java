@@ -109,6 +109,10 @@ public class VenueAPI {
         return ResponseEntity.ok(venueService.numberOfVenues());
     }
 
-
+    @GetMapping("/manager/{managerId}")
+    public ResponseEntity<Venue> getVenueByManagerId(@PathVariable Long managerId) {
+        Venue venue = venueService.getVenueByManagerId(managerId);
+        return ResponseEntity.ok(venue);
+    }
 
 }
