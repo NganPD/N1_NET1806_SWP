@@ -81,8 +81,8 @@ public class WalletAPI {
     }
 
     @GetMapping("/balance")
-    public ResponseEntity getBalance(){
-        float balance = walletService.getBalance();
+    public ResponseEntity<WalletResponse> getBalance(){
+        double balance = walletService.getBalance();
         WalletResponse response = new WalletResponse(balance);
         return ResponseEntity.ok(response);
     }

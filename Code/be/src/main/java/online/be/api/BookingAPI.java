@@ -32,9 +32,9 @@ public class BookingAPI {
 //        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
 //    }
 
-    @PostMapping("/{bookingId}/cancel")
+    @PostMapping("/request-cancel/{bookingId}")
     public ResponseEntity cancelBooking(@PathVariable long bookingId){
-        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+        return ResponseEntity.ok(bookingService.requestCancelBooking(bookingId));
     }
 
 //    @PostMapping("/{bookingId}/processComission")

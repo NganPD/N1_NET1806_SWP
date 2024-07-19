@@ -12,5 +12,5 @@ import online.be.entity.Wallet;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WalletResponse extends Wallet {
-    float balance;
+    double balance;
 }
