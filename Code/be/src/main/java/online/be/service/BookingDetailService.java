@@ -62,6 +62,7 @@ public class BookingDetailService {
             detail.setCourtTimeSlot(courtTimeSlot);
             courtTimeSlot.setStatus(SlotStatus.AVAILABLE);
             courtTimeSlotRepo.save(courtTimeSlot);
+
         }catch (Exception e){
             throw new BadRequestException("Something went wrong, please try again");
         }

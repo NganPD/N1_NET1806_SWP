@@ -271,6 +271,7 @@ public class BookingService {
         Booking booking = bookingRepo.findBookingById(request.getBookingId());
         List<BookingDetail> details = new ArrayList<>();
         LocalDate applicationDate = booking.getApplicationDate();
+        long duration = 0;
 
         try {
             for (/*FlexibleBookingRequest.*/FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
@@ -285,12 +286,16 @@ public class BookingService {
                 Court court = courtRepo.findById(flexibleTimeSlot.getCourt()).orElseThrow(() -> new BadRequestException("Court not found with id: " + flexibleTimeSlot.getCourt()));
                 LocalDate checkInDate = LocalDate.parse(flexibleTimeSlot.getCheckInDate());
                 if (checkInDate.isAfter(endOfMonth)){
-                    throw new RuntimeException("Check-in Date is over the month you bought");
+                    throw new BadRequestException("Check-in Date is over the month you bought");
                 }
                 for (TimeSlot slot : timeSlots) {
                     BookingDetail detail = detailService.createBookingDetail(BookingType.FLEXIBLE, checkInDate, court, slot);
                     detail.setBooking(booking);
                     details.add(detail);
+
+                }
+                for (BookingDetail detail : details){
+                    booking.setRemainingTimes(booking.getRemainingTimes()- (int)detail.getDuration());
                 }
             }
 
@@ -638,6 +643,7 @@ public class BookingService {
         data.put("revenues", revenues);
 
         return data;
+    }
 
     public int getRemainingTimes(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
