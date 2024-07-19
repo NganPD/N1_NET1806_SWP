@@ -190,7 +190,7 @@ public class AuthenticationService implements UserDetailsService {
         Account account = getCurrentAccount();
         // Kiểm tra account có phải là instance của Account không
         if (account == null) {
-            throw new ClassCastException("Đối tượng không phải là Account");
+            throw new ClassCastException("Not account");
         }
         account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         authenticationRepository.save(account);
@@ -201,7 +201,7 @@ public class AuthenticationService implements UserDetailsService {
         if (currentAccount != null) {
             return currentAccount;
         } else {
-            throw new ClassCastException("Đối tượng không phải là Account");
+            throw new ClassCastException("Not account");
         }
     }
 

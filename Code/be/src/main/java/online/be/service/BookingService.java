@@ -252,6 +252,7 @@ public class BookingService {
         booking.setRemainingTimes(totalHour);
         booking.setApplicationDate(applicationDate);
         booking.setTotalPrice(totalPrice);
+        booking.setVenueId(venueId);
 
         // Save booking
         try {
