@@ -23,7 +23,9 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookingService {
@@ -32,7 +34,7 @@ public class BookingService {
     BookingRepository bookingRepo;
 
     @Autowired
-    BookingDetailRepostiory bookingDetailRepo;
+    BookingDetailRepositiory bookingDetailRepo;
 
     @Autowired
     TimeSlotRepository timeSlotRepo;
@@ -601,11 +603,48 @@ public class BookingService {
         return null;
     }
 
+
+    public Map<String, Object> getRevenueData(Long courtId, int month, int year) {
+        List<Object[]> revenueData = bookingDetailRepo.findRevenueByCourtIdAndMonth(courtId, month, year);
+
+        Map<String, Object> data = new HashMap<>();
+        List<String> labels = new ArrayList<>();
+        List<Double> revenue = new ArrayList<>();
+
+        for (Object[] row : revenueData) {
+            labels.add(row[0].toString());
+            revenue.add((Double) row[1]);
+        }
+
+        data.put("labels", labels);
+        data.put("revenues", revenue);
+
+        return data;
+    }
+
+    public Map<String, Object> getVenueRevenueData(Long venueId, int month, int year) {
+        List<Object[]> revenueData = bookingDetailRepo.findRevenueByVenueIdAndMonth(venueId, month, year);
+
+        List<String> labels = new ArrayList<>();
+        List<Double> revenues = new ArrayList<>();
+
+        for (Object[] row : revenueData) {
+            labels.add("Court " + row[0]);
+            revenues.add((Double) row[1]);
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("labels", labels);
+        data.put("revenues", revenues);
+
+        return data;
+
     public int getRemainingTimes(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking != null){
             return booking.getRemainingTimes();
         }
         throw new BadRequestException("Booking not found");
+
     }
 }
