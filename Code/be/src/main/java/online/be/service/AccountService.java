@@ -11,6 +11,7 @@ import online.be.model.EmailDetail;
 import online.be.model.Request.AccountRequest;
 import online.be.model.Request.UpdatedAccountRequest;
 import online.be.repository.AccountRepository;
+import online.be.repository.AuthenticationRepository;
 import online.be.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,6 +26,9 @@ public class AccountService {
     AccountRepository accountRepository;
 
     @Autowired
+    AuthenticationRepository authenticationRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -35,7 +39,7 @@ public class AccountService {
 
     public Account createAccount(AccountRequest accountRequest) {
         //kiểm tra xem là tài khoản đã tồn tại hay chưa
-        Account existingAccount = accountRepository.findAccountByEmail(accountRequest.getEmail());
+        Account existingAccount = authenticationRepository.findAccountByEmail(accountRequest.getEmail());
         if(existingAccount != null){
             throw new AuthException("Account is exist!");
         }
@@ -135,5 +139,13 @@ public class AccountService {
 
     public Account findAccountByEmailOrPhone(String identifierString){
         return accountRepository.findAccountByEmailOrPhone(identifierString);
+    }
+
+    public Account getAccountById(long accountId){
+        Account account = accountRepository.findUserById(accountId);
+        if(account == null){
+            throw new BadRequestException("Account not found");
+        }
+        return account;
     }
 }

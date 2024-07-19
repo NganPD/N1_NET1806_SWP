@@ -11,6 +11,5 @@ import java.time.LocalDateTime;
 
 @Data
 public class BookingResponse extends Booking {
-    private long venueId;
-    private String paymentURL;
+    private String venueName;
 }

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.channels.OverlappingFileLockException;
+
 @RestController
 @RequestMapping("/api/pricing")
 @SecurityRequirement(name = "api")
@@ -33,5 +35,10 @@ public class PricingAPI {
     @GetMapping("/{pricingId}")
     public ResponseEntity getPricingById(@PathVariable long pricingId){
         return ResponseEntity.ok(pricingService.getPricigById(pricingId));
+    }
+
+    @GetMapping("/{venueId}/pricing-table-of-venue")
+    public ResponseEntity getPricingByVenueId(@PathVariable long venueId){
+        return ResponseEntity.ok(pricingService.getPricingByVenueId(venueId));
     }
 }

@@ -5,6 +5,7 @@ import online.be.entity.Booking;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
+import online.be.model.Response.BookingResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/booking")
@@ -32,9 +34,9 @@ public class BookingAPI {
 //        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
 //    }
 
-    @PostMapping("/{bookingId}/cancel")
+    @PostMapping("/request-cancel/{bookingId}")
     public ResponseEntity cancelBooking(@PathVariable long bookingId){
-        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+        return ResponseEntity.ok(bookingService.requestCancelBooking(bookingId));
     }
 
 //    @PostMapping("/{bookingId}/processComission")
@@ -42,10 +44,10 @@ public class BookingAPI {
 //        return ResponseEntity.ok(bookingService.processBookingComission(bookingId));
 //    }
 
-    @GetMapping("/booking-history/{accountId}")
-    public ResponseEntity getBookingHistoryByAccount(@PathVariable long accountId){
-        return ResponseEntity.ok(bookingService.getBookingByUserId(accountId));
-    }
+//    @GetMapping("/booking-history/{accountId}")
+//    public ResponseEntity getBookingHistoryByAccount(@PathVariable long accountId){
+//        return ResponseEntity.ok(bookingService.getBookingByUserId(accountId));
+//    }
 
     @GetMapping("/booking-history")
     public ResponseEntity getBookingHistory(){
@@ -93,6 +95,7 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
+
     @GetMapping("/court/{courtId}/month/{month}/year/{year}")
     public ResponseEntity<Map<String, Object>> getRevenueData(
             @PathVariable Long courtId,
@@ -117,6 +120,12 @@ public class BookingAPI {
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+    }
+
+
+    @GetMapping("/{bookingId}/remaining-times")
+    public int getRemainingTimes(@PathVariable("bookingId") long bookingId){
+        return bookingService.getRemainingTimes(bookingId);
     }
 
 }

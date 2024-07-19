@@ -64,7 +64,7 @@ public class WalletService {
         String tmnCode = VNPayConfig.vnp_TmnCode;
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
-        String returnUrl = "http://goodminton.online/profile?id=" + transactionReturn.getTransactionID();
+        String returnUrl = "http://localhost:3000/profile?id=" + transactionReturn.getTransactionID();
 
         // Gửi email thông báo
         String subject = "Nạp tiền đang chờ xử lý";
@@ -228,7 +228,7 @@ public class WalletService {
         new Thread(r).start();
     }
 
-    public float getBalance() {
+    public double getBalance() {
         Account user = authenticationService.getCurrentAccount();
         Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
         if (wallet != null) {
@@ -242,4 +242,5 @@ public class WalletService {
         Transaction transaction = transactionRepository.findByTransactionID(transactionId);
         return walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
     }
+
 }

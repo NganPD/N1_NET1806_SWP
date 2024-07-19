@@ -19,7 +19,7 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long walletID;
 
-    private float balance;
+    private double balance;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", unique = true)
