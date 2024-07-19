@@ -637,7 +637,7 @@ public class BookingService {
         data.put("revenues", revenues);
 
         return data;
-
+    }
     public int getRemainingTimes(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking != null){
