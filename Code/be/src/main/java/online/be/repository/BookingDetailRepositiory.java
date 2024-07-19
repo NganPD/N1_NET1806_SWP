@@ -46,4 +46,9 @@ public interface BookingDetailRepositiory extends JpaRepository<BookingDetail, L
             @Param("venueId") Long venueId,
             @Param("month") int month,
             @Param("year") int year);
+    @Query("SELECT bd.courtTimeSlot.court.name as courtName, bd.booking.bookingType as bookingType, SUM(bd.price) as totalRevenue " +
+            "FROM BookingDetail bd " +
+            "WHERE MONTH(bd.courtTimeSlot.checkInDate) = :month AND YEAR(bd.courtTimeSlot.checkInDate) = :year " +
+            "GROUP BY bd.courtTimeSlot.court.name, bd.booking.bookingType")
+    List<Object[]> findRevenueByCourtAndBookingType(@Param("month") int month, @Param("year") int year);
 }
