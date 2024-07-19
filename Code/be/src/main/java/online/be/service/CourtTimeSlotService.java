@@ -4,6 +4,7 @@ package online.be.service;
 import online.be.entity.Court;
 import online.be.entity.CourtTimeSlot;
 import online.be.entity.TimeSlot;
+import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.CourtTimeSlotRequest;
 import online.be.repository.CourtRepository;
@@ -46,5 +47,10 @@ public class CourtTimeSlotService {
 
     public List<CourtTimeSlot> getAll(){
         return courtTimeSlotRepository.findAll();
+    }
+
+    public List<CourtTimeSlot> getBookedSlot(long venueId){
+        List<CourtTimeSlot> slots = courtTimeSlotRepository.findByStatusAndVenueId(SlotStatus.BOOKED, venueId);
+        return slots;
     }
 }

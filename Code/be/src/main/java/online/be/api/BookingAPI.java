@@ -54,6 +54,15 @@ public class BookingAPI {
         return ResponseEntity.ok(bookingService.getBookingHistory());
     }
 
+    @GetMapping("/all-bookings-user")
+    public ResponseEntity getAllBookingByAccount(){
+        return ResponseEntity.ok(bookingService.getAllBookingsByAccount());
+    }
+
+    @GetMapping("/get-booked-slot")
+    public ResponseEntity getBookedBooking(){
+        return ResponseEntity.ok(bookingService.getBookedBooking());
+    }
 //        @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
 //        Booking Booking = bookingService.getBookingById(bookingId);

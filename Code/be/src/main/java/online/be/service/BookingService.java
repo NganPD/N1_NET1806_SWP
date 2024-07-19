@@ -122,7 +122,7 @@ public class BookingService {
             booking.setApplicationDate(checkInDate);
             booking.setVenueId(venueId);
             bookingRepo.save(booking);
-            processBookingPayment(booking.getId(),venueId);
+            processBookingPayment(booking.getId(), venueId);
             return booking;
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("This slot is booked.");
@@ -134,6 +134,7 @@ public class BookingService {
             throw new BadRequestException(e.getMessage());
         }
     }
+
     public Booking createFixedScheduleBooking(FixedScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
         LocalDate applicationStartDate = LocalDate.parse(bookingRequest.getApplicationStartDate());
@@ -191,6 +192,7 @@ public class BookingService {
             throw new BadRequestException("This slot is booked.");
         }
     }
+
     public Booking checkIn(long id, String date) {
         Booking booking = bookingRepo.findById(id).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
         List<BookingDetail> details = booking.getBookingDetailList();
@@ -202,12 +204,7 @@ public class BookingService {
                 CourtTimeSlot courtTimeSlot = courtTimeSlotRepo.findByBookingDetail(detail);
                 courtTimeSlot.setStatus(SlotStatus.CHECKED);
                 courtTimeSlotRepo.save(courtTimeSlot);
-                duration = (int) detail.getDuration();
-                count = count - 1;
-                if (booking.getRemainingTimes() != 0) {
-                    booking.setRemainingTimes(booking.getRemainingTimes() - duration);
 
-                }
             }
         }
         if (count == 0) {
@@ -250,6 +247,7 @@ public class BookingService {
         booking.setAccount(user);
         booking.setBookingType(BookingType.FLEXIBLE);
         booking.setBookingDate(LocalDate.now());
+        booking.setStatus(BookingStatus.BOOKED);
         booking.setTotalTimes(totalHour);
         booking.setRemainingTimes(totalHour);
         booking.setApplicationDate(applicationDate);
@@ -271,8 +269,7 @@ public class BookingService {
         Booking booking = bookingRepo.findBookingById(request.getBookingId());
         List<BookingDetail> details = new ArrayList<>();
         LocalDate applicationDate = booking.getApplicationDate();
-        long duration = 0;
-
+        int duration = 0;
         try {
             for (/*FlexibleBookingRequest.*/FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
                 LocalDate endOfMonth = booking.getApplicationDate().plusDays(29);
@@ -285,17 +282,20 @@ public class BookingService {
 
                 Court court = courtRepo.findById(flexibleTimeSlot.getCourt()).orElseThrow(() -> new BadRequestException("Court not found with id: " + flexibleTimeSlot.getCourt()));
                 LocalDate checkInDate = LocalDate.parse(flexibleTimeSlot.getCheckInDate());
-                if (checkInDate.isAfter(endOfMonth)){
+                if (checkInDate.isAfter(endOfMonth)) {
                     throw new BadRequestException("Check-in Date is over the month you bought");
                 }
                 for (TimeSlot slot : timeSlots) {
                     BookingDetail detail = detailService.createBookingDetail(BookingType.FLEXIBLE, checkInDate, court, slot);
                     detail.setBooking(booking);
                     details.add(detail);
+                    duration = (int) detail.getDuration();
+                    if (booking.getRemainingTimes() != 0) {
+                        booking.setRemainingTimes(booking.getRemainingTimes() - (int) detail.getDuration());
+                    } else {
+                        throw new BadRequestException("You have not enough remaining times");
+                    }
 
-                }
-                for (BookingDetail detail : details){
-                    booking.setRemainingTimes(booking.getRemainingTimes()- (int)detail.getDuration());
                 }
             }
 
@@ -305,7 +305,6 @@ public class BookingService {
             throw new BadRequestException("Failed to save booking: " + e.getMessage());
         }
     }
-
 
     private Transaction processBookingPayment(long bookingId, long venueId) {
         // Start transaction
@@ -322,7 +321,7 @@ public class BookingService {
 
             // Get the admin wallet
             List<Account> adminList = accountRepository.findByRole(Role.ADMIN);
-            if(adminList.isEmpty()){
+            if (adminList.isEmpty()) {
                 throw new BadRequestException("Admin account not found");
             }
             Account admin = adminList.get(0);
@@ -340,12 +339,12 @@ public class BookingService {
 
             // Process payment
             updateBalances(customerWallet, adminWallet, amount);
-            booking.setStatus(BookingStatus.CONFIRMED);
+            booking.setStatus(BookingStatus.BOOKED);
             bookingRepo.save(booking);
 
             // Create and save the transaction
             Venue venue = venueRepo.findVenueById(venueId);
-            if(venue == null){
+            if (venue == null) {
                 throw new BadRequestException("Venue not found");
             }
 
@@ -353,7 +352,7 @@ public class BookingService {
             transactionRepository.save(transaction);
 
             // Send email notification
-            sendPaymentConfirmationEmail(customer, amount, bookingId,venue);
+            sendPaymentConfirmationEmail(customer, amount, bookingId, venue);
 
             return transaction;
         } catch (Exception e) {
@@ -413,10 +412,10 @@ public class BookingService {
     }
 
     //cancel booking
-    public Transaction requestCancelBooking(long bookingId){
+    public Transaction requestCancelBooking(long bookingId) {
         //check booking is exist or not
         Booking booking = bookingRepo.findBookingById(bookingId);
-        if(booking == null){
+        if (booking == null) {
             throw new BadRequestException("Booking not found");
         }
 
@@ -425,7 +424,7 @@ public class BookingService {
             throw new BadRequestException("Booking is already cancelled and cannot be cancelled again");
         }
         //check the validate of booking
-        if(!isValidCancellation(booking)){
+        if (!isValidCancellation(booking)) {
             //nếu không đủ điều kiện để hủy thì sẽ hoàn tiền
             throw new BadRequestException("Cannot cancel the booking." +
                     "The cancellation window has passed");
@@ -435,6 +434,7 @@ public class BookingService {
         Transaction transaction = confirmRefund(booking);
         return transaction;
     }
+
     public Transaction confirmRefund(Booking booking) {
         //search user wallet
         Account customer = authenticationService.getCurrentAccount();//lấy  tài khoản hiện tại
@@ -445,7 +445,7 @@ public class BookingService {
         Wallet adminWallet = admin.getWallet();
 
         double refundAmount = booking.getTotalPrice();
-        if(adminWallet.getBalance() < refundAmount){
+        if (adminWallet.getBalance() < refundAmount) {
             throw new BadRequestException("Admin has not enough money to refund");
         }
         customerWallet.setBalance(customerWallet.getBalance() + refundAmount);
@@ -458,7 +458,7 @@ public class BookingService {
         Transaction transaction = new Transaction();
         transaction.setFrom(adminWallet);
         transaction.setTo(customerWallet);
-        transaction.setAmount((float)refundAmount);
+        transaction.setAmount((float) refundAmount);
         transaction.setBooking(booking);
         transaction.setTransactionType(TransactionEnum.REFUND);
         transaction.setVenueId(booking.getVenueId());
@@ -466,7 +466,7 @@ public class BookingService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         transaction.setTransactionDate(now.format(formatter));
 
-         transactionRepository.save(transaction);
+        transactionRepository.save(transaction);
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepo.save(booking);
@@ -476,7 +476,7 @@ public class BookingService {
     private boolean isValidCancellation(Booking booking) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime bookingTime = booking.getApplicationDate().atStartOfDay();
-        long hoursBetween = ChronoUnit.HOURS.between(now,bookingTime);
+        long hoursBetween = ChronoUnit.HOURS.between(now, bookingTime);
 
         switch (booking.getBookingType()) {
             case FIXED:
@@ -537,14 +537,14 @@ public class BookingService {
         return bookings;
     }
 
-    public Booking checkPaymentForBooking(long id){
+    public Booking checkPaymentForBooking(long id) {
         Booking booking = bookingRepo.findBookingById(id);
         List<Transaction> transactions = booking.getTransactions();
-        if (transactions.isEmpty()){
+        if (transactions.isEmpty()) {
             booking.setStatus(BookingStatus.CANCELLED);
             List<BookingDetail> bookingDetails = booking.getBookingDetailList();
-            if (!bookingDetails.isEmpty()){
-                for (BookingDetail bookingDetail : bookingDetails){
+            if (!bookingDetails.isEmpty()) {
+                for (BookingDetail bookingDetail : bookingDetails) {
                     bookingDetail.getCourtTimeSlot().setStatus(SlotStatus.AVAILABLE);
                     courtTimeSlotRepo.save(bookingDetail.getCourtTimeSlot());
                 }
@@ -553,14 +553,14 @@ public class BookingService {
         return bookingRepo.save(booking);
     }
 
-    public List<BookingResponse> getBookingHistory(){
+    public List<BookingResponse> getBookingHistory() {
         Account user = authenticationService.getCurrentAccount();
         List<Booking> bookingList = bookingRepo.findBookingByAccount_Id(user.getId());
-        if(bookingList.isEmpty()){
+        if (bookingList.isEmpty()) {
             throw new BadRequestException("No Booking research");
         }
         List<BookingResponse> responseList = new ArrayList<>();
-        for(Booking booking : bookingList){
+        for (Booking booking : bookingList) {
             BookingResponse response = mapToBookingResponse(booking);
             responseList.add(response);
         }
@@ -570,9 +570,9 @@ public class BookingService {
     private BookingResponse mapToBookingResponse(Booking booking) {
         BookingResponse bookingResponse = new BookingResponse();
 
-        try{
+        try {
             Venue venue = venueRepo.findVenueById(booking.getVenueId());
-            if(venue == null){
+            if (venue == null) {
                 throw new BadRequestException("Venue not found");
             }
             // Copy fields from Venue to BookingResponse
@@ -592,16 +592,16 @@ public class BookingService {
             bookingResponse.setVenueName(venue.getName());
             // Assume the price is calculated based on some business logic; here it's a placeholder
             return bookingResponse;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
     }
 
-    private Venue getVenueFromBookingDetail(BookingDetail bookingDetail){
+    private Venue getVenueFromBookingDetail(BookingDetail bookingDetail) {
         CourtTimeSlot courtTimeSlot = bookingDetail.getCourtTimeSlot();
-        if(courtTimeSlot != null){
+        if (courtTimeSlot != null) {
             Court court = courtTimeSlot.getCourt();
-            if(court != null){
+            if (court != null) {
                 return court.getVenue();
             }
         }
@@ -645,12 +645,26 @@ public class BookingService {
         return data;
     }
 
-    public int getRemainingTimes(long bookingId){
+    public int getRemainingTimes(long bookingId) {
         Booking booking = bookingRepo.findBookingById(bookingId);
-        if(booking != null){
+        if (booking != null) {
             return booking.getRemainingTimes();
         }
         throw new BadRequestException("Booking not found");
-
     }
+
+    public List<Booking> getAllBookingsByAccount() {
+        Account account = authenticationService.getCurrentAccount();
+        List<Booking> bookings = bookingRepo.findBookingByAccount_Id(account.getId());
+        return bookings;
+    }
+
+    public List<Booking> getBookedBooking( ){
+        Account user = authenticationService.getCurrentAccount();
+        List<Booking> bookings = bookingRepo.findByStatusAndAccount_Id(BookingStatus.BOOKED, user.getId());
+        return bookings;
+    }
+
+
+
 }

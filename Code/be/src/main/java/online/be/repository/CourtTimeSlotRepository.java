@@ -3,6 +3,7 @@ package online.be.repository;
 import online.be.entity.BookingDetail;
 import online.be.entity.CourtTimeSlot;
 import online.be.enums.BookingType;
+import online.be.enums.SlotStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -75,5 +76,8 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
 //            @Param("bookingType") BookingType bookingType);
 
     CourtTimeSlot findById(long id);
+
+    @Query("SELECT cts FROM CourtTimeSlot cts JOIN cts.court court WHERE cts.status = :status AND court.venue.id = :venueId")
+    List<CourtTimeSlot> findByStatusAndVenueId(@Param("status") SlotStatus status, @Param("venueId") long venueId);
 }
 

@@ -60,7 +60,7 @@ public class BookingDetailService {
             detail.setDuration(slot.getDuration());
             detail.setPrice(price);
             detail.setCourtTimeSlot(courtTimeSlot);
-            courtTimeSlot.setStatus(SlotStatus.AVAILABLE);
+            courtTimeSlot.setStatus(SlotStatus.BOOKED);
             courtTimeSlotRepo.save(courtTimeSlot);
 
         }catch (Exception e){
