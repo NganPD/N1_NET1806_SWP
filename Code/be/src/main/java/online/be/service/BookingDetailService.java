@@ -82,5 +82,10 @@ public class BookingDetailService {
                 .orElseThrow(()-> new BadRequestException("Booking Detail not found"));
     }
 
+    public void deleteBookingDetail(long bookingDetailId) {
+        BookingDetail detail = detailRepo.findById(bookingDetailId)
+                .orElseThrow(() -> new BadRequestException("Chi tiết booking không tồn tại"));
+        detailRepo.delete(detail);
+    }
 
 }
