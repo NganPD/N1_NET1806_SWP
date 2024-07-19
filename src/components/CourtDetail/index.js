@@ -3,54 +3,31 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Modal from "react-modal";
 import moment from "moment-timezone";
 import api from "../../config/axios";
-import { Select } from "antd";
+import { InputNumber, Select, Modal as ModalANTD, Form, Button, DatePicker } from "antd";
+import { toast } from "react-toastify";
+import { useForm } from "antd/es/form/Form";
 
 Modal.setAppElement("#root");
 
 const CourtDetails = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { court } = location.state || {};
-
+  // const location = useLocation();
+  // const navigate = useNavigate();
+  // const { court } = location.state || {};
+  const [form] = useForm()
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedCourt, setSelectedCourt] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [bookingType, setBookingType] = useState("fixed");
   const [months, setMonths] = useState("");
   const [startDate, setStartDate] = useState([]);
-  const [flexibleBookings, setFlexibleBookings] = useState([]);
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
+
   const [errors, setErrors] = useState({});
-  const [currentWeek, setCurrentWeek] = useState(0);
-  const [walletBalance] = useState(500000); // Example wallet balance, replace with real data
 
-  const fixedTimes = [
-    "05:00 - 06:00",
-    "06:00 - 07:00",
-    "07:00 - 08:00",
-    "08:00 - 09:00",
-    "09:00 - 10:00",
-    "11:00 - 12:00",
-    "12:00 - 13:00",
-    "13:00 - 14:00",
-    "14:00 - 15:00",
-    "15:00 - 16:00",
-    "16:00 - 17:00",
-    "17:00 - 18:00",
-    "18:00 - 19:00",
-    "19:00 - 20:00",
-    "20:00 - 21:00",
-    "21:00 - 22:00",
-  ];
 
+  const [openModal2, setOpenModal] = useState(false)
   const daysOfWeek = [
     { label: "Thứ Hai", value: "Monday" },
     { label: "Thứ Ba", value: "Tuesday" },
@@ -93,20 +70,76 @@ const CourtDetails = () => {
   }, [])
 
 
-  const handleCreateBooking = () => {
+
+
+  const [slotDaily, setSlotDaily] = useState([])
+
+  const fetchSlotDaily = async () => {
+    try {
+      const response = await api.get(`/timeslots/available-slots?courtId=${selectedCourt}&date=${selectedDate}&venueId=${id}`)
+      console.log(response.data)
+      setSlotDaily(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleCreateBooking = async () => {
     console.log(selectedDate)
     console.log(months)
     console.log(startDate)
-    console.log(courtSelect)
+    console.log(selectedCourt)
     console.log(selectedSlot)
-    // console.log(first)
+    try {
+      let response;
+      if (bookingType == "fixed") {
+        response = await api.post("/booking/fixed-schedule",
+          {
+            applicationStartDate: selectedDate,
+            durationInMonths: months,
+            dayOfWeek: startDate,
+            court: courtSelect,
+            timeslot: selectedSlot
+          })
+      } else if (bookingType == "daily") {
+        response = await api.post("/booking/daily-schedule",
+          {
+            checkInDate: selectedDate,
+            court: selectedCourt,
+            timeslot: selectedSlot,
+          })
+      }
+      else {
+
+      }
+      console.log(response)
+      toast.success("Booking SuccessFully!!!")
+    } catch (error) {
+      toast.error(error.response.data)
+    }
+
   }
+
+  const handleBuyHour = async (values) => {
+    console.log(values)
+    const days = moment(values.days.$d).format("YYYY-MM-DD")
+    console.log(days)
+    try {
+      const response = await api.post(`/booking/purchase-hours/hours/${values.hours}/id/${id}/applicationDate/${days}`)
+      toast.success("Mua giờ thành công !!!")
+      setOpenModal(false)
+    } catch (error) {
+      toast.error(error.response.data)
+    }
+
+  }
+
+
   const [slots, setSlots] = useState([])
   const [courtSelect, setCourtSelect] = useState([])
   const fetchSlot = async () => {
-
     try {
-      const response = await api.get(`/timeslots/available-fixed-slots?dayOfWeek=${startDate}&applicationDate=${selectedDate}&durationMonth=${months}&courtId=${selectedCourt}`)
+      const response = await api.get(`/timeslots/available-fixed-slots?applicationStartDate=${selectedDate}&durationInMonths=${months}&dayOfWeek=${startDate}&court=${courtSelect}`)
       console.log(response.data)
       setSlots(response.data)
     } catch (error) {
@@ -115,7 +148,12 @@ const CourtDetails = () => {
   }
 
   useEffect(() => {
-    fetchSlot()
+    if (bookingType === "fixed") {
+      fetchSlot()
+    }
+    else if (bookingType === "daily") {
+      fetchSlotDaily()
+    }
   }, [selectedDate, months, startDate, selectedCourt])
 
   const validateStep1 = () => {
@@ -147,27 +185,6 @@ const CourtDetails = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep3 = () => {
-    const newErrors = {};
-    if (!name) {
-      newErrors.name = "Vui lòng nhập họ tên.";
-    }
-    if (!email) {
-      newErrors.email = "Vui lòng nhập email.";
-    }
-    if (!cardNumber) {
-      newErrors.cardNumber = "Vui lòng nhập số thẻ.";
-    }
-    if (!expiryDate) {
-      newErrors.expiryDate = "Vui lòng nhập ngày hết hạn.";
-    }
-    if (!cvv) {
-      newErrors.cvv = "Vui lòng nhập CVV.";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleNextStep = () => {
     let isValid = false;
     if (step === 1) {
@@ -184,118 +201,36 @@ const CourtDetails = () => {
     setStep(step - 1);
   };
 
-  const handleAddToListBooking = () => {
-    console.log(selectedDate)
-    console.log(months)
-    console.log(startDate)
-    console.log(selectedCourt)
-    console.log(selectedTime)
-  }
+  // const handleAddToListBooking = () => {
+  //   console.log(selectedDate)
+  //   console.log(months)
+  //   console.log(startDate)
+  //   console.log(selectedCourt)
+  //   console.log(selectedTime)
+  // }
 
-  const handleAddFlexibleBooking = () => {
-    if (selectedDate && selectedTime) {
-      setFlexibleBookings([
-        ...flexibleBookings,
-        { date: selectedDate, time: selectedTime },
-      ]);
-      setSelectedDate("");
-      setSelectedTime("");
-    } else {
-      alert("Vui lòng chọn ngày và thời gian trước khi thêm");
-    }
-  };
+  // const handleRemoveFlexibleBooking = (index) => {
+  //   const updatedBookings = flexibleBookings.filter((_, i) => i !== index);
+  //   setFlexibleBookings(updatedBookings);
+  // };
 
-  const handleRemoveFlexibleBooking = (index) => {
-    const updatedBookings = flexibleBookings.filter((_, i) => i !== index);
-    setFlexibleBookings(updatedBookings);
-  };
-
-  const handlePayment = (e) => {
-    e.preventDefault();
-    setIsPaymentModalOpen(true);
-  };
-
-  const handleConfirmPayment = () => {
-    if (validateStep3()) {
-      console.log("Name:", name);
-      console.log("Email:", email);
-      console.log("Selected Time:", selectedTime);
-      console.log("Selected Date:", selectedDate);
-      console.log("Booking Type:", bookingType);
-      console.log("Months:", months);
-      console.log("Start Date:", startDate);
-      console.log("Flexible Bookings:", flexibleBookings);
-      // Navigate to confirmation page
-      navigate("/confirmation");
-    }
-  };
-
-  const getWeekDates = (weekOffset = 0) => {
-    const now = new Date();
-    const startOfWeek = new Date(
-      now.setDate(now.getDate() - now.getDay() + 1 + 7 * weekOffset)
-    );
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      return date;
-    });
-  };
 
   const today = moment.tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
 
-  const weekDates = getWeekDates(currentWeek);
-
-  const renderTimeslots = (date) => {
-    return court.availableTimes.map((slot, index) => {
-      const isPast = date < new Date() || !slot.status;
-      return (
-        <div
-          key={index}
-          className={`m-2 p-2 border rounded-lg shadow-lg ${selectedSlot === index ? "bg-blue-300" : "bg-blue-100"
-            } ${isPast ? "bg-gray-300 cursor-not-allowed" : "cursor-pointer"}`}
-          onClick={() => !isPast && setSelectedSlot(index)}
-        >
-          <p className="text-center">{slot.time}</p>
-          <p className="text-center">120k</p>
-        </div>
-      );
-    });
-  };
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
 
   const closeModal = () => {
     setIsModalOpen(false);
-  };
-
-  const openPaymentModal = () => {
-    setIsPaymentModalOpen(true);
-  };
-
-  const closePaymentModal = () => {
-    setIsPaymentModalOpen(false);
-  };
-
-  const handleBooking = () => {
-    navigate("/payment", {
-      state: {
-        court,
-        selectedDate,
-        selectedTime,
-        name,
-        email,
-        bookingType,
-      },
-    });
   };
 
   const handleChange = (selectedOption) => {
     setSelectedSlot(selectedOption);
     // console.log(selectedOption);
   };
+
+  // const handleChange3 = (selectedOption) => {
+  //   setStartDate(selectedOption);
+  //   // console.log(selectedOption);
+  // };
 
 
   const handleChange2 = (selectedOption) => {
@@ -421,7 +356,7 @@ const CourtDetails = () => {
                   className="w-full h-fit px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   value={courtSelect}
                   onChange={(e) => setCourtSelect(e)}
-                  options={courtData.map((item) => ({
+                  options={courtData?.map((item) => ({
                     value: item.id,
                     label: item.courtName,
                     disabled: item.status == "INACTIVE"
@@ -453,7 +388,7 @@ const CourtDetails = () => {
                   </p>
                 )}
               </div>
-              <button
+              {/* <button
                 style={{
                   marginBottom: "20px"
                 }}
@@ -461,7 +396,7 @@ const CourtDetails = () => {
                 className="bg-green-500 text-white rounded-full px-4 py-2 hover:bg-gray-600"
               >
                 Thêm
-              </button>
+              </button> */}
 
               <div className="flex justify-between">
                 <button
@@ -472,7 +407,6 @@ const CourtDetails = () => {
                 </button>
 
                 <button
-                  // onClick={handleNextStep}
                   onClick={handleCreateBooking}
                   className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
                 >
@@ -481,91 +415,111 @@ const CourtDetails = () => {
               </div>
             </div>
           )}
-
           {step === 2 && bookingType === "flexible" && (
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
-              <div className="flex flex-row justify-between items-center">
-                <h2 className="text-2xl font-bold mb-4">Chọn giờ chơi</h2>
-                <div className="flex flex-row items-center justify-between gap-3">
-                  <p>(còn lại 6 giờ chơi)</p>
-                  <button className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600">
-                    + ( thêm giờ )
-                  </button>
+            <>
+
+              <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
+                <ModalANTD footer={false} onOk={() => form.submit()} onCancel={() => setOpenModal(false)} title="Chọn số giờ" open={openModal2}>
+                  <Form
+                    form={form}
+                    name="basic"
+                    labelCol={{
+                      span: 8,
+                    }}
+                    wrapperCol={{
+                      span: 16,
+                    }}
+                    style={{
+                      maxWidth: 600,
+                    }}
+                    initialValues={{
+                      remember: true,
+                    }}
+                    onFinish={handleBuyHour}
+                    autoComplete="off"
+                  >
+                    <Form.Item
+                      labelCol={{ span: "24" }}
+                      label="Số giờ muốn mua"
+                      name="hours"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Vui lòng nhập số giờ!',
+                        },
+                      ]}
+                    >
+                      <InputNumber />
+                    </Form.Item>
+
+                    <Form.Item
+                      labelCol={{ span: "24" }}
+                      label="Ngày áp dụng"
+                      name="days"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Vui lòng chọn ngày áp dụng!',
+                        },
+                      ]}
+                    >
+                      <DatePicker />
+                    </Form.Item>
+
+                    <Form.Item
+                      wrapperCol={{
+                        offset: 8,
+                        span: 16,
+                      }}
+                    >
+                      <Button type="primary" htmlType="submit">
+                        Submit
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </ModalANTD>
+                <div className="flex flex-row justify-between items-center">
+                  <h2 className="text-2xl font-bold mb-4">Chọn giờ chơi</h2>
+                  <div className="flex flex-row items-center justify-between gap-3">
+                    <button onClick={() => setOpenModal(true)} className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600">
+                      + ( mua giờ )
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Chọn ngày:</label>
-                <input
-                  type="date"
-                  min={today}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-                {errors.selectedDate && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.selectedDate}
-                  </p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Chọn giờ:</label>
-                <select
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                >
-                  <option value="">Chọn giờ chơi</option>
-                  {fixedTimes.map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
-                {errors.selectedTime && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.selectedTime}
-                  </p>
-                )}
-              </div>
-              <div>
-                <div className="flex mb-4">
+                {/* <div>
+                  <div className="flex mb-4">
+                  </div>
+                  <ul className="list-disc pl-6">
+                    {flexibleBookings.map((booking, index) => (
+                      <li key={index} className="mb-2">
+                        Ngày: {booking.date}, Giờ: {booking.time}{" "}
+                        <button
+                          onClick={() => handleRemoveFlexibleBooking(index)}
+                          className="text-red-500 hover:underline ml-2"
+                        >
+                          Xóa
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div> */}
+                <div className="flex justify-between">
                   <button
-                    onClick={handleAddFlexibleBooking}
+                    onClick={handlePreviousStep}
+                    className="bg-gray-500 text-white rounded-full px-4 py-2 hover:bg-gray-600"
+                  >
+                    Quay lại
+                  </button>
+                  <button
+                    onClick={handleNextStep}
                     className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
                   >
-                    Thêm
+                    Tiếp tục
                   </button>
                 </div>
-                <ul className="list-disc pl-6">
-                  {flexibleBookings.map((booking, index) => (
-                    <li key={index} className="mb-2">
-                      Ngày: {booking.date}, Giờ: {booking.time}{" "}
-                      <button
-                        onClick={() => handleRemoveFlexibleBooking(index)}
-                        className="text-red-500 hover:underline ml-2"
-                      >
-                        Xóa
-                      </button>
-                    </li>
-                  ))}
-                </ul>
               </div>
-              <div className="flex justify-between">
-                <button
-                  onClick={handlePreviousStep}
-                  className="bg-gray-500 text-white rounded-full px-4 py-2 hover:bg-gray-600"
-                >
-                  Quay lại
-                </button>
-                <button
-                  onClick={handleNextStep}
-                  className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-                >
-                  Tiếp tục
-                </button>
-              </div>
-            </div>
+            </>
+
           )}
 
           {step === 2 && bookingType === "daily" && (
@@ -586,12 +540,29 @@ const CourtDetails = () => {
               <div className="mb-4">
                 <label className="block mb-2">Chọn sân:</label>
                 <Select
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full"
                   value={selectedCourt}
-                  onChange={(e) => console.log(e.target.value)}
+                  options={courtData?.map((item) => ({
+                    value: item.id,
+                    label: item.courtName,
+                    disabled: item.status == "INACTIVE"
+                  }))}
+                  onChange={(e) => setSelectedCourt(e)}
                 >
                 </Select>
               </div>
+              <label className="block mb-2">Chọn Slots:</label>
+              <Select
+                className="w-full mb-3"
+                mode="tags"
+                value={selectedSlot}
+                options={slotDaily?.map((item) => ({
+                  label: `${item.startTime} - ${item.endTime}`,
+                  value: item.id
+                }))}
+                onChange={(e) => setSelectedSlot(e)}
+              >
+              </Select>
 
               <div className="flex justify-between">
                 <button
@@ -601,58 +572,12 @@ const CourtDetails = () => {
                   Quay lại
                 </button>
                 <button
-                  onClick={openModal}
+                  onClick={handleCreateBooking}
                   className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
                 >
                   Chọn giờ chơi
                 </button>
               </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
-              <h2 className="text-2xl font-bold mb-4">Thông tin thanh toán</h2>
-              <form onSubmit={handlePayment}>
-                <div className="mb-4">
-                  <label className="block mb-2">Họ tên:</label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Email:</label>
-                  <input
-                    type="email"
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                  )}
-                </div>
-                <div className="flex justify-between">
-                  <button
-                    onClick={handlePreviousStep}
-                    className="bg-gray-500 text-white rounded-full px-4 py-2 hover:bg-gray-600"
-                  >
-                    Quay lại
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-                  >
-                    Xác nhận
-                  </button>
-                </div>
-              </form>
             </div>
           )}
         </div>
@@ -665,40 +590,6 @@ const CourtDetails = () => {
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
       >
 
-      </Modal>
-
-      <Modal
-        isOpen={isPaymentModalOpen}
-        onRequestClose={closePaymentModal}
-        contentLabel="Xác nhận thanh toán"
-        className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Xác nhận thanh toán</h2>
-          <p>Tên: {name}</p>
-          <p>Email: {email}</p>
-          <p>Ngày: {selectedDate}</p>
-          <p>Giờ: {selectedTime}</p>
-          <p>Sân: {selectedCourt}</p>
-          <p>Loại đặt sân: {bookingType}</p>
-          <p>Tổng tiền: 120k</p>
-          <p>Số dư ví: {walletBalance} VNĐ</p>
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={closePaymentModal}
-              className="bg-gray-300 text-gray-700 rounded-full px-4 py-2 mr-2 hover:bg-gray-400"
-            >
-              Hủy
-            </button>
-            <button
-              onClick={handleConfirmPayment}
-              className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-            >
-              Xác nhận thanh toán
-            </button>
-          </div>
-        </div>
       </Modal>
     </div>
   );

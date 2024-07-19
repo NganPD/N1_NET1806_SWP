@@ -33,6 +33,7 @@ import { GlobalStateProvider } from "./components/context/GlobalStateContext";
 import UserProfile from "./components/UserProfile";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from "react-toastify";
+import Overview from "./components/overview";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
@@ -58,6 +59,7 @@ root.render(
             <Route path="accounts" element={<AccountManagement />} />
             <Route path="courts" element={<CourtManagement />} />
             <Route path="new-court" element={<NewCourtRegistration />} />
+            <Route path="overview" element={<Overview />} />
           </Route>
           <Route path="/court-manager" element={<CourtLayout />}>
             <Route path="register-court-info" element={<RegisterCourtInfo />} />
