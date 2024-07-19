@@ -31,8 +31,7 @@ public class Transaction {
 
     private String transactionDate;
 
-    private String venueName;
-    private String venueAddress;
+    private Long venueId;
 
     private String accountNumber;
 

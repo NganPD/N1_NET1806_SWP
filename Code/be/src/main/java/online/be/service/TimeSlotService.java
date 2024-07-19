@@ -243,9 +243,6 @@ public class TimeSlotService {
     }
 
 
-
-
-
     // New method to get all slots by venue
     private List<TimeSlot> getAllSlotByVenue(long venueId) {
         return timeSlotRepository.findByVenueId(venueId);

@@ -1,6 +1,6 @@
 package online.be.model.Response;
 
-public class UpdateScheduleResponse {
+public class    UpdateScheduleResponse {
     private boolean success;
     private String message;
 

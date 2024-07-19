@@ -110,7 +110,6 @@ public class BookingService {
             booking.setAccount(currentAccount);
             booking.setBookingDate(bookingDate);
             booking.setBookingType(BookingType.DAILY);
-            booking.setStatus(BookingStatus.PENDING);
             booking.setTotalPrice(totalPrice);
             booking.setTotalTimes(totalHours);
             booking.setBookingDetailList(details);
@@ -132,6 +131,10 @@ public class BookingService {
         Account currentAccount = authenticationService.getCurrentAccount();
         LocalDate applicationStartDate = LocalDate.parse(bookingRequest.getApplicationStartDate());
         LocalDate bookingDate = LocalDate.now();
+        Court court = courtRepo.findById(bookingRequest.getCourt()).orElseThrow(() ->
+                new BadRequestException("Court not found with id: " + bookingRequest.getCourt()));
+
+        Venue venue = court.getVenue();
 
         Booking booking = new Booking();
         List<BookingDetail> details = new ArrayList<>();
@@ -145,10 +148,6 @@ public class BookingService {
                         new BadRequestException("Timeslot not found: " + timeslotId));
                 timeSlots.add(timeSlot);
             }
-
-            Court court = courtRepo.findById(bookingRequest.getCourt()).orElseThrow(() ->
-                    new BadRequestException("Court not found with id: " + bookingRequest.getCourt()));
-
             for (int month = 0; month < bookingRequest.getDurationInMonths(); month++) {
                 LocalDate endOfMonth = applicationStartDate.plusDays(29);
 
@@ -178,7 +177,6 @@ public class BookingService {
             booking.setTotalTimes(totalHours);
             booking.setBookingDetailList(details);
             booking.setBookingType(BookingType.FIXED);
-            booking.setStatus(BookingStatus.PENDING);
             booking.setApplicationDate(applicationStartDate);
             return bookingRepo.save(booking);
         } catch (DataIntegrityViolationException e) {
@@ -196,7 +194,7 @@ public class BookingService {
                 CourtTimeSlot courtTimeSlot = courtTimeSlotRepo.findByBookingDetail(detail);
                 courtTimeSlot.setStatus(SlotStatus.CHECKED);
                 courtTimeSlotRepo.save(courtTimeSlot);
-                duration = (int)detail.getDuration();
+                duration = (int) detail.getDuration();
                 count = count - 1;
                 if (booking.getRemainingTimes() != 0) {
                     booking.setRemainingTimes(booking.getRemainingTimes() - duration);
@@ -217,7 +215,7 @@ public class BookingService {
     //Tự tạo hiển thị không có Booking
 
     //mua số giờ chơi cho loại lịch linh hoạt
-    public BookingResponse purchaseFlexibleHours(int totalHour, long venueId, String date) {
+    public Booking purchaseFlexibleHours(int totalHour, long venueId, String date) {
         // Load current user
         Account user = authenticationService.getCurrentAccount();
         LocalDate applicationDate = LocalDate.parse(date);
@@ -244,7 +242,6 @@ public class BookingService {
         booking.setAccount(user);
         booking.setBookingType(BookingType.FLEXIBLE);
         booking.setBookingDate(LocalDate.now());
-        booking.setStatus(BookingStatus.PENDING);
         booking.setTotalTimes(totalHour);
         booking.setRemainingTimes(totalHour);
         booking.setApplicationDate(applicationDate);
@@ -254,7 +251,7 @@ public class BookingService {
         try {
             Booking savedBooking = bookingRepo.save(booking);
             processBookingPayment(savedBooking.getId(), venueId);
-            return mapToBookingResponse(savedBooking, venueId);
+            return savedBooking;
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("This slot is booked.");
         }
@@ -294,6 +291,7 @@ public class BookingService {
             throw new BadRequestException("Failed to save booking: " + e.getMessage());
         }
     }
+
 
     private Transaction processBookingPayment(long bookingId, long venueId) {
         // Start transaction
@@ -351,6 +349,9 @@ public class BookingService {
     }
 
     private void updateBalances(Wallet customerWallet, Wallet adminWallet, double amount) {
+        if (customerWallet.getBalance() < amount) {
+            throw new BadRequestException("Failed to create booking: Insufficient funds");
+        }
         customerWallet.setBalance(customerWallet.getBalance() - (float) amount);
         adminWallet.setBalance(adminWallet.getBalance() + (float) amount);
         walletRepository.save(adminWallet);
@@ -363,8 +364,7 @@ public class BookingService {
         transaction.setFrom(fromWallet);
         transaction.setTo(toWallet);
         transaction.setBooking(booking);
-        transaction.setVenueName(venue.getName());
-        transaction.setVenueAddress(venue.getAddress());
+        transaction.setVenueId(venue.getId());
         transaction.setTransactionType(TransactionEnum.COMPLETED);
         transaction.setAmount((float) amount);
         transaction.setDescription("Pay for booking");
@@ -388,7 +388,7 @@ public class BookingService {
         // Tạo subject và description của email
         String subject = "Booking Payment Confirmation";
         String description = String.format(
-                "Dear %s,\n\nYour payment of %.2f for booking ID %d has been successfully processed.\n\n" +
+                "Dear %s,\n\nYour payment of %.2f for the new booking has been successfully processed.\n\n" +
                         "Venue: %s\n" +
                         "Thank you for your booking!\n\n" +
                         "Best regards,\ngoodminton.online",
@@ -503,19 +503,28 @@ public class BookingService {
         return bookingRepo.save(booking);
     }
 
-    public List<Booking> getBookingHistory(){
+    public List<BookingResponse> getBookingHistory(){
         Account user = authenticationService.getCurrentAccount();
         List<Booking> bookingList = bookingRepo.findBookingByAccount_Id(user.getId());
         if(bookingList.isEmpty()){
             throw new BadRequestException("No Booking research");
         }
-        return bookingList;
+        List<BookingResponse> responseList = new ArrayList<>();
+        for(Booking booking : bookingList){
+            BookingResponse response = mapToBookingResponse(booking);
+            responseList.add(response);
+        }
+        return responseList;
     }
 
-    private BookingResponse mapToBookingResponse(Booking booking, long venueId) {
+    private BookingResponse mapToBookingResponse(Booking booking) {
         BookingResponse bookingResponse = new BookingResponse();
 
         try{
+            Venue venue = venueRepo.findVenueById(booking.getVenueId());
+            if(venue == null){
+                throw new BadRequestException("Venue not found");
+            }
             // Copy fields from Venue to BookingResponse
             bookingResponse.setBookingDate(booking.getBookingDate());
             bookingResponse.setBookingType(booking.getBookingType());
@@ -529,7 +538,8 @@ public class BookingService {
             List<BookingDetail> details = booking.getBookingDetailList();
             bookingResponse.setBookingDetailList(details);
             // Additional fields for BookingResponse
-            bookingResponse.setVenueId(venueId);
+            bookingResponse.setVenueId(venue.getId());
+            bookingResponse.setVenueName(venue.getName());
             // Assume the price is calculated based on some business logic; here it's a placeholder
             return bookingResponse;
         }catch (Exception ex){
@@ -546,5 +556,13 @@ public class BookingService {
             }
         }
         return null;
+    }
+
+    public int getRemainingTimes(long bookingId){
+        Booking booking = bookingRepo.findBookingById(bookingId);
+        if(booking != null){
+            return booking.getRemainingTimes();
+        }
+        throw new BadRequestException("Booking not found");
     }
 }

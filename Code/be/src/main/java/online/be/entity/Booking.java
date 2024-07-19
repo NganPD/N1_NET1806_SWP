@@ -28,7 +28,7 @@ public class Booking {
     private int totalTimes;
 
     private double totalPrice;
-
+    private Long venueId;
     private int remainingTimes;//flexible booking
 
     @Enumerated(EnumType.STRING)

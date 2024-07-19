@@ -75,4 +75,10 @@ public class PricingService {
         return pricing;
     }
 
+    public List<Pricing> getPricingByVenueId(long venueId){
+        return pricingRepository.findByVenueId(venueId);
+    }
+
+
+
 }
