@@ -228,7 +228,7 @@ public class WalletService {
         new Thread(r).start();
     }
 
-    public float getBalance() {
+    public double getBalance() {
         Account user = authenticationService.getCurrentAccount();
         Wallet wallet = walletRepository.findWalletByAccount_Id(user.getId());
         if (wallet != null) {
@@ -242,4 +242,5 @@ public class WalletService {
         Transaction transaction = transactionRepository.findByTransactionID(transactionId);
         return walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
     }
+
 }
