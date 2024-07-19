@@ -5,6 +5,7 @@ import online.be.entity.Booking;
 import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
+import online.be.model.Response.BookingResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,9 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.util.List;
-import java.util.Map;
 
+import java.util.List;
+
+import java.time.LocalDate;
+
+import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/booking")
@@ -34,11 +39,9 @@ public class BookingAPI {
 //        return ResponseEntity.ok(bookingService.processBookingPayment(bookingId, venueId));
 //    }
 
-    @PostMapping("/request-cancel")
-    public ResponseEntity<?> cancelBooking(
-            @RequestParam(required = false) Long bookingId,
-            @RequestParam(required = false) Long bookingDetailId) {
-        return ResponseEntity.ok(bookingService.requestCancelBooking(bookingId, bookingDetailId));
+    @PostMapping("/request-cancel/{bookingId}")
+    public ResponseEntity cancelBooking(@PathVariable long bookingId){
+        return ResponseEntity.ok(bookingService.requestCancelBooking(bookingId));
     }
 
 //    @PostMapping("/{bookingId}/processComission")

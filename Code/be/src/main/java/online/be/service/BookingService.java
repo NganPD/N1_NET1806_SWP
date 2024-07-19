@@ -69,9 +69,6 @@ public class BookingService {
     @Autowired
     BusinessRuleConfig businessRuleConfig;
 
-    @Autowired
-    BookingDetailService bookingDetailService;
-
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
         LocalDate bookingDate = LocalDate.now();
@@ -257,6 +254,7 @@ public class BookingService {
         booking.setRemainingTimes(totalHour);
         booking.setApplicationDate(applicationDate);
         booking.setTotalPrice(totalPrice);
+        booking.setVenueId(venueId);
 
         // Save booking
         try {
@@ -273,8 +271,8 @@ public class BookingService {
         Booking booking = bookingRepo.findBookingById(request.getBookingId());
         List<BookingDetail> details = new ArrayList<>();
         LocalDate applicationDate = booking.getApplicationDate();
-        long totalDuration = 0;
 
+        long totalDuration = 0;
         try {
             for (FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
                 LocalDate endOfMonth = booking.getApplicationDate().plusDays(29);
@@ -288,13 +286,14 @@ public class BookingService {
                 Court court = courtRepo.findById(flexibleTimeSlot.getCourt()).orElseThrow(() -> new BadRequestException("Court not found with id: " + flexibleTimeSlot.getCourt()));
                 LocalDate checkInDate = LocalDate.parse(flexibleTimeSlot.getCheckInDate());
                 if (checkInDate.isAfter(endOfMonth)){
-                    throw new RuntimeException("Check-in Date is over the month you bought");
+                    throw new BadRequestException("Check-in Date is over the month you bought");
                 }
 
                 for (TimeSlot slot : timeSlots) {
                     BookingDetail detail = detailService.createBookingDetail(BookingType.FLEXIBLE, checkInDate, court, slot);
                     detail.setBooking(booking);
                     details.add(detail);
+
                     totalDuration += detail.getDuration(); // Tính tổng duration
                 }
             }
@@ -421,60 +420,52 @@ public class BookingService {
     }
 
     //cancel booking
-    public Transaction requestCancelBooking(long bookingId, long bookingDetailId){
-        // Kiểm tra booking có tồn tại không
+    public Transaction requestCancelBooking(long bookingId){
+        //check booking is exist or not
         Booking booking = bookingRepo.findBookingById(bookingId);
-        if (booking == null) {
-            throw new BadRequestException("Booking không tồn tại");
+        if(booking == null){
+            throw new BadRequestException("Booking not found");
         }
 
-        // Kiểm tra nếu booking đã bị hủy
+        // Check if booking is already cancelled
         if (booking.getStatus() == BookingStatus.CANCELLED) {
-            throw new BadRequestException("Booking đã bị hủy và không thể hủy lại");
+            throw new BadRequestException("Booking is already cancelled and cannot be cancelled again");
         }
-
-        // Kiểm tra tính hợp lệ của việc hủy booking
-        if (!isValidCancellation(booking)) {
-            throw new BadRequestException("Không thể hủy booking. Thời gian hủy đã qua");
+        //check the validate of booking
+        if(!isValidCancellation(booking)){
+            //nếu không đủ điều kiện để hủy thì sẽ hoàn tiền
+            throw new BadRequestException("Cannot cancel the booking." +
+                    "The cancellation window has passed");
         }
-
-        // Gọi phương thức confirmRefund tương ứng
-        Transaction transaction;
-        if (booking.getBookingType() == BookingType.FLEXIBLE) {
-            BookingDetail bookingDetail = bookingDetailRepo.findById(bookingDetailId).orElseThrow(()
-                    -> new BadRequestException("Booking Detail cannot found with Id: " + bookingDetailId));
-            transaction = confirmRefundFlexible(booking,bookingDetail);
-        } else {
-            transaction = confirmRefund(booking);
-        }
-
+        //nếu đủ điều kiện
+        //xử lý giao dịch
+        Transaction transaction = confirmRefund(booking);
         return transaction;
     }
-
     public Transaction confirmRefund(Booking booking) {
-        // Tìm ví của người dùng
-        Account customer = authenticationService.getCurrentAccount(); // Lấy tài khoản hiện tại
+        //search user wallet
+        Account customer = authenticationService.getCurrentAccount();//lấy  tài khoản hiện tại
+        //kiểm tra xem customer này có bookingID giống như bookingID truyền xuống hay không
         Wallet customerWallet = customer.getWallet();
-        // Ví admin
+        //admin wallet
         Account admin = accountRepository.findByRole(Role.ADMIN).get(0);
         Wallet adminWallet = admin.getWallet();
 
         double refundAmount = booking.getTotalPrice();
-        if (adminWallet.getBalance() < refundAmount) {
-            throw new BadRequestException("Admin không đủ tiền để hoàn lại");
+        if(adminWallet.getBalance() < refundAmount){
+            throw new BadRequestException("Admin has not enough money to refund");
         }
         customerWallet.setBalance(customerWallet.getBalance() + refundAmount);
         adminWallet.setBalance(adminWallet.getBalance() - refundAmount);
-
-        // Lưu ví
+        //save the wallet
         walletRepository.save(customerWallet);
         walletRepository.save(adminWallet);
 
-        // Tạo giao dịch để lưu
+        //create a transaction to save
         Transaction transaction = new Transaction();
         transaction.setFrom(adminWallet);
         transaction.setTo(customerWallet);
-        transaction.setAmount((float) refundAmount);
+        transaction.setAmount((float)refundAmount);
         transaction.setBooking(booking);
         transaction.setTransactionType(TransactionEnum.REFUND);
         transaction.setVenueId(booking.getVenueId());
@@ -512,21 +503,9 @@ public class BookingService {
         transaction.setTransactionDate(now.format(formatter));
 
         transactionRepository.save(transaction);
+
         bookingRepo.save(booking);
         return transaction;
-    }
-
-    private void restoreRemainingTime(Booking booking) {
-        // Lấy tất cả chi tiết booking cho booking này
-        List<BookingDetail> bookingDetails = bookingDetailService.getBookingDetailByBookingId(booking.getId());
-        long totalDuration = 0;
-        for (BookingDetail detail : bookingDetails) {
-            totalDuration += detail.getDuration();
-        }
-
-        // Hoàn lại thời gian còn lại
-        booking.setRemainingTimes((int) (booking.getRemainingTimes() + totalDuration));
-        bookingRepo.save(booking);
     }
 
     private boolean isValidCancellation(Booking booking) {
@@ -689,6 +668,7 @@ public class BookingService {
 
         return revenueList;
     }
+
     public int getRemainingTimes(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking != null){
