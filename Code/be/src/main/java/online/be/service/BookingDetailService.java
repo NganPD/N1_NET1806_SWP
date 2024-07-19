@@ -18,7 +18,7 @@ import java.util.List;
 public class BookingDetailService {
 
     @Autowired
-    BookingDetailRepostiory detailRepo;
+    BookingDetailRepositiory detailRepo;
 
     @Autowired
     CourtTimeSlotRepository courtTimeSlotRepo;

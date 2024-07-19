@@ -8,10 +8,12 @@ import online.be.model.Request.FlexibleBookingRequest;
 import online.be.model.Response.BookingResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -93,8 +95,37 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
+
+    @GetMapping("/court/{courtId}/month/{month}/year/{year}")
+    public ResponseEntity<Map<String, Object>> getRevenueData(
+            @PathVariable Long courtId,
+            @PathVariable int month,
+            @PathVariable int year) {
+        Map<String, Object> revenueData = bookingService.getRevenueData(courtId, month, year);
+        if (revenueData != null && !revenueData.isEmpty()) {
+            return new ResponseEntity<>(revenueData, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @GetMapping("/venue/{venueId}/month/{month}/year/{year}")
+    public ResponseEntity<Map<String, Object>> getVenueRevenueData(
+            @PathVariable Long venueId,
+            @PathVariable int month,
+            @PathVariable int year) {
+        Map<String, Object> revenueData = bookingService.getVenueRevenueData(venueId, month, year);
+        if (revenueData != null && !revenueData.isEmpty()) {
+            return new ResponseEntity<>(revenueData, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+
     @GetMapping("/{bookingId}/remaining-times")
     public int getRemainingTimes(@PathVariable("bookingId") long bookingId){
         return bookingService.getRemainingTimes(bookingId);
     }
+
 }
