@@ -175,17 +175,6 @@ public class TimeSlotService {
         } catch (DateTimeParseException e) {
             throw new BadRequestException("Invalid date format: " + date);
         }
-
-        // Validate durationMonths
-        if (durationMonths == null) {
-            throw new BadRequestException("Duration is null");
-        }
-
-        // Validate dayOfWeeks
-        if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
-            throw new BadRequestException("Day of weeks cannot be null or empty");
-        }
-
         // Calculate all matching dates for the given dayOfWeeks and durationMonths
         List<LocalDate> allMatchingDates = new ArrayList<>();
         for (int month = 0; month < durationMonths; month++) {
@@ -236,6 +225,7 @@ public class TimeSlotService {
 
         return allSlots;
     }
+
 
     // Method to get all slots of a venue
     private List<TimeSlot> getAllSlots() {

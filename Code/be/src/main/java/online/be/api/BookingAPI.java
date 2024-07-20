@@ -63,6 +63,11 @@ public class BookingAPI {
     public ResponseEntity getBookedBooking(){
         return ResponseEntity.ok(bookingService.getBookedBooking());
     }
+
+//    @GetMapping("/get-cancel-booking")
+//    public ResponseEntity getCancelableBooking(){
+//        return ResponseEntity.ok(bookingService.checkBookingForCancelllation());
+//    }
 //        @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
 //        Booking Booking = bookingService.getBookingById(bookingId);

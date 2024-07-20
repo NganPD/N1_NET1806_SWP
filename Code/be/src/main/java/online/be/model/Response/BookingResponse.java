@@ -12,4 +12,5 @@ import java.time.LocalDateTime;
 @Data
 public class BookingResponse extends Booking {
     private String venueName;
+    private boolean isCancel;
 }

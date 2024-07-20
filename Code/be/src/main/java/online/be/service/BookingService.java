@@ -14,6 +14,7 @@ import online.be.model.Response.BookingResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -288,13 +289,14 @@ public class BookingService {
                 for (TimeSlot slot : timeSlots) {
                     BookingDetail detail = detailService.createBookingDetail(BookingType.FLEXIBLE, checkInDate, court, slot);
                     detail.setBooking(booking);
-                    details.add(detail);
                     duration = (int) detail.getDuration();
-                    if (booking.getRemainingTimes() != 0) {
-                        booking.setRemainingTimes(booking.getRemainingTimes() - (int) detail.getDuration());
-                    } else {
-                        throw new BadRequestException("You have not enough remaining times");
+
+                    if(booking.getRemainingTimes()  < duration){
+                        throw new BadRequestException("You do not have enough remaining times");
                     }
+                    details.add(detail);
+                    booking.setRemainingTimes(booking.getRemainingTimes() - duration);
+
 
                 }
             }
@@ -475,8 +477,8 @@ public class BookingService {
 
     private boolean isValidCancellation(Booking booking) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime bookingTime = booking.getApplicationDate().atStartOfDay();
-        long hoursBetween = ChronoUnit.HOURS.between(now, bookingTime);
+        LocalDateTime bookingDate = booking.getBookingDate().atStartOfDay();
+        long hoursBetween = ChronoUnit.HOURS.between(now, bookingDate);
 
         switch (booking.getBookingType()) {
             case FIXED:
@@ -489,6 +491,7 @@ public class BookingService {
                 return false;
         }
     }
+
 
     public Transaction processBookingComission(long bookingId) {
         Booking booking = bookingRepo.findBookingById(bookingId);
@@ -607,6 +610,21 @@ public class BookingService {
         }
         return null;
     }
+
+//    @Scheduled(fixedRate = 60000)
+//    public List<BookingResponse> checkBookingForCancelllation(){
+//        Account account = authenticationService.getCurrentAccount();
+//        LocalDate oneDayAgo = LocalDate.now().minusDays(1);
+//        List<Booking> bookings = bookingRepo.findByBookingDateBeforeAndStatusAndAccount_Id(oneDayAgo, BookingStatus.BOOKED, account.getId());
+//        List<BookingResponse> bookingResponses = new ArrayList<>();
+//        boolean isCancel = false;
+//        for (Booking booking : bookings){
+//            BookingResponse bookingResponse = mapToBookingResponse(booking);
+//            bookingResponse.setCancel(true);
+//            bookingResponses.add(bookingResponse);
+//        }
+//        return bookingResponses;
+//    }
 
 
     public Map<String, Object> getRevenueData(Long courtId, int month, int year) {

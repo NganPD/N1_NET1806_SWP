@@ -79,5 +79,8 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
 
     @Query("SELECT cts FROM CourtTimeSlot cts JOIN cts.court court WHERE cts.status = :status AND court.venue.id = :venueId")
     List<CourtTimeSlot> findByStatusAndVenueId(@Param("status") SlotStatus status, @Param("venueId") long venueId);
+
+    @Query("SELECT cts FROM CourtTimeSlot cts WHERE cts.court.id = :courtId AND cts.timeSlot.id IN :timeSlotIds AND cts.checkInDate = :date")
+    List<CourtTimeSlot> findByCourtIdAndTimeSlotIdsAndDate(@Param("courtId") Long courtId, @Param("timeSlotIds") List<Long> timeSlotIds, @Param("date") LocalDate date);
 }
 

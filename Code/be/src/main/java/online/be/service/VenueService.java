@@ -65,15 +65,10 @@ public class VenueService {
         venue.setClosingHour(closingHour);
         venue.setServices(createVenueRequest.getServices());
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
+        venue.setImageUrl(createVenueRequest.getImageUrl());
         venue.setManager(manager);
         //save venue informtion down to database
         try {
-            venue = venueRepository.save(venue);
-            //tính số lượng sân
-            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
-            //cập nhật số lượng sân nhỏ
-            venue.setNumberOfCourts(numberOfCourts);
-            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getMessage());
@@ -120,12 +115,6 @@ public class VenueService {
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
         try {
             // Lưu và trả về venue đã được cập nhật
-            venue = venueRepository.save(venue);
-            //tính số lượng sân
-            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
-            //cập nhật số lượng sân nhỏ
-            venue.setNumberOfCourts(numberOfCourts);
-            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             throw new VenueException("Failed to save venue information: " + e.getMessage());
@@ -259,6 +248,8 @@ public class VenueService {
         venueResponse.setServices(venue.getServices());
         venueResponse.setDescription(venue.getDescription());
         venueResponse.setCourts(venue.getCourts());
+        venueResponse.setManager(venue.getManager());
+        venueResponse.setImageUrl(venue.getImageUrl());
         venueResponse.setClosingHour(venue.getClosingHour());
         venueResponse.setOpeningHour(venue.getOpeningHour());
         venueResponse.setPricingList(venue.getPricingList());
