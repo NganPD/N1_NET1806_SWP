@@ -12,7 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+
+import java.util.List;
+
 import java.time.LocalDate;
+
 import java.util.Map;
 import java.util.List;
 
@@ -35,8 +40,8 @@ public class BookingAPI {
 //    }
 
     @PostMapping("/request-cancel/{bookingId}")
-    public ResponseEntity cancelBooking(@PathVariable long bookingId){
-        return ResponseEntity.ok(bookingService.requestCancelBooking(bookingId));
+    public ResponseEntity cancelBooking(@RequestParam long bookingId,@RequestParam(required = false) long bookingDetailId){
+        return ResponseEntity.ok(bookingService.requestCancelBooking(bookingId,bookingDetailId));
     }
 
 //    @PostMapping("/{bookingId}/processComission")
@@ -109,33 +114,19 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
-
-    @GetMapping("/court/{courtId}/month/{month}/year/{year}")
-    public ResponseEntity<Map<String, Object>> getRevenueData(
-            @PathVariable Long courtId,
-            @PathVariable int month,
-            @PathVariable int year) {
-        Map<String, Object> revenueData = bookingService.getRevenueData(courtId, month, year);
-        if (revenueData != null && !revenueData.isEmpty()) {
+    @GetMapping("/revenue")
+    public ResponseEntity<List<Map<String, Object>>> getRevenueData(
+            @RequestParam Long venueId,
+            @RequestParam int month,
+            @RequestParam int year) {
+        try {
+            List<Map<String, Object>> revenueData = bookingService.getCourtRevenueData(venueId, month, year);
             return new ResponseEntity<>(revenueData, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            e.printStackTrace();  // In ra lỗi để dễ dàng gỡ lỗi
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/venue/{venueId}/month/{month}/year/{year}")
-    public ResponseEntity<Map<String, Object>> getVenueRevenueData(
-            @PathVariable Long venueId,
-            @PathVariable int month,
-            @PathVariable int year) {
-        Map<String, Object> revenueData = bookingService.getVenueRevenueData(venueId, month, year);
-        if (revenueData != null && !revenueData.isEmpty()) {
-            return new ResponseEntity<>(revenueData, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-    }
-
 
     @GetMapping("/{bookingId}/remaining-times")
     public int getRemainingTimes(@PathVariable("bookingId") long bookingId){

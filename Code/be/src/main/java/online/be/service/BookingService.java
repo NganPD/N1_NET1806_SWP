@@ -68,6 +68,9 @@ public class BookingService {
     EmailService emailService;
 
     @Autowired
+    BookingDetailService bookingDetailService;
+
+    @Autowired
     BusinessRuleConfig businessRuleConfig;
 
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
@@ -272,7 +275,7 @@ public class BookingService {
         LocalDate applicationDate = booking.getApplicationDate();
         int duration = 0;
         try {
-            for (/*FlexibleBookingRequest.*/FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
+            for (FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
                 LocalDate endOfMonth = booking.getApplicationDate().plusDays(29);
                 List<TimeSlot> timeSlots = new ArrayList<>();
                 for (Long timeslotId : flexibleTimeSlot.getTimeslot()) {
@@ -286,6 +289,7 @@ public class BookingService {
                 if (checkInDate.isAfter(endOfMonth)) {
                     throw new BadRequestException("Check-in Date is over the month you bought");
                 }
+
                 for (TimeSlot slot : timeSlots) {
                     BookingDetail detail = detailService.createBookingDetail(BookingType.FLEXIBLE, checkInDate, court, slot);
                     detail.setBooking(booking);
@@ -414,10 +418,10 @@ public class BookingService {
     }
 
     //cancel booking
-    public Transaction requestCancelBooking(long bookingId) {
+    public Transaction requestCancelBooking(long bookingId, long bookingDetailId){
         //check booking is exist or not
         Booking booking = bookingRepo.findBookingById(bookingId);
-        if (booking == null) {
+        if(booking == null){
             throw new BadRequestException("Booking not found");
         }
 
@@ -426,15 +430,19 @@ public class BookingService {
             throw new BadRequestException("Booking is already cancelled and cannot be cancelled again");
         }
         //check the validate of booking
-        if (!isValidCancellation(booking)) {
+        if(!isValidCancellation(booking)){
             //nếu không đủ điều kiện để hủy thì sẽ hoàn tiền
             throw new BadRequestException("Cannot cancel the booking." +
                     "The cancellation window has passed");
         }
-        //nếu đủ điều kiện
-        //xử lý giao dịch
-        Transaction transaction = confirmRefund(booking);
-        return transaction;
+
+        if (booking.getBookingType().equals(BookingType.FLEXIBLE)){
+            BookingDetail detail = bookingDetailRepo.findById(bookingDetailId).get();
+            return confirmRefundFlexible(booking,detail);
+        }else {
+            return confirmRefund(booking);
+        }
+
     }
 
     public Transaction confirmRefund(Booking booking) {
@@ -447,7 +455,7 @@ public class BookingService {
         Wallet adminWallet = admin.getWallet();
 
         double refundAmount = booking.getTotalPrice();
-        if (adminWallet.getBalance() < refundAmount) {
+        if(adminWallet.getBalance() < refundAmount){
             throw new BadRequestException("Admin has not enough money to refund");
         }
         customerWallet.setBalance(customerWallet.getBalance() + refundAmount);
@@ -460,7 +468,7 @@ public class BookingService {
         Transaction transaction = new Transaction();
         transaction.setFrom(adminWallet);
         transaction.setTo(customerWallet);
-        transaction.setAmount((float) refundAmount);
+        transaction.setAmount((float)refundAmount);
         transaction.setBooking(booking);
         transaction.setTransactionType(TransactionEnum.REFUND);
         transaction.setVenueId(booking.getVenueId());
@@ -475,10 +483,38 @@ public class BookingService {
         return transaction;
     }
 
+    public Transaction confirmRefundFlexible(Booking booking, BookingDetail bookingDetail) {
+        // Kiểm tra nếu chi tiết booking hợp lệ
+        if (bookingDetail == null) {
+            throw new BadRequestException("Chi tiết booking không hợp lệ");
+        }
+
+        // Xóa chi tiết booking
+        bookingDetailService.deleteBookingDetail(bookingDetail.getId());
+
+        // Hoàn lại thời gian cho booking
+        booking.setRemainingTimes((int) (booking.getRemainingTimes() + bookingDetail.getDuration()));
+        bookingRepo.save(booking);
+
+        // Tạo giao dịch để lưu
+        Transaction transaction = new Transaction();
+        transaction.setBooking(booking);
+        transaction.setTransactionType(TransactionEnum.REFUND); // Chỉ tạo giao dịch hủy
+        transaction.setVenueId(booking.getVenueId());
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        transaction.setTransactionDate(now.format(formatter));
+
+        transactionRepository.save(transaction);
+
+        bookingRepo.save(booking);
+        return transaction;
+    }
+
     private boolean isValidCancellation(Booking booking) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime bookingDate = booking.getBookingDate().atStartOfDay();
-        long hoursBetween = ChronoUnit.HOURS.between(now, bookingDate);
+        LocalDateTime bookingTime = booking.getApplicationDate().atStartOfDay();
+        long hoursBetween = ChronoUnit.HOURS.between(now,bookingTime);
 
         switch (booking.getBookingType()) {
             case FIXED:
@@ -540,14 +576,14 @@ public class BookingService {
         return bookings;
     }
 
-    public Booking checkPaymentForBooking(long id) {
+    public Booking checkPaymentForBooking(long id){
         Booking booking = bookingRepo.findBookingById(id);
         List<Transaction> transactions = booking.getTransactions();
-        if (transactions.isEmpty()) {
+        if (transactions.isEmpty()){
             booking.setStatus(BookingStatus.CANCELLED);
             List<BookingDetail> bookingDetails = booking.getBookingDetailList();
-            if (!bookingDetails.isEmpty()) {
-                for (BookingDetail bookingDetail : bookingDetails) {
+            if (!bookingDetails.isEmpty()){
+                for (BookingDetail bookingDetail : bookingDetails){
                     bookingDetail.getCourtTimeSlot().setStatus(SlotStatus.AVAILABLE);
                     courtTimeSlotRepo.save(bookingDetail.getCourtTimeSlot());
                 }
@@ -611,6 +647,7 @@ public class BookingService {
         return null;
     }
 
+    public int getRemainingTimes(long bookingId){
 //    @Scheduled(fixedRate = 60000)
 //    public List<BookingResponse> checkBookingForCancelllation(){
 //        Account account = authenticationService.getCurrentAccount();
@@ -677,6 +714,23 @@ public class BookingService {
         return bookings;
     }
 
+    }
+
+    public List<Map<String, Object>> getCourtRevenueData(Long venueId, int month, int year) {
+        List<Map<String, Object>> revenueData = new ArrayList<>();
+
+        List<Object[]> courtRevenueResults = bookingDetailRepo.findRevenueByCourtAndBookingType(venueId, month, year);
+        for (Object[] result : courtRevenueResults) {
+            Map<String, Object> courtData = new HashMap<>();
+            courtData.put("name", result[0]);
+            courtData.put("fixed", ((Number) result[1]).doubleValue());
+            courtData.put("daily", ((Number) result[2]).doubleValue());
+            courtData.put("flexible", ((Number) result[3]).doubleValue());
+
+            revenueData.add(courtData);
+        }
+
+        return revenueData;
     public List<Booking> getBookedBooking( ){
         Account user = authenticationService.getCurrentAccount();
         List<Booking> bookings = bookingRepo.findByStatusAndAccount_Id(BookingStatus.BOOKED, user.getId());
