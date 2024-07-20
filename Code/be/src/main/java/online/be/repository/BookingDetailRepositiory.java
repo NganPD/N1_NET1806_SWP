@@ -13,6 +13,7 @@ import java.util.List;
 public interface BookingDetailRepositiory extends JpaRepository<BookingDetail, Long> {
 
     List<BookingDetail> findByBookingId(Long bookingId);
+
     @Query("SELECT c.courtName, " +
             "SUM(CASE WHEN bd.booking.bookingType = 'FIXED' THEN bd.price ELSE 0 END) AS fixed, " +
             "SUM(CASE WHEN bd.booking.bookingType = 'DAILY' THEN bd.price ELSE 0 END) AS daily, " +

@@ -59,18 +59,18 @@ public class CourtAPI {
         return ResponseEntity.ok().body(courts);
     }
     @GetMapping("/available-courts")
-    public ResponseEntity getAvailableCourts(@RequestParam String checkInDate,
+    public ResponseEntity getAvailableCourts(@RequestParam(required = false) String checkInDate,
                                           @RequestParam long venueId,
-                                          @RequestParam List<Long> timeSlotIds){
+                                          @RequestParam(required = false) List<Long> timeSlotIds){
         return ResponseEntity.ok(courtService.getAvailableCourts(checkInDate, venueId, timeSlotIds));
     }
 
     @GetMapping("fixed-available-courts")
     public ResponseEntity<List<CourtResponse>> getAvailableCourts(
-            @RequestParam String startDate,
-            @RequestParam Integer durationMonths,
-            @RequestParam List<String> dayOfWeeks,
-            @RequestParam List<Long> timeSlotIds,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) Integer durationMonths,
+            @RequestParam(required = false) List<String> dayOfWeeks,
+            @RequestParam(required = false) List<Long> timeSlotIds,
             @RequestParam Long venueId) {
 
         List<CourtResponse> availableCourts = courtService.getFixedAvailableCourts(startDate, durationMonths, dayOfWeeks, timeSlotIds, venueId);

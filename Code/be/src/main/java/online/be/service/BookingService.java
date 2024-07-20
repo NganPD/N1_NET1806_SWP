@@ -647,7 +647,6 @@ public class BookingService {
         return null;
     }
 
-    public int getRemainingTimes(long bookingId){
 //    @Scheduled(fixedRate = 60000)
 //    public List<BookingResponse> checkBookingForCancelllation(){
 //        Account account = authenticationService.getCurrentAccount();
@@ -664,42 +663,6 @@ public class BookingService {
 //    }
 
 
-    public Map<String, Object> getRevenueData(Long courtId, int month, int year) {
-        List<Object[]> revenueData = bookingDetailRepo.findRevenueByCourtIdAndMonth(courtId, month, year);
-
-        Map<String, Object> data = new HashMap<>();
-        List<String> labels = new ArrayList<>();
-        List<Double> revenue = new ArrayList<>();
-
-        for (Object[] row : revenueData) {
-            labels.add(row[0].toString());
-            revenue.add((Double) row[1]);
-        }
-
-        data.put("labels", labels);
-        data.put("revenues", revenue);
-
-        return data;
-    }
-
-    public Map<String, Object> getVenueRevenueData(Long venueId, int month, int year) {
-        List<Object[]> revenueData = bookingDetailRepo.findRevenueByVenueIdAndMonth(venueId, month, year);
-
-        List<String> labels = new ArrayList<>();
-        List<Double> revenues = new ArrayList<>();
-
-        for (Object[] row : revenueData) {
-            labels.add("Court " + row[0]);
-            revenues.add((Double) row[1]);
-        }
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("labels", labels);
-        data.put("revenues", revenues);
-
-        return data;
-    }
-
     public int getRemainingTimes(long bookingId) {
         Booking booking = bookingRepo.findBookingById(bookingId);
         if (booking != null) {
@@ -712,8 +675,6 @@ public class BookingService {
         Account account = authenticationService.getCurrentAccount();
         List<Booking> bookings = bookingRepo.findBookingByAccount_Id(account.getId());
         return bookings;
-    }
-
     }
 
     public List<Map<String, Object>> getCourtRevenueData(Long venueId, int month, int year) {
@@ -731,6 +692,7 @@ public class BookingService {
         }
 
         return revenueData;
+    }
     public List<Booking> getBookedBooking( ){
         Account user = authenticationService.getCurrentAccount();
         List<Booking> bookings = bookingRepo.findByStatusAndAccount_Id(BookingStatus.BOOKED, user.getId());
