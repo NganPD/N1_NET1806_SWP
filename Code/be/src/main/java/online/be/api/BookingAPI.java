@@ -100,13 +100,19 @@ public class BookingAPI {
         return ResponseEntity.ok(booking);
     }
 
-
-    @GetMapping("/api/revenue")
-    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenue(@RequestParam int month, @RequestParam int year) {
-        List<Map<String, Object>> revenueData = bookingService.getMonthlyRevenue(month, year);
-        return ResponseEntity.ok(revenueData);
+    @GetMapping("/revenue")
+    public ResponseEntity<List<Map<String, Object>>> getRevenueData(
+            @RequestParam Long venueId,
+            @RequestParam int month,
+            @RequestParam int year) {
+        try {
+            List<Map<String, Object>> revenueData = bookingService.getCourtRevenueData(venueId, month, year);
+            return new ResponseEntity<>(revenueData, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();  // In ra lỗi để dễ dàng gỡ lỗi
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
 
     @GetMapping("/{bookingId}/remaining-times")
     public int getRemainingTimes(@PathVariable("bookingId") long bookingId){

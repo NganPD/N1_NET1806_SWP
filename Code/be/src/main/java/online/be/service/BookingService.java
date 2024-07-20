@@ -67,6 +67,9 @@ public class BookingService {
     EmailService emailService;
 
     @Autowired
+    BookingDetailService bookingDetailService;
+
+    @Autowired
     BusinessRuleConfig businessRuleConfig;
 
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
@@ -420,7 +423,7 @@ public class BookingService {
     }
 
     //cancel booking
-    public Transaction requestCancelBooking(long bookingId){
+    public Transaction requestCancelBooking(long bookingId, long bookingDetailId){
         //check booking is exist or not
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking == null){
@@ -437,10 +440,14 @@ public class BookingService {
             throw new BadRequestException("Cannot cancel the booking." +
                     "The cancellation window has passed");
         }
-        //nếu đủ điều kiện
-        //xử lý giao dịch
-        Transaction transaction = confirmRefund(booking);
-        return transaction;
+
+        if (booking.getBookingType().equals(BookingType.FLEXIBLE)){
+            BookingDetail detail = bookingDetailRepo.findById(bookingDetailId).get();
+            return confirmRefundFlexible(booking,detail);
+        }else {
+            return confirmRefund(booking);
+        }
+
     }
     public Transaction confirmRefund(Booking booking) {
         //search user wallet
@@ -643,32 +650,6 @@ public class BookingService {
         return null;
     }
 
-    public List<Map<String, Object>> getMonthlyRevenue(int month, int year) {
-        List<Object[]> results = bookingDetailRepo.findRevenueByCourtAndBookingType(month, year);
-        Map<String, Map<String, Object>> revenueMap = new HashMap<>();
-
-        for (Object[] result : results) {
-            String courtName = (String) result[0];
-            String bookingType = ((BookingType) result[1]).name().toLowerCase();
-            Double totalRevenue = (Double) result[2];
-
-            revenueMap.putIfAbsent(courtName, new HashMap<>());
-            revenueMap.get(courtName).put(bookingType, totalRevenue);
-        }
-
-        List<Map<String, Object>> revenueList = new ArrayList<>();
-        for (Map.Entry<String, Map<String, Object>> entry : revenueMap.entrySet()) {
-            Map<String, Object> courtRevenue = new HashMap<>();
-            courtRevenue.put("name", entry.getKey());
-            courtRevenue.put("fixed", entry.getValue().getOrDefault("fixed", 0.0));
-            courtRevenue.put("daily", entry.getValue().getOrDefault("daily", 0.0));
-            courtRevenue.put("flexible", entry.getValue().getOrDefault("flexible", 0.0));
-            revenueList.add(courtRevenue);
-        }
-
-        return revenueList;
-    }
-
     public int getRemainingTimes(long bookingId){
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking != null){
@@ -676,5 +657,22 @@ public class BookingService {
         }
         throw new BadRequestException("Booking not found");
 
+    }
+
+    public List<Map<String, Object>> getCourtRevenueData(Long venueId, int month, int year) {
+        List<Map<String, Object>> revenueData = new ArrayList<>();
+
+        List<Object[]> courtRevenueResults = bookingDetailRepo.findRevenueByCourtAndBookingType(venueId, month, year);
+        for (Object[] result : courtRevenueResults) {
+            Map<String, Object> courtData = new HashMap<>();
+            courtData.put("name", result[0]);
+            courtData.put("fixed", ((Number) result[1]).doubleValue());
+            courtData.put("daily", ((Number) result[2]).doubleValue());
+            courtData.put("flexible", ((Number) result[3]).doubleValue());
+
+            revenueData.add(courtData);
+        }
+
+        return revenueData;
     }
 }

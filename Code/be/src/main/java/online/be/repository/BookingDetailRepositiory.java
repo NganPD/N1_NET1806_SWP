@@ -13,42 +13,22 @@ import java.util.List;
 public interface BookingDetailRepositiory extends JpaRepository<BookingDetail, Long> {
 
     List<BookingDetail> findByBookingId(Long bookingId);
-    @Query("SELECT COUNT(bd) FROM BookingDetail bd " +
+    @Query("SELECT c.courtName, " +
+            "SUM(CASE WHEN bd.booking.bookingType = 'FIXED' THEN bd.price ELSE 0 END) AS fixed, " +
+            "SUM(CASE WHEN bd.booking.bookingType = 'DAILY' THEN bd.price ELSE 0 END) AS daily, " +
+            "SUM(CASE WHEN bd.booking.bookingType = 'FLEXIBLE' THEN bd.price ELSE 0 END) AS flexible " +
+            "FROM BookingDetail bd " +
             "JOIN bd.courtTimeSlot cts " +
             "JOIN cts.court c " +
             "JOIN c.venue v " +
-            "WHERE v.id = :venueId AND bd.booking.bookingType = :bookingType")
-    long countByVenueIdAndBookingType(@Param("venueId") Long venueId, @Param("bookingType") String bookingType);
-
-    @Query("SELECT SUM(bd.price) FROM BookingDetail bd " +
-            "WHERE bd.booking.id = :bookingId")
-    Double findTotalPriceByBookingId(long bookingId);
-
-    @Query("SELECT bd.booking.bookingType, SUM(bd.price) FROM BookingDetail bd " +
-            "JOIN bd.courtTimeSlot cts " +
-            "JOIN cts.court c " +
-            "WHERE c.id = :courtId AND MONTH(cts.checkInDate) = :month " +
+            "WHERE v.id = :venueId " +
+            "AND MONTH(cts.checkInDate) = :month " +
             "AND YEAR(cts.checkInDate) = :year " +
-            "GROUP BY bd.booking.bookingType")
-    List<Object[]> findRevenueByCourtIdAndMonth(
-            @Param("courtId") Long courtId,
-            @Param("month") int month,
-            @Param("year") int year);
-
-    @Query("SELECT c.id, SUM(bd.price) FROM BookingDetail bd " +
-            "JOIN bd.courtTimeSlot cts " +
-            "JOIN cts.court c " +
-            "JOIN c.venue v " +
-            "WHERE v.id = :venueId AND MONTH(cts.checkInDate) = :month " +
-            "AND YEAR(cts.checkInDate) = :year " +
-            "GROUP BY c.id")
-    List<Object[]> findRevenueByVenueIdAndMonth(
+            "AND bd.booking.status = 'CONFIRMED' " +
+            "GROUP BY c.courtName")
+    List<Object[]> findRevenueByCourtAndBookingType(
             @Param("venueId") Long venueId,
             @Param("month") int month,
-            @Param("year") int year);
-    @Query("SELECT bd.courtTimeSlot.court.name as courtName, bd.booking.bookingType as bookingType, SUM(bd.price) as totalRevenue " +
-            "FROM BookingDetail bd " +
-            "WHERE MONTH(bd.courtTimeSlot.checkInDate) = :month AND YEAR(bd.courtTimeSlot.checkInDate) = :year " +
-            "GROUP BY bd.courtTimeSlot.court.name, bd.booking.bookingType")
-    List<Object[]> findRevenueByCourtAndBookingType(@Param("month") int month, @Param("year") int year);
+            @Param("year") int year
+    );
 }
