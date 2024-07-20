@@ -82,5 +82,23 @@ public class BookingDetailService {
                 .orElseThrow(()-> new BadRequestException("Booking Detail not found"));
     }
 
+    public void deleteBookingDetail(long bookingDetailId){
+        BookingDetail detail = getBookingDetailById(bookingDetailId);
+        if (detail == null) {
+            throw new NoDataFoundException("Booking Detail not found");
+        }
+        try {
+            // Remove the related CourtTimeSlot
+            CourtTimeSlot courtTimeSlot = detail.getCourtTimeSlot();
+            if (courtTimeSlot != null) {
+                courtTimeSlotRepo.delete(courtTimeSlot);
+            }
+
+            // Remove BookingDetail
+            detailRepo.deleteById(bookingDetailId);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to delete Booking Detail: " + e.getMessage());
+        }
+    }
 
 }
