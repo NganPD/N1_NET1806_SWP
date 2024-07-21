@@ -13,6 +13,7 @@ import online.be.repository.TimeSlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -53,4 +54,13 @@ public class CourtTimeSlotService {
         List<CourtTimeSlot> slots = courtTimeSlotRepository.findByStatusAndVenueId(SlotStatus.BOOKED, venueId);
         return slots;
     }
+
+    public List<CourtTimeSlot> getBookedAndCheckedByVenue(long venueId){
+        LocalDate today = LocalDate.now();
+        List<CourtTimeSlot> courtTimeSlots = courtTimeSlotRepository.findByVenueIdAndDateAndStatus(venueId, today);
+
+        return courtTimeSlots;
+    }
+
+
 }

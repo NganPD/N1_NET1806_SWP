@@ -25,7 +25,7 @@ public interface BookingDetailRepositiory extends JpaRepository<BookingDetail, L
             "WHERE v.id = :venueId " +
             "AND MONTH(cts.checkInDate) = :month " +
             "AND YEAR(cts.checkInDate) = :year " +
-            "AND bd.booking.status = 'CONFIRMED' " +
+            "AND bd.booking.status = 'BOOKED' " +
             "GROUP BY c.courtName")
     List<Object[]> findRevenueByCourtAndBookingType(
             @Param("venueId") Long venueId,

@@ -22,4 +22,9 @@ public class CourtTimeSlotAPI {
     public ResponseEntity getBookedCourtSlot(long venueId){
         return ResponseEntity.ok(courtTimeSlotService.getBookedSlot(venueId));
     }
+
+    @GetMapping("/booked-or-checked")
+    public ResponseEntity getBookedAndCheckedSlot(long venueId){
+        return ResponseEntity.ok(courtTimeSlotService.getBookedAndCheckedByVenue(venueId));
+    }
 }
