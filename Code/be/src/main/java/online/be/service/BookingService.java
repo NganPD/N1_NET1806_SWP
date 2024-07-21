@@ -507,7 +507,7 @@ public class BookingService {
                 "Kính gửi %s,\n\nThanh toán của bạn với số tiền %s cho booking mới đã được xử lý thành công.\n\n" +
                         "Địa điểm: %s\n\n" +
                         "Tổng số giờ chơi: %d giờ\n\n",
-                customer.getFullName(), formattedAmount, bookingId, venue.getName(), totalPlayHours));
+                customer.getFullName(), formattedAmount, venue.getName(), totalPlayHours));
 
         // Thêm thông tin thời gian bắt đầu nếu có
         if (startTimesString.length() > 0) {
