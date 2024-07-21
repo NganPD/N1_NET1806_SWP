@@ -2,6 +2,7 @@ package online.be.service;
 
 import online.be.entity.*;
 import online.be.enums.BookingType;
+import online.be.enums.Role;
 import online.be.enums.VenueStatus;
 import online.be.exception.BadRequestException;
 import online.be.exception.NoDataFoundException;
@@ -53,8 +54,12 @@ public class VenueService {
         }
         //nếu venue chưa tồn tại trong hệ thống
         Account manager = accountRepository.findUserById(createVenueRequest.getManagerId());
+
         if (manager == null) {
             throw new BadRequestException("Manager not found");
+        }
+        if(!manager.getRole().equals(Role.MANAGER)){
+            throw new BadRequestException("This id is not manager");
         }
         Venue venue = new Venue();
         venue.setName(createVenueRequest.getVenueName());
@@ -65,15 +70,10 @@ public class VenueService {
         venue.setClosingHour(closingHour);
         venue.setServices(createVenueRequest.getServices());
         venue.setVenueStatus(createVenueRequest.getVenueStatus());
+        venue.setImageUrl(createVenueRequest.getImageUrl());
         venue.setManager(manager);
         //save venue informtion down to database
         try {
-            venue = venueRepository.save(venue);
-            //tính số lượng sân
-            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
-            //cập nhật số lượng sân nhỏ
-            venue.setNumberOfCourts(numberOfCourts);
-            //lưu lại venue
             venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             System.out.println(e.getMessage());
@@ -101,8 +101,14 @@ public class VenueService {
     }
 
     // Lấy tất cả venues
-    public List<Venue> getAllVenues() {
-        return venueRepository.findAll();
+    public List<VenueResponse> getAllVenues() {
+        List<Venue> venueList = venueRepository.findAll();
+        List<VenueResponse> venueResponseList = new ArrayList<>();
+        for(Venue venue : venueList){
+            VenueResponse venueResponse = mapToVenueResponse(venue);
+            venueResponseList.add(venueResponse);
+        }
+        return venueResponseList;
     }
 
     // Cập nhật thông tin venue
@@ -121,12 +127,6 @@ public class VenueService {
         try {
             // Lưu và trả về venue đã được cập nhật
             venue = venueRepository.save(venue);
-            //tính số lượng sân
-            int numberOfCourts = courtRepository.countByVenueId(venue.getId());
-            //cập nhật số lượng sân nhỏ
-            venue.setNumberOfCourts(numberOfCourts);
-            //lưu lại venue
-            venue = venueRepository.save(venue);
         } catch (DataIntegrityViolationException e) {
             throw new VenueException("Failed to save venue information: " + e.getMessage());
         }
@@ -143,13 +143,18 @@ public class VenueService {
     }
 
     //search by name
-    public List<Venue> searchVenuesByKeyword(String keywords) {
+    public List<VenueResponse> searchVenuesByKeyword(String keywords) {
         List<Venue> venueList = venueRepository.findVenueByKeywords(keywords);
         if (venueList.isEmpty()) {
             throw new NoDataFoundException("0 search");
-        } else {
-            return venueList;
         }
+        List<VenueResponse> venueResponseList = new ArrayList<>();
+        for (Venue venue : venueList){
+            VenueResponse venueResponse = mapToVenueResponse(venue);
+            venueResponseList.add(venueResponse);
+        }
+        return venueResponseList;
+
     }
 
     public List<VenueResponse> searchVenues(String operatingHoursStr, String location, String timeStr) {
@@ -259,6 +264,8 @@ public class VenueService {
         venueResponse.setServices(venue.getServices());
         venueResponse.setDescription(venue.getDescription());
         venueResponse.setCourts(venue.getCourts());
+        venueResponse.setManager(venue.getManager());
+        venueResponse.setImageUrl(venue.getImageUrl());
         venueResponse.setClosingHour(venue.getClosingHour());
         venueResponse.setOpeningHour(venue.getOpeningHour());
         venueResponse.setPricingList(venue.getPricingList());
@@ -266,7 +273,7 @@ public class VenueService {
         venueResponse.setOperatingHours(
                 venue.getOpeningHour().toString() + " - " + venue.getClosingHour().toString()
         );
-        venueResponse.setNumberOfCourt(venue.getCourts().size());
+        venueResponse.setNumberOfCourts(venue.getCourts().size());
 
         // Assume the price is calculated based on some business logic; here it's a placeholder
         double fixedPrice = getPricingForScheduleType(venue, BookingType.FIXED);

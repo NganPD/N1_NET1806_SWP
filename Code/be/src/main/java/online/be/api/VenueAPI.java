@@ -38,8 +38,7 @@ public class VenueAPI {
 
     @GetMapping
     public ResponseEntity getAllVenue(){
-        List<Venue> venues = venueService.getAllVenues();
-        return ResponseEntity.ok().body(venues);
+        return ResponseEntity.ok().body(venueService.getAllVenues());
     }
 
     @PutMapping("/{venueId}")
@@ -51,8 +50,7 @@ public class VenueAPI {
     //lấy theo tên
     @GetMapping("/search-keyword")
     public ResponseEntity searchVenuesByKeyword(@RequestParam String keyword){
-        List<Venue> venues = venueService.searchVenuesByKeyword(keyword);
-        return ResponseEntity.ok(venues);
+        return ResponseEntity.ok(venueService.searchVenuesByKeyword(keyword));
     }
 //
 //    //get venue by address

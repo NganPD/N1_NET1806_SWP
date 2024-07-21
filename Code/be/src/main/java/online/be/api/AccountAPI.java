@@ -80,4 +80,15 @@ public class AccountAPI {
         Account account = accountService.getAccountById(accountId); // Create a getAccountById method in AccountService
         return ResponseEntity.ok(account.getBookings());
     }
+
+    @GetMapping("/{accountId}")
+    public ResponseEntity getAccountById(@PathVariable Long accountId){
+        return ResponseEntity.ok(accountService.getAccountById(accountId));
+    }
+
+    @GetMapping("/available-managers")
+    public ResponseEntity<List<Account>> getAvailableManagers() {
+        List<Account> availableManagers = accountService.findAllManagersWithoutVenue();
+        return ResponseEntity.ok(availableManagers);
+    }
 }
