@@ -1,7 +1,6 @@
 package online.be.repository;
 
 import online.be.entity.BookingDetail;
-import online.be.enums.BookingType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +23,7 @@ public interface BookingDetailRepositiory extends JpaRepository<BookingDetail, L
             "WHERE v.id = :venueId " +
             "AND MONTH(cts.checkInDate) = :month " +
             "AND YEAR(cts.checkInDate) = :year " +
-            "AND bd.booking.status = 'CONFIRMED' " +
+            "AND bd.booking.status = 'BOOKED' " +
             "GROUP BY c.courtName")
     List<Object[]> findRevenueByCourtAndBookingType(
             @Param("venueId") Long venueId,

@@ -423,7 +423,7 @@ public class BookingService {
     }
 
     //cancel booking
-    public Transaction requestCancelBooking(long bookingId, long bookingDetailId){
+    public Object requestCancelBooking(long bookingId, long bookingDetailId){
         //check booking is exist or not
         Booking booking = bookingRepo.findBookingById(bookingId);
         if(booking == null){
@@ -487,7 +487,7 @@ public class BookingService {
         return transaction;
     }
 
-    public Transaction confirmRefundFlexible(Booking booking, BookingDetail bookingDetail) {
+    public Booking confirmRefundFlexible(Booking booking, BookingDetail bookingDetail) {
         // Kiểm tra nếu chi tiết booking hợp lệ
         if (bookingDetail == null) {
             throw new BadRequestException("Chi tiết booking không hợp lệ");
@@ -498,21 +498,7 @@ public class BookingService {
 
         // Hoàn lại thời gian cho booking
         booking.setRemainingTimes((int) (booking.getRemainingTimes() + bookingDetail.getDuration()));
-        bookingRepo.save(booking);
-
-        // Tạo giao dịch để lưu
-        Transaction transaction = new Transaction();
-        transaction.setBooking(booking);
-        transaction.setTransactionType(TransactionEnum.REFUND); // Chỉ tạo giao dịch hủy
-        transaction.setVenueId(booking.getVenueId());
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        transaction.setTransactionDate(now.format(formatter));
-
-        transactionRepository.save(transaction);
-
-        bookingRepo.save(booking);
-        return transaction;
+        return bookingRepo.save(booking);
     }
 
     private boolean isValidCancellation(Booking booking) {
@@ -659,10 +645,14 @@ public class BookingService {
 
     }
 
-    public List<Map<String, Object>> getCourtRevenueData(Long venueId, int month, int year) {
+    public List<Map<String, Object>> getCourtRevenueData( int month, int year) {
+        Account manager = authenticationService.getCurrentAccount();
+        Venue venue = venueRepo.findVenueByManagerId(manager.getId());
+        if(venue == null){
+            throw new BadRequestException("This account is not manager");
+        }
         List<Map<String, Object>> revenueData = new ArrayList<>();
-
-        List<Object[]> courtRevenueResults = bookingDetailRepo.findRevenueByCourtAndBookingType(venueId, month, year);
+        List<Object[]> courtRevenueResults = bookingDetailRepo.findRevenueByCourtAndBookingType(venue.getId(), month, year);
         for (Object[] result : courtRevenueResults) {
             Map<String, Object> courtData = new HashMap<>();
             courtData.put("name", result[0]);

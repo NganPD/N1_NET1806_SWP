@@ -102,12 +102,11 @@ public class BookingAPI {
 
     @GetMapping("/revenue")
     public ResponseEntity<List<Map<String, Object>>> getRevenueData(
-            @RequestParam Long venueId,
             @RequestParam int month,
             @RequestParam int year) {
         try {
-            List<Map<String, Object>> revenueData = bookingService.getCourtRevenueData(venueId, month, year);
-            return new ResponseEntity<>(revenueData, HttpStatus.OK);
+            List<Map<String, Object>> revenueData = bookingService.getCourtRevenueData( month, year);
+            return ResponseEntity.ok(revenueData);
         } catch (Exception e) {
             e.printStackTrace();  // In ra lỗi để dễ dàng gỡ lỗi
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
