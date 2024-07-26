@@ -110,8 +110,8 @@ public class TimeSlotService {
         return slotResponse;
     }
 
-    public List<TimeSlotResponse> getAvailableSlots(Long courtId, String date, long venueId) {
-        List<TimeSlot> slots = getAllSlotByVenue(venueId);
+    public List<TimeSlotResponse> getAvailableSlots(String date, long venueId) {
+        List<TimeSlot> slots = timeSlotRepository.getTimeSlotByVenue_Id(venueId);
         List<TimeSlotResponse> slotResponses = new ArrayList<>();
         LocalDate checkInDate = null;
 
@@ -119,37 +119,18 @@ public class TimeSlotService {
             checkInDate = LocalDate.parse(date);
         }
 
-        if (courtId == null) {
-            for (TimeSlot slot : slots) {
-                TimeSlotResponse slotResponse = mapperSlot(slot);
-                if (checkInDate != null) {
-                    if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
-                        slotResponse.setAvailable(isSlotExpired(checkInDate, slot.getStartTime()));
-                    }
-                    slotResponses.add(slotResponse);
-                } else {
-                    slotResponses.add(slotResponse);
-                }
-            }
-        } else {
-            List<SlotIdCountDTO> list = getSlotIdCounts(courtId, checkInDate);
-
-            for (TimeSlot slot : slots) {
-                TimeSlotResponse slotResponse = mapperSlot(slot);
-
-                if (checkInDate != null && (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now()))) {
+        for (TimeSlot slot : slots) {
+            TimeSlotResponse slotResponse = mapperSlot(slot);
+            if (checkInDate != null) {
+                if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
                     slotResponse.setAvailable(isSlotExpired(checkInDate, slot.getStartTime()));
                 }
-
-                for (SlotIdCountDTO slotIdCountDTO : list) {
-                    if (slot.getId() == slotIdCountDTO.getSlotId() && slotIdCountDTO.getCount() == 1) {
-                        slotResponse.setAvailable(false);
-                        break;
-                    }
-                }
+                slotResponses.add(slotResponse);
+            } else {
                 slotResponses.add(slotResponse);
             }
         }
+
         return slotResponses;
     }
 
@@ -175,6 +156,17 @@ public class TimeSlotService {
         } catch (DateTimeParseException e) {
             throw new BadRequestException("Invalid date format: " + date);
         }
+
+        // Validate durationMonths
+        if (durationMonths == null) {
+            throw new BadRequestException("Duration is null");
+        }
+
+        // Validate dayOfWeeks
+        if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
+            throw new BadRequestException("Day of weeks cannot be null or empty");
+        }
+
         // Calculate all matching dates for the given dayOfWeeks and durationMonths
         List<LocalDate> allMatchingDates = new ArrayList<>();
         for (int month = 0; month < durationMonths; month++) {
@@ -226,7 +218,6 @@ public class TimeSlotService {
         return allSlots;
     }
 
-
     // Method to get all slots of a venue
     private List<TimeSlot> getAllSlots() {
         return timeSlotRepository.findAll(); // Assumes timeSlotRepository is the repository for TimeSlot
@@ -253,10 +244,15 @@ public class TimeSlotService {
         try {
             LocalDateTime slotDateTime = LocalDateTime.of(slotDate, slotStartTime);
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiryTime = slotDateTime.minusMinutes(30);
+            LocalDateTime expiryTime = slotDateTime.minusMinutes(60);
             return !now.isAfter(expiryTime);
         } catch (DateTimeParseException e) {
             return false;
         }
     }
+    // Method to get all slots of a venue
+    private List<TimeSlot> getAllSlots() {
+        return timeSlotRepository.findAll(); // Assumes timeSlotRepository is the repository for TimeSlot
+    }
+
 }

@@ -30,6 +30,9 @@ public class BookingDetailService {
         if (date == null) {
             throw new IllegalArgumentException("Date string is null or empty");
         }
+        if (isExistedCourtTimeSlot(slot.getId(),court.getId(), date)){
+            throw new BadRequestException("The booking detail is already existed!");
+        }
         try {
             courtTimeSlot.setTimeSlot(slot);
             courtTimeSlot.setCourt(court);
@@ -105,6 +108,10 @@ public class BookingDetailService {
         } catch (Exception e) {
             throw new BadRequestException("Failed to delete Booking Detail: " + e.getMessage());
         }
+    }
+
+    private boolean isExistedCourtTimeSlot(Long timeSlotId, Long courtId, LocalDate date){
+        return courtTimeSlotRepo.existsByTimeSlotAndCourt(timeSlotId, courtId, date);
     }
 
 }
