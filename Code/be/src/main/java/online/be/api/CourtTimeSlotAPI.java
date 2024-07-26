@@ -24,7 +24,7 @@ public class CourtTimeSlotAPI {
     }
 
     @GetMapping("/booked-or-checked")
-    public ResponseEntity getBookedAndCheckedSlot(long venueId){
-        return ResponseEntity.ok(courtTimeSlotService.getBookedAndCheckedByVenue(venueId));
+    public ResponseEntity getBookedAndCheckedSlot(){
+        return ResponseEntity.ok(courtTimeSlotService.getBookedAndCheckedByVenue());
     }
 }

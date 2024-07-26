@@ -45,7 +45,7 @@ public class WalletService {
 
     public String createUrl(RechargeRequest rechargeRequest)
             throws Exception {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
         LocalDateTime createdDate = LocalDateTime.now();
         String formattedCreateDate = createdDate.format(formatter);
 

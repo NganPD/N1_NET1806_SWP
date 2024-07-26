@@ -27,6 +27,7 @@ public class Venue {
     @Column(nullable = false)
     private String address;
     private String contactInfor;
+    @Column(length = 500)
     private String imageUrl;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

@@ -44,10 +44,16 @@ public class BookingDetailService {
         double price;
         try {
             // Get pricing based on booking type from TimeSlot or Court
-            Pricing pricing = slot.getPricingList().stream()
-                    .filter(p -> p.getBookingType().equals(bookingType))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Pricing not found for booking type: " + bookingType));
+            Pricing pricing = null;
+            for (Pricing p : slot.getPricingList()) {
+                if (p.getBookingType().equals(bookingType)) {
+                    pricing = p;
+                    break;
+                }
+            }
+            if (pricing == null) {
+                throw new IllegalArgumentException("Pricing not found for booking type: " + bookingType);
+            }
 
             price = pricing.getPricePerHour();
         } catch (Exception e) {

@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "api")
+@RequestMapping("/api/transaction")
 @CrossOrigin("*")
 public class TransactionAPI {
 

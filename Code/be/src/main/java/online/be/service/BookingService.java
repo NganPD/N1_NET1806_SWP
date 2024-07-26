@@ -459,8 +459,12 @@ public class BookingService {
     }
 
     private Transaction createTransaction(Wallet fromWallet, Wallet toWallet, Booking booking, double amount, Venue venue) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        LocalDateTime createdDate = LocalDateTime.now();
+        String formattedCreateDate = createdDate.format(formatter);
+
         Transaction transaction = new Transaction();
-        transaction.setTransactionDate(LocalDateTime.now().toString());
+        transaction.setTransactionDate(formattedCreateDate);
         transaction.setFrom(fromWallet);
         transaction.setTo(toWallet);
         transaction.setBooking(booking);

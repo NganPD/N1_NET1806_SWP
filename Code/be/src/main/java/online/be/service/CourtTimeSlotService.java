@@ -1,12 +1,11 @@
 
 package online.be.service;
 
-import online.be.entity.Court;
-import online.be.entity.CourtTimeSlot;
-import online.be.entity.TimeSlot;
+import online.be.entity.*;
 import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.CourtTimeSlotRequest;
+import online.be.repository.AuthenticationRepository;
 import online.be.repository.CourtRepository;
 import online.be.repository.CourtTimeSlotRepository;
 import online.be.repository.TimeSlotRepository;
@@ -27,6 +26,9 @@ public class CourtTimeSlotService {
 
     @Autowired
     CourtRepository courtRepository;
+
+    @Autowired
+    AuthenticationService authenticationService;
 
     //create
     public CourtTimeSlot createCourtTimeSlot(CourtTimeSlotRequest request){
@@ -55,9 +57,14 @@ public class CourtTimeSlotService {
         return slots;
     }
 
-    public List<CourtTimeSlot> getBookedAndCheckedByVenue(long venueId){
+    public List<CourtTimeSlot> getBookedAndCheckedByVenue(){
+        Account currentAccount = authenticationService.getCurrentAccount();
+        Venue venue = currentAccount.getStaffVenue();
+        if(venue==null){
+            throw new BadRequestException("This account is not staff");
+        }
         LocalDate today = LocalDate.now();
-        List<CourtTimeSlot> courtTimeSlots = courtTimeSlotRepository.findByVenueIdAndDateAndStatus(venueId, today);
+        List<CourtTimeSlot> courtTimeSlots = courtTimeSlotRepository.findByVenueIdAndDateAndStatus(venue.getId(), today);
 
         return courtTimeSlots;
     }
