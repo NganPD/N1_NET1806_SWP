@@ -10,6 +10,7 @@ import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
 
+import online.be.model.Response.BookingDetailResponse;
 import online.be.model.Response.BookingResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +126,8 @@ public class BookingService {
             throw new BadRequestException("Invalid date format for check-in date: " + e.getParsedString());
         } catch (NoDataFoundException e) {
             throw new BadRequestException("No data found: " + e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         }
     }
     public Booking createFixedScheduleBooking(FixedScheduleBookingRequest bookingRequest) {
@@ -268,8 +271,11 @@ public class BookingService {
     }
 
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request) {
+        Account user = authenticationService.getCurrentAccount();
         Booking booking = bookingRepo.findBookingById(request.getBookingId());
         List<BookingDetail> details = new ArrayList<>();
+        LocalDate applicationDate = booking.getApplicationDate();
+
         long totalDuration = 0;
         try {
             for (FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
@@ -602,9 +608,10 @@ public class BookingService {
             bookingResponse.setRemainingTimes(booking.getRemainingTimes());
             bookingResponse.setStatus(booking.getStatus());
             bookingResponse.setId(booking.getId());
-            bookingResponse.setAccount(booking.getAccount());
+            bookingResponse.setAccountId(booking.getAccount().getId());
+            bookingResponse.setAccountName(booking.getAccount().getFullName());
             List<BookingDetail> details = booking.getBookingDetailList();
-            bookingResponse.setBookingDetailList(details);
+            bookingResponse.setBookingDetails(details);
             // Additional fields for BookingResponse
             bookingResponse.setVenueId(venue.getId());
             bookingResponse.setVenueName(venue.getName());

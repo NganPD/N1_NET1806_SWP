@@ -49,7 +49,8 @@ public class Filter extends OncePerRequestFilter {
             "/api/venues",
             "/api/venues/search",
             "/api/venues/search-keyword",
-            "/api/venues/{venueId}/reviews"
+            "/api/venues/{venueId}/reviews",
+            "/api/venues/{venueId}"
     );
 
     private boolean isPermitted(String uri) {

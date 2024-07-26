@@ -6,6 +6,7 @@ import online.be.model.Request.DailyScheduleBookingRequest;
 import online.be.model.Request.FixedScheduleBookingRequest;
 import online.be.model.Request.FlexibleBookingRequest;
 import online.be.model.Response.BookingResponse;
+import online.be.model.Response.CheckInResponse;
 import online.be.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class BookingAPI {
 
     @PostMapping("/flexible")
     public ResponseEntity createFlexibleBooking(@RequestBody FlexibleBookingRequest bookingRequest){
-        Booking createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
+        BookingResponse createdBooking = bookingService.createFlexibleScheduleBooking(bookingRequest);
         return ResponseEntity.ok(createdBooking);
     }
 //
@@ -59,6 +60,20 @@ public class BookingAPI {
         return ResponseEntity.ok(bookingService.getBookingHistory());
     }
 
+    @GetMapping("/all-bookings-user")
+    public ResponseEntity getAllBookingByAccount(){
+        return ResponseEntity.ok(bookingService.getAllBookingsByAccount());
+    }
+
+    @GetMapping("/get-booked-slot")
+    public ResponseEntity getBookedBooking(){
+        return ResponseEntity.ok(bookingService.getBookedBooking());
+    }
+
+//    @GetMapping("/get-cancel-booking")
+//    public ResponseEntity getCancelableBooking(){
+//        return ResponseEntity.ok(bookingService.checkBookingForCancelllation());
+//    }
 //        @GetMapping("/{bookingId}")
 //    public ResponseEntity<Booking> getBookingById(@PathVariable long bookingId){
 //        Booking Booking = bookingService.getBookingById(bookingId);
@@ -77,25 +92,25 @@ public class BookingAPI {
 //        return ResponseEntity.ok(avabilityResponses);
 //    }
     @PostMapping("/daily-schedule")
-    public ResponseEntity<Booking> createDailyScheduleBooking(@RequestBody DailyScheduleBookingRequest bookingRequest){
-        Booking booking = bookingService.createDailyScheduleBooking(bookingRequest);
+    public ResponseEntity createDailyScheduleBooking(@RequestBody DailyScheduleBookingRequest bookingRequest){
+        BookingResponse booking = bookingService.createDailyScheduleBooking(bookingRequest);
         return ResponseEntity.ok(booking);
     }
 
     @PostMapping("/fixed-schedule")
-    public ResponseEntity<Booking> createFixedScheduleBooking(@RequestBody FixedScheduleBookingRequest bookingRequest){
-        Booking booking = bookingService.createFixedScheduleBooking(bookingRequest);
+    public ResponseEntity createFixedScheduleBooking(@RequestBody FixedScheduleBookingRequest bookingRequest){
+        BookingResponse booking = bookingService.createFixedScheduleBooking(bookingRequest);
         return ResponseEntity.ok(booking);
     }
 
     @PatchMapping("/bookingId/{bookingId}/checkInDate/{checkInDate}")
     public ResponseEntity checkIn(@PathVariable long bookingId, @PathVariable String checkInDate){
-        Booking booking = bookingService.checkIn(bookingId, checkInDate);
-        return ResponseEntity.ok(booking);
+        CheckInResponse response = bookingService.checkIn(bookingId, checkInDate);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/purchase-hours/hours/{hours}/id/{id}/applicationDate/{applicationDate}")
-    public ResponseEntity<Booking> purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable String applicationDate){
+    public ResponseEntity purchaseFlexibleHours(@PathVariable int hours, @PathVariable long id, @PathVariable String applicationDate){
         Booking booking = bookingService.purchaseFlexibleHours(hours, id, applicationDate);
         return ResponseEntity.ok(booking);
     }

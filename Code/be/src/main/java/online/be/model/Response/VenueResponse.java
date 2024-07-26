@@ -8,7 +8,7 @@ import online.be.entity.*;
 @Data
 public class VenueResponse extends Venue {
     private String operatingHours;
-    private int numberOfCourt;
+    private int numberOfCourts;
     private double fixedPrice;
     private double dailyPrice;
     private double flexiblePrice;

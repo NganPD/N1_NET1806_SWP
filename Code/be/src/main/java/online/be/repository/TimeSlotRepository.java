@@ -31,6 +31,8 @@ TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
             "WHERE a.court_id = :courtId AND a.check_in_date = :date AND a.status = 'UNAVAILABLE' " +
             "GROUP BY a.time_slot_id", nativeQuery = true)
     List<Object[]> countTimeSlotsByCourtIdAndDate(@Param("courtId") long courtId, @Param("date") LocalDate date);
+
+
     //Get timeslot by venue
     List<TimeSlot>getTimeSlotByVenue_Id(long venueId);
 
