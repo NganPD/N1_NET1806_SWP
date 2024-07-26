@@ -74,6 +74,7 @@ public class BookingService {
 
     public Booking createDailyScheduleBooking(DailyScheduleBookingRequest bookingRequest) {
         Account currentAccount = authenticationService.getCurrentAccount();
+
         LocalDate bookingDate = LocalDate.now();
         LocalDate checkInDate = LocalDate.parse(bookingRequest.getCheckInDate());
 
@@ -86,15 +87,6 @@ public class BookingService {
                     .orElseThrow(() -> new BadRequestException("Timeslot not found: " + slotId));
             timeSlots.add(timeSlot);
         }
-
-//        timeSlots.sort(new Comparator<TimeSlot>() {
-//            @Override
-//            public int compare(TimeSlot ts1, TimeSlot ts2) {
-//                return ts1.getStartTime().compareTo(ts2.getStartTime());
-//            }
-//        });
-
-
         // Retrieve court by id
         Court court = courtRepo.findById(bookingRequest.getCourt())
                 .orElseThrow(() -> new BadRequestException("Court not found with id: " + bookingRequest.getCourt()));
@@ -133,8 +125,6 @@ public class BookingService {
             throw new BadRequestException("Invalid date format for check-in date: " + e.getParsedString());
         } catch (NoDataFoundException e) {
             throw new BadRequestException("No data found: " + e.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
         }
     }
     public Booking createFixedScheduleBooking(FixedScheduleBookingRequest bookingRequest) {
@@ -199,7 +189,7 @@ public class BookingService {
         List<BookingDetail> details = booking.getBookingDetailList();
         int count = details.size();
         LocalDate checkInDate = LocalDate.parse(date);
-        int duration = 0;
+        int duration;
         for (BookingDetail detail : details) {
             if (detail.getCourtTimeSlot().getCheckInDate().equals(checkInDate)) {
                 CourtTimeSlot courtTimeSlot = courtTimeSlotRepo.findByBookingDetail(detail);
@@ -220,9 +210,9 @@ public class BookingService {
         return booking;
     }
 
-    public void deleteBooking(Long bookingId) {
-        bookingRepo.deleteById(bookingId);
-    }
+//    public void deleteBooking(Long bookingId) {
+//        bookingRepo.deleteById(bookingId);
+//    }
     //Tự tạo hiển thị không có Booking
 
     //mua số giờ chơi cho loại lịch linh hoạt
@@ -240,12 +230,20 @@ public class BookingService {
         );
 
         // Retrieve pricing for flexible booking
-        double flexiblePricePerHour = venue.getPricingList().stream()
-                .filter(p -> p.getBookingType().equals(BookingType.FLEXIBLE))
-                .mapToDouble(Pricing::getPricePerHour)
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("Flexible pricing not found"));
+        double flexiblePricePerHour = 0;
+        boolean found = false;
 
+        for (Pricing pricing : venue.getPricingList()) {
+            if (pricing.getBookingType().equals(BookingType.FLEXIBLE)) {
+                flexiblePricePerHour = pricing.getPricePerHour();
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            throw new BadRequestException("Flexible pricing not found");
+        }
         //calculate price
         double totalPrice = flexiblePricePerHour * totalHour;
         // Create booking entity
@@ -270,11 +268,8 @@ public class BookingService {
     }
 
     public Booking createFlexibleScheduleBooking(FlexibleBookingRequest request) {
-        Account user = authenticationService.getCurrentAccount();
         Booking booking = bookingRepo.findBookingById(request.getBookingId());
         List<BookingDetail> details = new ArrayList<>();
-        LocalDate applicationDate = booking.getApplicationDate();
-
         long totalDuration = 0;
         try {
             for (FlexibleTimeSlot flexibleTimeSlot : request.getFlexibleTimeSlots()) {
@@ -317,7 +312,7 @@ public class BookingService {
     }
 
 
-    private Transaction processBookingPayment(long bookingId, long venueId) {
+    private void processBookingPayment(long bookingId, long venueId) {
         // Start transaction
         try {
             // Search for the booking
@@ -365,7 +360,6 @@ public class BookingService {
             // Send email notification
             sendPaymentConfirmationEmail(customer, amount, bookingId,venue);
 
-            return transaction;
         } catch (Exception e) {
             // Rollback transaction if necessary and handle exception
             throw new RuntimeException("Error processing booking payment", e);
@@ -442,7 +436,8 @@ public class BookingService {
         }
 
         if (booking.getBookingType().equals(BookingType.FLEXIBLE)){
-            BookingDetail detail = bookingDetailRepo.findById(bookingDetailId).get();
+            BookingDetail detail = bookingDetailRepo.findById(bookingDetailId).orElseThrow(()
+                    -> new BadRequestException("Booking detail is not existed!"));
             return confirmRefundFlexible(booking,detail);
         }else {
             return confirmRefund(booking);
@@ -506,16 +501,11 @@ public class BookingService {
         LocalDateTime bookingTime = booking.getApplicationDate().atStartOfDay();
         long hoursBetween = ChronoUnit.HOURS.between(now,bookingTime);
 
-        switch (booking.getBookingType()) {
-            case FIXED:
-                return hoursBetween >= businessRuleConfig.getFixedCancelDays();
-            case FLEXIBLE:
-                return hoursBetween >= businessRuleConfig.getFlexibleCancelHours();
-            case DAILY:
-                return hoursBetween >= businessRuleConfig.getDailyCancelHours();
-            default:
-                return false;
-        }
+        return switch (booking.getBookingType()) {
+            case FIXED -> hoursBetween >= businessRuleConfig.getFixedCancelDays();
+            case FLEXIBLE -> hoursBetween >= businessRuleConfig.getFlexibleCancelHours();
+            case DAILY -> hoursBetween >= businessRuleConfig.getDailyCancelHours();
+        };
     }
 
     public Transaction processBookingComission(long bookingId) {
