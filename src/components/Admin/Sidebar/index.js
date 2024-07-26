@@ -20,6 +20,15 @@ const Sidebar = () => {
           </li>
           <li className="mb-2">
             <NavLink
+              to="/admin/checkIn"
+              className="text-[black] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              activeClassName="bg-blue-500"
+            >
+              Quản lí checkin
+            </NavLink>
+          </li>
+          <li className="mb-2">
+            <NavLink
               to="/admin/accounts"
               className="text-[black] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"

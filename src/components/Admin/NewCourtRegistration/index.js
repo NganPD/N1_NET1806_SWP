@@ -3,6 +3,7 @@ import axios from "axios";
 import api from "../../../config/axios";
 import { PlusOutlined } from '@ant-design/icons';
 import { Image, Upload } from 'antd';
+import uploadFile from "../../../utils/file";
 
 const NewCourtRegistration = () => {
   const [venueName, setVenueName] = useState("");
@@ -48,6 +49,12 @@ const NewCourtRegistration = () => {
         managerId,
       };
 
+      if (fileList.length > 0) {
+        newVenue.imageUrl = await uploadFile(fileList[0].originFileObj)
+      }
+
+      console.log(newVenue)
+
       const response = await api.post("/venues", newVenue);
       setSuccess("Venues created successfully!");
       setError(null);
@@ -63,6 +70,7 @@ const NewCourtRegistration = () => {
       setDescription("");
       setServices("");
       setManagerId(0);
+      setFileList([])
     } catch (error) {
       setError("Failed to create court. Please try again.");
       setSuccess(null);
