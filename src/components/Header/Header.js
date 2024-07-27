@@ -84,7 +84,7 @@ const Header = () => {
                 to="/profile"
                 className="text-white hover:text-yellow-500"
               >
-                Xin chào, {user.name}
+                Xin chào, {user.fullName}
               </NavLink>
               <button
                 className="bg-white text-blue-600 px-4 py-2 rounded-full hover:bg-yellow-500 hover:text-white"

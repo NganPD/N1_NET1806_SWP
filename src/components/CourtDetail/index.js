@@ -3,17 +3,28 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Modal from "react-modal";
 import moment from "moment-timezone";
 import api from "../../config/axios";
-import { InputNumber, Select, Modal as ModalANTD, Form, Button, DatePicker } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "../../redux/features/counterSlice";
+import {
+  InputNumber,
+  Select,
+  Modal as ModalANTD,
+  Form,
+  Button,
+  DatePicker,
+} from "antd";
 import { toast } from "react-toastify";
 import { useForm } from "antd/es/form/Form";
 
 Modal.setAppElement("#root");
 
+
 const CourtDetails = () => {
-  // const location = useLocation();
-  // const navigate = useNavigate();
-  // const { court } = location.state || {};
-  const [form] = useForm()
+  const navigate = useNavigate();
+  const user = useSelector(selectUser);
+   const dispatch = useDispatch();
+
+  const [form] = useForm();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
@@ -26,8 +37,7 @@ const CourtDetails = () => {
 
   const [errors, setErrors] = useState({});
 
-
-  const [openModal2, setOpenModal] = useState(false)
+  const [openModal2, setOpenModal] = useState(false);
   const daysOfWeek = [
     { label: "Thứ Hai", value: "Monday" },
     { label: "Thứ Ba", value: "Tuesday" },
@@ -37,124 +47,119 @@ const CourtDetails = () => {
     { label: "Thứ Bảy", value: "Saturday" },
     { label: "Chủ Nhật", value: "Sunday" },
   ];
-  const { id } = useParams()
-  const [data, setData] = useState([])
+  const { id } = useParams();
+  const [data, setData] = useState([]);
   const fetch = async () => {
     try {
-      const response = await api.get(`/venues/${id}`)
-      console.log(response.data)
-      setData(response.data)
+      const response = await api.get(`/venues/${id}`);
+      console.log(response.data);
+      setData(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetch()
-  }, [])
+    fetch();
+  }, []);
 
-  const [courtData, setCourtData] = useState([])
+  const [courtData, setCourtData] = useState([]);
 
   const fetCourt = async () => {
     try {
-      const response = await api.get(`/venues/${id}/courts`)
-      console.log(response.data)
-      setCourtData(response.data)
+      const response = await api.get(`/venues/${id}/courts`);
+      console.log(response.data);
+      setCourtData(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetCourt()
-  }, [])
+    fetCourt();
+  }, []);
 
-
-
-
-  const [slotDaily, setSlotDaily] = useState([])
+  const [slotDaily, setSlotDaily] = useState([]);
 
   const fetchSlotDaily = async () => {
     try {
-      const response = await api.get(`/timeslots/available-slots?courtId=${selectedCourt}&date=${selectedDate}&venueId=${id}`)
-      console.log(response.data)
-      setSlotDaily(response.data)
+      const response = await api.get(
+        `/timeslots/available-slots?courtId=${selectedCourt}&date=${selectedDate}&venueId=${id}`
+      );
+      console.log(response.data);
+      setSlotDaily(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleCreateBooking = async () => {
-    console.log(selectedDate)
-    console.log(months)
-    console.log(startDate)
-    console.log(selectedCourt)
-    console.log(selectedSlot)
+    console.log(selectedDate);
+    console.log(months);
+    console.log(startDate);
+    console.log(selectedCourt);
+    console.log(selectedSlot);
     try {
       let response;
       if (bookingType == "fixed") {
-        response = await api.post("/booking/fixed-schedule",
-          {
-            applicationStartDate: selectedDate,
-            durationInMonths: months,
-            dayOfWeek: startDate,
-            court: courtSelect,
-            timeslot: selectedSlot
-          })
+        response = await api.post("/booking/fixed-schedule", {
+          applicationStartDate: selectedDate,
+          durationInMonths: months,
+          dayOfWeek: startDate,
+          court: courtSelect,
+          timeslot: selectedSlot,
+        });
       } else if (bookingType == "daily") {
-        response = await api.post("/booking/daily-schedule",
-          {
-            checkInDate: selectedDate,
-            court: selectedCourt,
-            timeslot: selectedSlot,
-          })
+        response = await api.post("/booking/daily-schedule", {
+          checkInDate: selectedDate,
+          court: selectedCourt,
+          timeslot: selectedSlot,
+        });
+      } else {
       }
-      else {
-
-      }
-      console.log(response)
-      toast.success("Booking SuccessFully!!!")
+      console.log(response);
+      toast.success("Booking SuccessFully!!!");
     } catch (error) {
-      toast.error(error.response.data)
+      toast.error(error.response.data);
     }
-
-  }
+  };
 
   const handleBuyHour = async (values) => {
-    console.log(values)
-    const days = moment(values.days.$d).format("YYYY-MM-DD")
-    console.log(days)
+    console.log(values);
+    const days = moment(values.days.$d).format("YYYY-MM-DD");
+    console.log(days);
     try {
-      const response = await api.post(`/booking/purchase-hours/hours/${values.hours}/id/${id}/applicationDate/${days}`)
-      toast.success("Mua giờ thành công !!!")
-      setOpenModal(false)
+      const response = await api.post(
+        `/booking/purchase-hours/hours/${values.hours}/id/${id}/applicationDate/${days}`
+      );
+      toast.success("Mua giờ thành công !!!");
+      setOpenModal(false);
     } catch (error) {
-      toast.error(error.response.data)
+      toast.error(error.response.data);
     }
+  };
 
-  }
-
-
-  const [slots, setSlots] = useState([])
-  const [courtSelect, setCourtSelect] = useState([])
+  const [slots, setSlots] = useState([]);
+  const [courtSelect, setCourtSelect] = useState([]);
   const fetchSlot = async () => {
     try {
-      const response = await api.get(`/timeslots/available-fixed-slots?applicationStartDate=${selectedDate}&durationInMonths=${months}&dayOfWeek=${startDate}&court=${courtSelect}`)
-      console.log(response.data)
-      setSlots(response.data)
+      const response = await api.get(
+        `/timeslots/available-fixed-slots?applicationStartDate=${selectedDate}&durationInMonths=${months}&dayOfWeek=${startDate}&court=${courtSelect}`
+      );
+      console.log(response.data);
+      setSlots(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
     if (bookingType === "fixed") {
-      fetchSlot()
+      fetchSlot();
+    } else if (bookingType === "daily") {
+      fetchSlotDaily();
     }
-    else if (bookingType === "daily") {
-      fetchSlotDaily()
-    }
-  }, [selectedDate, months, startDate, selectedCourt])
+  }, [selectedDate, months, startDate, selectedCourt]);
 
   const validateStep1 = () => {
     const newErrors = {};
@@ -173,7 +178,7 @@ const CourtDetails = () => {
       newErrors.selectedCourt = "Vui lòng chọn sân.";
     }
     if (bookingType === "fixed" && !selectedTime) {
-      // newErrors.selectedTime = "Vui lòng chọn giờ chơi.";
+  
     }
     if (bookingType === "fixed" && !months) {
       newErrors.months = "Vui lòng nhập số tháng.";
@@ -186,6 +191,10 @@ const CourtDetails = () => {
   };
 
   const handleNextStep = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     let isValid = false;
     if (step === 1) {
       isValid = validateStep1();
@@ -201,22 +210,8 @@ const CourtDetails = () => {
     setStep(step - 1);
   };
 
-  // const handleAddToListBooking = () => {
-  //   console.log(selectedDate)
-  //   console.log(months)
-  //   console.log(startDate)
-  //   console.log(selectedCourt)
-  //   console.log(selectedTime)
-  // }
-
-  // const handleRemoveFlexibleBooking = (index) => {
-  //   const updatedBookings = flexibleBookings.filter((_, i) => i !== index);
-  //   setFlexibleBookings(updatedBookings);
-  // };
-
 
   const today = moment.tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
-
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -227,10 +222,6 @@ const CourtDetails = () => {
     // console.log(selectedOption);
   };
 
-  // const handleChange3 = (selectedOption) => {
-  //   setStartDate(selectedOption);
-  //   // console.log(selectedOption);
-  // };
 
 
   const handleChange2 = (selectedOption) => {
@@ -240,7 +231,7 @@ const CourtDetails = () => {
 
   const options = data?.courts?.map((item) => ({
     value: item.id,
-    label: item.courtName
+    label: item.courtName,
   }));
   return (
     <div className="container mx-auto my-8">
@@ -248,24 +239,27 @@ const CourtDetails = () => {
         <div className="w-full md:w-1/2">
           <img
             className="w-full h-[70vh] object-cover rounded-lg"
-            src={data?.image_URL}
+            src={data?.imageUrl}
             alt="Court"
           />
         </div>
         <div className="w-full md:w-1/2 px-8">
           <h1 className="text-4xl font-bold mb-4">{data?.name}</h1>
           <p className="text-gray-700 text-base mb-2">
-            Khu vực: {data?.address
-            }
+            Khu vực: {data?.address}
           </p>
-          <p className="text-gray-700 text-base mb-2">Số sân: {data?.numberOfCourts}</p>
+          <p className="text-gray-700 text-base mb-2">
+            Số sân: {data?.numberOfCourts}
+          </p>
           <div className="text-yellow-500 mb-2">
             {"★".repeat(data?.rating)}
             {"☆".repeat(5 - data?.rating)}
           </div>
           <p className="text-gray-700 text-base mb-2">Giá: {data?.price} VNĐ</p>
           <div className="mb-4">
-            <span className="text-lg font-semibold">Giờ hoạt động:  {data?.openingHour}</span>
+            <span className="text-lg font-semibold">
+              Giờ hoạt động: {data?.openingHour}
+            </span>
           </div>
 
           {step === 1 && (
@@ -333,17 +327,16 @@ const CourtDetails = () => {
               </div>
               <div className="mb-4">
                 <label className="block mb-2">Chọn thứ bắt đầu:</label>
-                <Select mode="tags"
+                <Select
+                  mode="tags"
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   value={startDate}
                   onChange={handleChange2}
                   options={daysOfWeek.map((item) => ({
                     label: item.label,
-                    value: item.value
+                    value: item.value,
                   }))}
-                >
-
-                </Select>
+                ></Select>
                 {errors.startDate && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.startDate}
@@ -359,7 +352,7 @@ const CourtDetails = () => {
                   options={courtData?.map((item) => ({
                     value: item.id,
                     label: item.courtName,
-                    disabled: item.status == "INACTIVE"
+                    disabled: item.status == "INACTIVE",
                   }))}
                 />
                 {errors.selectedCourt && (
@@ -373,12 +366,12 @@ const CourtDetails = () => {
                 <Select
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   mode="tags"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                   placeholder="Chọn giờ"
                   onChange={handleChange}
                   options={slots.map((item) => ({
                     value: item.id,
-                    label: `${item.startTime} - ${item.endTime}`
+                    label: `${item.startTime} - ${item.endTime}`,
                   }))}
                 />
 
@@ -388,15 +381,6 @@ const CourtDetails = () => {
                   </p>
                 )}
               </div>
-              {/* <button
-                style={{
-                  marginBottom: "20px"
-                }}
-                onClick={handleAddToListBooking}
-                className="bg-green-500 text-white rounded-full px-4 py-2 hover:bg-gray-600"
-              >
-                Thêm
-              </button> */}
 
               <div className="flex justify-between">
                 <button
@@ -417,9 +401,14 @@ const CourtDetails = () => {
           )}
           {step === 2 && bookingType === "flexible" && (
             <>
-
               <div className="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
-                <ModalANTD footer={false} onOk={() => form.submit()} onCancel={() => setOpenModal(false)} title="Chọn số giờ" open={openModal2}>
+                <ModalANTD
+                  footer={false}
+                  onOk={() => form.submit()}
+                  onCancel={() => setOpenModal(false)}
+                  title="Chọn số giờ"
+                  open={openModal2}
+                >
                   <Form
                     form={form}
                     name="basic"
@@ -445,7 +434,7 @@ const CourtDetails = () => {
                       rules={[
                         {
                           required: true,
-                          message: 'Vui lòng nhập số giờ!',
+                          message: "Vui lòng nhập số giờ!",
                         },
                       ]}
                     >
@@ -459,7 +448,7 @@ const CourtDetails = () => {
                       rules={[
                         {
                           required: true,
-                          message: 'Vui lòng chọn ngày áp dụng!',
+                          message: "Vui lòng chọn ngày áp dụng!",
                         },
                       ]}
                     >
@@ -481,28 +470,15 @@ const CourtDetails = () => {
                 <div className="flex flex-row justify-between items-center">
                   <h2 className="text-2xl font-bold mb-4">Chọn giờ chơi</h2>
                   <div className="flex flex-row items-center justify-between gap-3">
-                    <button onClick={() => setOpenModal(true)} className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600">
+                    <button
+                      onClick={() => setOpenModal(true)}
+                      className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
+                    >
                       + ( mua giờ )
                     </button>
                   </div>
                 </div>
-                {/* <div>
-                  <div className="flex mb-4">
-                  </div>
-                  <ul className="list-disc pl-6">
-                    {flexibleBookings.map((booking, index) => (
-                      <li key={index} className="mb-2">
-                        Ngày: {booking.date}, Giờ: {booking.time}{" "}
-                        <button
-                          onClick={() => handleRemoveFlexibleBooking(index)}
-                          className="text-red-500 hover:underline ml-2"
-                        >
-                          Xóa
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div> */}
+
                 <div className="flex justify-between">
                   <button
                     onClick={handlePreviousStep}
@@ -519,7 +495,6 @@ const CourtDetails = () => {
                 </div>
               </div>
             </>
-
           )}
 
           {step === 2 && bookingType === "daily" && (
@@ -545,11 +520,10 @@ const CourtDetails = () => {
                   options={courtData?.map((item) => ({
                     value: item.id,
                     label: item.courtName,
-                    disabled: item.status == "INACTIVE"
+                    disabled: item.status == "INACTIVE",
                   }))}
                   onChange={(e) => setSelectedCourt(e)}
-                >
-                </Select>
+                ></Select>
               </div>
               <label className="block mb-2">Chọn Slots:</label>
               <Select
@@ -558,11 +532,10 @@ const CourtDetails = () => {
                 value={selectedSlot}
                 options={slotDaily?.map((item) => ({
                   label: `${item.startTime} - ${item.endTime}`,
-                  value: item.id
+                  value: item.id,
                 }))}
                 onChange={(e) => setSelectedSlot(e)}
-              >
-              </Select>
+              ></Select>
 
               <div className="flex justify-between">
                 <button
@@ -588,9 +561,7 @@ const CourtDetails = () => {
         contentLabel="Chọn giờ chơi"
         className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-20"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-
-      </Modal>
+      ></Modal>
     </div>
   );
 };

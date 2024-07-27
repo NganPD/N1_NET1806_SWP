@@ -32,7 +32,7 @@ const LoginForm = () => {
         timer: 2000,
       }).then(() => {
         localStorage.setItem("token", res.data.token);
-        console.log(res.data.token);
+        console.log(res.data);
         dispatch(login(res.data));
 
         // Get user role from response
@@ -42,10 +42,12 @@ const LoginForm = () => {
         // Navigate based on user role
         if (role === "ADMIN") {
           navigate("/admin");
-        } else if(role==="MANAGER") {
+        } else if (role === "MANAGER") {
           navigate("/court-manager");
-        }else if(role==="STAFF"){
-          navigate("/court-staff")
+        } else if (role === "STAFF") {
+          navigate("/court-staff");
+        } else {
+          navigate("/");
         }
       });
       // console.log("🚀 ~ onSubmit ~ res.data.token:", res.data.token);
