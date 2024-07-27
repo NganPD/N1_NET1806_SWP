@@ -11,11 +11,11 @@ const Sidebar = () => {
         <ul>
           <li className="mb-2">
             <NavLink
-              to="/court-staff/court-checkin"
-              className="text-white no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              to="/court-staff/checkIn"
+              className="text-[] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"
             >
-              Check-in Sân cầu lông
+              Quản lí checkin
             </NavLink>
           </li>
         </ul>

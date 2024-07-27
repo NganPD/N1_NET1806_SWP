@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import api from "../../../config/axios";
+import { toast } from "react-toastify";
 
 const RegisterCourtInfo = () => {
   const [formData, setFormData] = useState({
@@ -22,26 +23,21 @@ const RegisterCourtInfo = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    
 
     try {
-      const response = await api.post("/courts", formData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.post("/courts", formData);
 
       if (response.status === 200) {
         console.log("Success:", response.data);
-        alert("Registration successful!");
+        toast.success("Mua giờ thành công !!!");
       } else {
         console.error("Error:", response.data);
-        alert("Registration failed. Please try again.");
+        toast.error("Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Registration failed. Please try again.");
+      toast.error("Registration failed. Please try again.");
     }
   };
 

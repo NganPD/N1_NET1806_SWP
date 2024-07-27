@@ -20,24 +20,21 @@ import CourtManagement from "./components/Admin/CourtManagement";
 import NewCourtRegistration from "./components/Admin/NewCourtRegistration";
 import RegisterCourtInfo from "./components/Court/RegisterCourtInfo";
 import RegisterBookingType from "./components/Court/RegisterBookingType";
-import ManageSchedules from "./components/Court/ManageSchedules";
 import CourtLayout from "./layouts/CourtLayout";
 import ManageCourts from "./components/Court/ManageCourts";
 import CourtDetails from "./components/CourtDetail";
 import { persistor, store } from "./redux/store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import CourtStaffCheckin from "./components/CourtStaff/ManageCourtCheckin";
 import CourtStaffLayout from "./layouts/CourtStaffLayout";
-import { GlobalStateProvider } from "./components/context/GlobalStateContext";
 import UserProfile from "./components/UserProfile";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import Overview from "./components/overview";
+import CheckIn from "./components/CourtStaff/Checkin";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
-
     <PersistGate loading={null} persistor={persistor}>
       <ToastContainer />
       <BrowserRouter>
@@ -63,17 +60,13 @@ root.render(
           </Route>
           <Route path="/court-manager" element={<CourtLayout />}>
             <Route path="register-court-info" element={<RegisterCourtInfo />} />
-            <Route
-              path="register-booking-type"
-              element={<RegisterBookingType />}
-            />
+            <Route path="register-booking-type"  element={<RegisterBookingType />} />
             <Route path="manage-courts" element={<ManageCourts />} />
-            <Route path="manage-schedules" element={<ManageSchedules />} />
           </Route>
 
           {/* Staff */}
           <Route path="/court-staff" element={<CourtStaffLayout />}>
-            <Route path="court-checkin" element={<CourtStaffCheckin />} />
+            <Route path="checkIn" element={<CheckIn />} />
           </Route>
         </Routes>
       </BrowserRouter>

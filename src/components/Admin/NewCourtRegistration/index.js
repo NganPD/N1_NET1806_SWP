@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import api from "../../../config/axios";
 import { PlusOutlined } from '@ant-design/icons';
 import { Image, Upload } from 'antd';
+import uploadFile from "../../../utils/file";
 
 const NewCourtRegistration = () => {
   const [venueName, setVenueName] = useState("");
@@ -15,6 +16,7 @@ const NewCourtRegistration = () => {
   const [description, setDescription] = useState("");
   const [services, setServices] = useState("");
   const [managerId, setManagerId] = useState(0);
+  const [availableManagers, setAvailableManagers] = useState([]);
 
   const token = localStorage.getItem("token");
   const [success, setSuccess] = useState(null);
@@ -30,6 +32,8 @@ const NewCourtRegistration = () => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
+
+
 
   const handleAddCourt = async (e) => {
     e.preventDefault();
@@ -48,6 +52,12 @@ const NewCourtRegistration = () => {
         managerId,
       };
 
+      if (fileList.length > 0) {
+        newVenue.imageUrl = await uploadFile(fileList[0].originFileObj)
+      }
+
+      console.log(newVenue)
+
       const response = await api.post("/venues", newVenue);
       setSuccess("Venues created successfully!");
       setError(null);
@@ -63,6 +73,7 @@ const NewCourtRegistration = () => {
       setDescription("");
       setServices("");
       setManagerId(0);
+      setFileList([])
     } catch (error) {
       setError("Failed to create court. Please try again.");
       setSuccess(null);
@@ -103,6 +114,15 @@ const NewCourtRegistration = () => {
     setPreviewImage(file.imageUrl || file.preview);
     setPreviewOpen(true);
   };
+
+  const handleFetchManager = async () => {
+    const response = await api.get('account/available-managers')
+    setAvailableManagers(response.data)
+  }
+
+  useEffect(() => {
+    handleFetchManager()
+  }, [])
 
   return (
     <div>
@@ -203,13 +223,18 @@ const NewCourtRegistration = () => {
         </div>
         <div className="mb-4">
           <label className="block mb-2">Mã quản lý</label>
-          <input
+          <select
             type="number"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             value={isNaN(managerId) ? '' : managerId}
-            onChange={(e) => setManagerId(e.target.value ? parseInt(e.target.value) : '')}
+            onChange={(e) => {
+              console.log(e.target.value)
+              setManagerId(e.target.value ? Number(e.target.value) : '')
+            }}
             required
-          />
+          >
+            {availableManagers.map(manager => <option value={manager.id}>{manager.fullName}</option>)}
+          </select>
         </div>
         <button
           type="submit"

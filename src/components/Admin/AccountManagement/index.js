@@ -29,7 +29,7 @@ const AccountManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/account/account/${id}`, {
+      await api.delete(`/account/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAccounts(accounts.filter((account) => account.id !== id));

@@ -1,80 +1,54 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { Button, DatePicker, Form, Modal as ModalANTD, Select } from "antd"
+import { Button, DatePicker, Form, Modal as ModalANTD, Select, Spin } from "antd";
 import axios from "axios";
 import api from "../../config/axios";
 import FormItem from "antd/es/form/FormItem";
 import moment from "moment";
 import { useForm } from "antd/es/form/Form";
-import "./index.scss"
+import "./index.scss";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/counterSlice";
+import useGetParams from "../../assets/utils/useGetParams";
 Modal.setAppElement("#root");
 
 const UserProfile = () => {
   // Giả lập dữ liệu người dùng và ví
   const [user, setUser] = useState({
-    name: "Nam Dương",
-    email: "duongphuongnam2204@gmail.com",
-    balance: 1000, // Số dư ban đầu
-    transactions: [
-      {
-        invoice: "233b3968-f0b0-4fc5-ae4e-c0387c818a3a",
-        transferTo: "VNPAY",
-        date: "Fri Jul 05 2024",
-        tags: "Deposit",
-        amount: 20,
-      },
-      {
-        invoice: "d63ab6f7-91fa-45c4-9222-21526f8150b6",
-        transferTo: "VNPAY",
-        date: "Fri Jul 05 2024",
-        tags: "Deposit",
-        amount: 200,
-      },
-      {
-        invoice: "8ae67cad-531d-40e0-a191-07e0f2a203ae",
-        transferTo: "VNPAY",
-        date: "Fri Jul 05 2024",
-        tags: "Deposit",
-        amount: 200,
-      },
-      {
-        invoice: "9a72747a-c58b-418e-ac7d-8d93cf0db3ae",
-        transferTo: "VNPAY",
-        date: "Fri Jul 05 2024",
-        tags: "Deposit",
-        amount: 3,
-      },
-    ],
-    orders: [
-      {
-        id: "1",
-        date: "Fri Jul 05 2024",
-        status: "Completed",
-        amount: 100,
-      },
-      {
-        id: "2",
-        date: "Fri Jul 06 2024",
-        status: "Pending",
-        amount: 150,
-      },
-      {
-        id: "3",
-        date: "Fri Jul 07 2024",
-        status: "Pending",
-        amount: 200,
-      },
-    ],
+    name: [],
+    balance: 0,
+    transactions: []
   });
-  const userRedux = useSelector(selectUser)
+  const userRedux = useSelector(selectUser);
+
+  const getParams = useGetParams();
+  const id = getParams("id");
+  const status = getParams("vnp_ResponseCode");
+  async function rechage() {
+    try {
+      const response = await api.post(`/wallet/recharge/${id}`);
+      toast.success("Nạp tiền thành công");
+      fetchBalance();
+      fetchTransactionHistory();
+    } catch (error) {
+      // toast.error(error.response.data);
+      console.error("Lỗi khi nạp tiền: ", error);
+      toast.error("Nạp tiền thất bại");
+    }
+  }
+  useEffect(() => {
+    if (status == "00") {
+      rechage();
+    }
+  }, []);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
-
+  const [transactions, setTransaction] = useState([]);
+  const [noTransactions, setNoTransactions] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [withdrawInfo, setWithdrawInfo] = useState({
@@ -88,7 +62,7 @@ const UserProfile = () => {
   });
   const [activeTab, setActiveTab] = useState("profile");
 
-  const [venueId, setVenueID] = useState(0)
+  const [venueId, setVenueID] = useState(0);
   const handleSave = () => {
     setIsEditing(false);
     // Update user information logic here
@@ -100,78 +74,87 @@ const UserProfile = () => {
     setWithdrawInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
   };
 
-  const [form] = useForm()
+  const [form] = useForm();
 
-  const [court, setCourt] = useState([])
+  const [court, setCourt] = useState([]);
 
-  const [slotDaily, setSlotDaily] = useState([])
+  const [slotDaily, setSlotDaily] = useState([]);
 
-  const [selectedDate, setSelectedDate] = useState("")
+  const [selectedDate, setSelectedDate] = useState("");
 
   const fetchSlotDaily = async () => {
     try {
-      const response = await api.get(`/timeslots/available-slots?courtId=${courtSelect}&date=${selectedDate}&venueId=${venueId}`)
-      setSlotDaily(response.data)
+      const response = await api.get(
+        `/timeslots/available-slots?courtId=${courtSelect}&date=${selectedDate}&venueId=${venueId}`
+      );
+      setSlotDaily(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
-
-
-  const [data, setData] = useState([])
-  const [courtSelect, setCourtSelect] = useState([])
+  };
+  const [courtSelect, setCourtSelect] = useState([]);
+  const [data, setData] = useState([]);
 
   const fetch = async () => {
     try {
-      const response = await api.get("/booking/booking-history")
-      setData(response.data)
+      const response = await api.get("/booking/booking-history");
+      setData(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
+
+  const fetchTransactionHistory = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/transaction/transactionById");
+      setTransaction(response.data);
+      setNoTransactions(response.data.length === 0);
+
+    } catch (error) {
+      console.error("Error fetching transactions: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchCourt = async () => {
     try {
-      const response = await api.get(`/venues/${venueId}/courts`)
-      setCourt(response.data)
+      const response = await api.get(`/venues/${venueId}/courts`);
+      setCourt(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
-
+  };
 
   const getLabelSLot = (arrID = []) => {
     let listSlotName = [];
-    console.log(slotDaily)
-    arrID?.forEach(e => {
-      let filterSlot = slotDaily.filter(item => item.id === e);
+    console.log(slotDaily);
+    arrID?.forEach((e) => {
+      let filterSlot = slotDaily.filter((item) => item.id === e);
       if (filterSlot.length > 0) {
-        console.log(filterSlot)
-        listSlotName.push(filterSlot[0].startTime + " - " + filterSlot[0].endTime);
+        console.log(filterSlot);
+        listSlotName.push(
+          filterSlot[0].startTime + " - " + filterSlot[0].endTime
+        );
       } else {
       }
     });
     return listSlotName;
-  }
+  };
 
-
-  const getLableCourt = (e) => court.filter(item => item.id == e)
-
-
+  const getLableCourt = (e) => court.filter((item) => item.id == e);
 
   useEffect(() => {
-    fetchCourt()
-  }, [venueId])
-
+    fetchCourt();
+  }, [venueId]);
 
   useEffect(() => {
-    fetch()
-  }, [])
+    fetch();
+  }, []);
   useEffect(() => {
-    fetchSlotDaily()
-  }, [selectedDate, courtSelect])
-
-
+    fetchSlotDaily();
+  }, [selectedDate, courtSelect]);
 
   const handleWithdrawSubmit = () => {
     setIsWithdrawModalOpen(false);
@@ -184,62 +167,56 @@ const UserProfile = () => {
     setDepositInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
   };
 
-  const [listCheck, setListCheck] = useState([])
-  const [listSubmit, setListSubmit] = useState([])
+  const [listCheck, setListCheck] = useState([]);
+  const [listSubmit, setListSubmit] = useState([]);
   const [bookingID, setBookingID] = useState(0);
-
-
 
   const handleCreate = (e) => {
     try {
-      const checkInDate = moment(e.checkInDate.$d).format("YYYY-MM-DD")
+      const checkInDate = moment(e.checkInDate.$d).format("YYYY-MM-DD");
       e.checkInDate = checkInDate;
-      const listSlot = getLabelSLot(e.timeslot)
-      const courtName = getLableCourt(e.court)
+      const listSlot = getLabelSLot(e.timeslot);
+      const courtName = getLableCourt(e.court);
       const newList = {
         checkInDate: e.checkInDate,
         court: courtName[0].courtName,
-        timeslot: listSlot
-      }
+        timeslot: listSlot,
+      };
 
-      setListCheck([...listCheck, newList])
-      setListSubmit([...listSubmit, {
-        checkInDate: e.checkInDate,
-        court: e.court,
-        timeslot: e.timeslot
-      }])
-      form.resetFields()
+      setListCheck([...listCheck, newList]);
+      setListSubmit([
+        ...listSubmit,
+        {
+          checkInDate: e.checkInDate,
+          court: e.court,
+          timeslot: e.timeslot,
+        },
+      ]);
+      form.resetFields();
     } catch (error) {
-      toast.error(error?.response.data)
+      toast.error(error?.response.data);
     }
   };
-
-
-
-
 
   const handleBooking = async () => {
     try {
       if (listCheck.length > 0) {
         const response = await api.post("/booking/flexible", {
           bookingId: bookingID,
-          flexibleTimeSlots: listSubmit
-        })
-        toast.success("Booking successfully!!!")
-        setOpen(false)
-        setListCheck([])
-        form.resetFields()
-        fetch()
+          flexibleTimeSlots: listSubmit,
+        });
+        toast.success("Booking successfully!!!");
+        setOpen(false);
+        setListCheck([]);
+        form.resetFields();
+        fetch();
+      } else {
+        toast.error("Vui lòng thêm trước khi tạo lịch");
       }
-      else {
-        toast.error("Vui lòng thêm trước khi tạo lịch")
-      }
-
     } catch (error) {
-      toast.error(error.response.data)
+      toast.error(error.response.data);
     }
-  }
-
+  };
 
   const handleDepositSubmit = async () => {
     try {
@@ -261,8 +238,8 @@ const UserProfile = () => {
       }));
 
       // Gọi API để yêu cầu nạp tiền
-      const response = await axios.post(
-        "http://104.248.224.6:8082/api/wallet/recharge-vnpay-url",
+      const response = await api.post(
+        "/wallet/recharge-vnpay-url",
         {
           amount: depositInfo.amount.toString(),
           description: depositInfo.description,
@@ -275,10 +252,6 @@ const UserProfile = () => {
         }
       );
 
-
-
-
-
       // Kiểm tra và điều hướng người dùng đến URL của VNPAY
       if (response.data) {
         console.log("Im here");
@@ -286,17 +259,14 @@ const UserProfile = () => {
       } else {
         console.error("URL not found in response");
       }
-
     } catch (error) {
       console.error("Error during deposit request:", error);
     }
 
-
     setIsDepositModalOpen(false);
   };
 
-  const [open, setOpen] = useState(false)
-
+  const [open, setOpen] = useState(false);
 
   const handleCancelOrder = (orderId) => {
     setUser((prevUser) => {
@@ -307,28 +277,46 @@ const UserProfile = () => {
     });
   };
 
-
-  const [balance, setBalance] = useState([])
+  const [balance, setBalance] = useState([]);
 
   const fetchBalance = async () => {
     try {
-      const response = await api.get("/wallet/balance")
-      setBalance(response.data)
+      const response = await api.get("/wallet/balance");
+      setBalance(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchBalance()
-  }, [])
+    fetchBalance();
+  }, []);
+
+  const [booked, setBooked] = useState([]);
+
+  const fetchBooked = async () => {
+    try {
+      const response = await api.get("/booking/get-booked-slot");
+      console.log(response.data);
+      setBooked(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooked();
+  }, []);
 
   const formatMoneyVND = (amount) => {
     if (isNaN(amount)) {
       return "Invalid amount";
     }
 
-    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return amount.toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    });
   };
   const renderOrders = () => {
     return (
@@ -338,45 +326,48 @@ const UserProfile = () => {
           <thead>
             <tr>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Order ID
+                STT
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Created Date
+                Ngày tạo
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Application Date
+                Ngày áp dụng
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Status
+                Trạng thái
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Amount
+                Tổng tiền
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Total Times
+                Tổng thời gian
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Remaining Times
+                Thời gian còn lại
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
                 Sân
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Booking Type
+                Loại lịch
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Actions
+                Hành động
               </th>
             </tr>
           </thead>
           <tbody>
-            {data?.map((order) => {
+            {data?.map((order, index) => {
               // Render rows only if bookingType is "FLEXIBLE"
-              if (order.bookingType === "FLEXIBLE" && order.remainingTimes > 0) {
+              if (
+                order.bookingType === "FLEXIBLE" &&
+                order.remainingTimes > 0
+              ) {
                 return (
                   <tr key={order.id}>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      {order.id}
+                      {index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                       {order.bookingDate}
@@ -397,7 +388,7 @@ const UserProfile = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      {order.totalPrice}$
+                      {formatMoneyVND(order.totalPrice)}
                     </td>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                       {order.totalTimes}h
@@ -421,23 +412,24 @@ const UserProfile = () => {
                         </button>
                       )}
                       {/* Render the button only if bookingType is "FLEXIBLE" and remainingTimes > 0 */}
-                      {order.bookingType === "FLEXIBLE" && order.remainingTimes > 0 && (
-                        <button
-                          className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-                          onClick={() => {
-                            setBookingID(order?.id);
-                            setVenueID(order?.venueId);
-                            setOpen(true);
-                          }}
-                        >
-                          Đặt lịch
-                        </button>
-                      )}
+                      {order.bookingType === "FLEXIBLE" &&
+                        order.remainingTimes > 0 && (
+                          <button
+                            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+                            onClick={() => {
+                              setBookingID(order?.id);
+                              setVenueID(order?.venueId);
+                              setOpen(true);
+                            }}
+                          >
+                            Đặt lịch
+                          </button>
+                        )}
                     </td>
                   </tr>
                 );
               } else {
-                return null
+                return null;
               }
             })}
           </tbody>
@@ -446,32 +438,32 @@ const UserProfile = () => {
         <ModalANTD
           onOk={handleBooking}
           onCancel={() => {
-            setOpen(false)
-            setListCheck([])
-            form.resetFields()
-          }} open={open}>
+            setOpen(false);
+            setListCheck([]);
+            form.resetFields();
+          }}
+          open={open}
+        >
           <Form onFinish={(e) => handleCreate(e)} form={form}>
             <FormItem
               labelCol={{ span: "24" }}
               label="Chọn ngày bắt đầu:"
               name={"checkInDate"}
-
             >
-              <DatePicker onChange={(e) => setSelectedDate(moment(e?.$d).format("YYYY-MM-DD"))} />
+              <DatePicker
+                onChange={(e) =>
+                  setSelectedDate(moment(e?.$d).format("YYYY-MM-DD"))
+                }
+              />
             </FormItem>
-            <FormItem
-              labelCol={{ span: "24" }}
-              label="Chọn sân"
-              name={"court"}
-
-            >
+            <FormItem labelCol={{ span: "24" }} label="Chọn sân" name={"court"}>
               <Select
                 value={courtSelect}
                 onChange={(e) => setCourtSelect(e)}
                 options={court?.map((item) => ({
                   value: item.id,
                   label: item.courtName,
-                  disabled: item.status == "INACTIVE"
+                  disabled: item.status == "INACTIVE",
                 }))}
               />
             </FormItem>
@@ -487,91 +479,107 @@ const UserProfile = () => {
                 options={slotDaily?.map((item) => ({
                   value: item.id,
                   label: `${item.startTime} - ${item.endTime}`,
-                  disabled: item.status == "INACTIVE"
+                  disabled: item.status == "INACTIVE",
                 }))}
               />
             </FormItem>
-            <Button htmlType="submit" style={{
-              marginBottom: "20px",
-              background: "green"
-            }} type="primary">Thêm</Button>
+            <Button
+              htmlType="submit"
+              style={{
+                marginBottom: "20px",
+                background: "green",
+              }}
+              type="primary"
+            >
+              Thêm
+            </Button>
 
-            {listCheck.length > 0 && <Button onClick={() => setListCheck([])} htmlType="submit" style={{
-              marginBottom: "20px",
-              marginLeft: "10px"
-            }} type="">Reset</Button>}
+            {listCheck.length > 0 && (
+              <Button
+                onClick={() => setListCheck([])}
+                htmlType="submit"
+                style={{
+                  marginBottom: "20px",
+                  marginLeft: "10px",
+                }}
+                type=""
+              >
+                Reset
+              </Button>
+            )}
           </Form>
-          {
-            listCheck.length > 0 && listCheck?.map((e, slot) =>
+          {listCheck.length > 0 &&
+            listCheck?.map((e, slot) => (
               <div className="listCheck" style={{ marginBottom: "15px  0px" }}>
-                <h3 style={{
-                  display: "inline",
-                  fontWeight: 500
-                }}> Lịch </h3> {slot + 1}
+                <h3
+                  style={{
+                    display: "inline",
+                    fontWeight: 500,
+                  }}
+                >
+                  {" "}
+                  Lịch{" "}
+                </h3>{" "}
+                {slot + 1}
                 <br></br>
-                <h4 >Ngày bắt đầu : </h4> {e?.checkInDate}
+                <h4>Ngày bắt đầu : </h4> {e?.checkInDate}
                 <br></br>
                 <h4>Sân : </h4> {e?.court}
                 <br></br>
-                <h4 >
-                  {"Thời gian: "}
-                </h4>
+                <h4>{"Thời gian: "}</h4>
                 {e.timeslot.map((timeslot, index) => (
                   <React.Fragment key={index}>
                     {timeslot}
-                    {index !== e.timeslot.length - 1 && ', '}
+                    {index !== e.timeslot.length - 1 && ", "}
                   </React.Fragment>
                 ))}
-
               </div>
-            )
-          }
+            ))}
         </ModalANTD>
-      </div >
+      </div>
     );
   };
   const renderHistoryOrder = () => {
     return (
       <div className="overflow-x-auto mt-8">
-        <h2 className="text-2xl font-bold mb-4">Orders</h2>
         <table className="min-w-full bg-white">
           <thead>
             <tr>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Order ID
+                STT
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Created Date
+                Ngày tạo
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Application Date
+                Ngày áp dụng
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Status
+                Trạng thái
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Amount
+                Tổng tiền
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Total Times
+                Tổng thời gian
               </th>
 
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
                 Sân
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Booking Type
+                Loại lịch
               </th>
               <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                Actions
+                Hành động
               </th>
             </tr>
           </thead>
           <tbody>
-            {data?.map((order) => (
+            {data?.map((order, index) => (
               <tr key={order.id}>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  {order.id}
+                  {index + 1}
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                   {order.bookingDate}
@@ -592,7 +600,7 @@ const UserProfile = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  {order.totalPrice}$
+                  {formatMoneyVND(order.totalPrice)}
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                   {order.totalTimes}h
@@ -613,16 +621,14 @@ const UserProfile = () => {
                       Hủy đơn
                     </button>
                   )}
-                  {(
+                  {
                     <button
                       className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-                      onClick={() => {
-
-                      }}
+                      onClick={() => { }}
                     >
                       Hủy lịch
                     </button>
-                  )}
+                  }
                 </td>
               </tr>
             ))}
@@ -631,32 +637,32 @@ const UserProfile = () => {
         <ModalANTD
           onOk={handleBooking}
           onCancel={() => {
-            setOpen(false)
-            setListCheck([])
-            form.resetFields()
-          }} open={open}>
+            setOpen(false);
+            setListCheck([]);
+            form.resetFields();
+          }}
+          open={open}
+        >
           <Form onFinish={(e) => handleCreate(e)} form={form}>
             <FormItem
               labelCol={{ span: "24" }}
               label="Chọn ngày bắt đầu:"
               name={"checkInDate"}
-
             >
-              <DatePicker onChange={(e) => setSelectedDate(moment(e?.$d).format("YYYY-MM-DD"))} />
+              <DatePicker
+                onChange={(e) =>
+                  setSelectedDate(moment(e?.$d).format("YYYY-MM-DD"))
+                }
+              />
             </FormItem>
-            <FormItem
-              labelCol={{ span: "24" }}
-              label="Chọn sân"
-              name={"court"}
-
-            >
+            <FormItem labelCol={{ span: "24" }} label="Chọn sân" name={"court"}>
               <Select
                 value={courtSelect}
                 onChange={(e) => setCourtSelect(e)}
                 options={court?.map((item) => ({
                   value: item.id,
                   label: item.courtName,
-                  disabled: item.status == "INACTIVE"
+                  disabled: item.status == "INACTIVE",
                 }))}
               />
             </FormItem>
@@ -672,49 +678,274 @@ const UserProfile = () => {
                 options={slotDaily?.map((item) => ({
                   value: item.id,
                   label: `${item.startTime} - ${item.endTime}`,
-                  disabled: item.status == "INACTIVE"
+                  disabled: item.status == "INACTIVE",
                 }))}
               />
             </FormItem>
-            <Button htmlType="submit" style={{
-              marginBottom: "20px",
-              background: "green"
-            }} type="primary">Thêm</Button>
+            <Button
+              htmlType="submit"
+              style={{
+                marginBottom: "20px",
+                background: "green",
+              }}
+              type="primary"
+            >
+              Thêm
+            </Button>
 
-            {listCheck.length > 0 && <Button onClick={() => setListCheck([])} htmlType="submit" style={{
-              marginBottom: "20px",
-              marginLeft: "10px"
-            }} type="">Reset</Button>}
+            {listCheck.length > 0 && (
+              <Button
+                onClick={() => setListCheck([])}
+                htmlType="submit"
+                style={{
+                  marginBottom: "20px",
+                  marginLeft: "10px",
+                }}
+                type=""
+              >
+                Reset
+              </Button>
+            )}
           </Form>
-          {
-            listCheck.length > 0 && listCheck?.map((e, slot) =>
+          {listCheck.length > 0 &&
+            listCheck?.map((e, slot) => (
               <div className="listCheck" style={{ marginBottom: "15px  0px" }}>
-                <h3 style={{
-                  display: "inline",
-                  fontWeight: 500
-                }}> Lịch </h3> {slot + 1}
+                <h3
+                  style={{
+                    display: "inline",
+                    fontWeight: 500,
+                  }}
+                >
+                  {" "}
+                  Lịch{" "}
+                </h3>{" "}
+                {slot + 1}
                 <br></br>
-                <h4 >Ngày bắt đầu : </h4> {e?.checkInDate}
+                <h4>Ngày bắt đầu : </h4> {e?.checkInDate}
                 <br></br>
                 <h4>Sân : </h4> {e?.court}
                 <br></br>
-                <h4 >
-                  {"Thời gian: "}
-                </h4>
+                <h4>{"Thời gian: "}</h4>
                 {e.timeslot.map((timeslot, index) => (
                   <React.Fragment key={index}>
                     {timeslot}
-                    {index !== e.timeslot.length - 1 && ', '}
+                    {index !== e.timeslot.length - 1 && ", "}
                   </React.Fragment>
                 ))}
-
               </div>
-            )
-          }
+            ))}
         </ModalANTD>
-      </div >
+      </div>
     );
   };
+  const renderBooked = () => {
+    return (
+      <div className="overflow-x-auto mt-8">
+        {/* <h2 className="text-2xl font-bold mb-4">Orders</h2> */}
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                STT
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Ngày tạo
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Ngày áp dụng
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Trạng thái
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Tổng tiền
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Tổng thời gian
+              </th>
+
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Sân
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Loại lịch
+              </th>
+              {/* <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Actions
+              </th> */}
+            </tr>
+          </thead>
+          <tbody>
+            {booked?.map(
+              (order, index) =>
+                order.status == "BOOKED" && (
+                  <tr key={order.id}>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {index + 1}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.bookingDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.applicationDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      <span
+                        className={`px-2 py-1 rounded-full ${order.status === "Completed"
+                          ? "bg-green-200 text-green-800"
+                          : order.status === "Pending"
+                            ? "bg-yellow-200 text-yellow-800"
+                            : "bg-red-200 text-red-800"
+                          }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {formatMoneyVND(order.totalPrice)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.totalTimes}h
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.venueName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.bookingType}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.status === "Pending" && (
+                        <button
+                          className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+                          onClick={() => handleCancelOrder(order.id)}
+                        >
+                          Hủy đơn
+                        </button>
+                      )}
+                      {/* {
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+                      onClick={() => {}}
+                    >
+                      Hủy lịch
+                    </button>
+                  } */}
+                    </td>
+                  </tr>
+                )
+            )}
+          </tbody>
+        </table>
+        <ModalANTD
+          onOk={handleBooking}
+          onCancel={() => {
+            setOpen(false);
+            setListCheck([]);
+            form.resetFields();
+          }}
+          open={open}
+        >
+          <Form onFinish={(e) => handleCreate(e)} form={form}>
+            <FormItem
+              labelCol={{ span: "24" }}
+              label="Chọn ngày bắt đầu:"
+              name={"checkInDate"}
+            >
+              <DatePicker
+                onChange={(e) =>
+                  setSelectedDate(moment(e?.$d).format("YYYY-MM-DD"))
+                }
+              />
+            </FormItem>
+            <FormItem labelCol={{ span: "24" }} label="Chọn sân" name={"court"}>
+              <Select
+                value={courtSelect}
+                onChange={(e) => setCourtSelect(e)}
+                options={court?.map((item) => ({
+                  value: item.id,
+                  label: item.courtName,
+                  disabled: item.status == "INACTIVE",
+                }))}
+              />
+            </FormItem>
+            <FormItem
+              labelCol={{ span: "24" }}
+              label="Chọn slot"
+              name={"timeslot"}
+            >
+              <Select
+                mode="tags"
+                value={courtSelect}
+                onChange={(e) => setCourtSelect(e)}
+                options={slotDaily?.map((item) => ({
+                  value: item.id,
+                  label: `${item.startTime} - ${item.endTime}`,
+                  disabled: item.status == "INACTIVE",
+                }))}
+              />
+            </FormItem>
+            <Button
+              htmlType="submit"
+              style={{
+                marginBottom: "20px",
+                background: "green",
+              }}
+              type="primary"
+            >
+              Thêm
+            </Button>
+
+            {listCheck.length > 0 && (
+              <Button
+                onClick={() => setListCheck([])}
+                htmlType="submit"
+                style={{
+                  marginBottom: "20px",
+                  marginLeft: "10px",
+                }}
+                type=""
+              >
+                Reset
+              </Button>
+            )}
+          </Form>
+          {listCheck.length > 0 &&
+            listCheck?.map((e, slot) => (
+              <div className="listCheck" style={{ marginBottom: "15px  0px" }}>
+                <h3
+                  style={{
+                    display: "inline",
+                    fontWeight: 500,
+                  }}
+                >
+                  {" "}
+                  Lịch{" "}
+                </h3>{" "}
+                {slot + 1}
+                <br></br>
+                <h4>Ngày bắt đầu : </h4> {e?.checkInDate}
+                <br></br>
+                <h4>Sân : </h4> {e?.court}
+                <br></br>
+                <h4>{"Thời gian: "}</h4>
+                {e.timeslot.map((timeslot, index) => (
+                  <React.Fragment key={index}>
+                    {timeslot}
+                    {index !== e.timeslot.length - 1 && ", "}
+                  </React.Fragment>
+                ))}
+              </div>
+            ))}
+        </ModalANTD>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+
+    fetchTransactionHistory();
+  }, []);
 
   const renderProfile = () => {
     return (
@@ -780,61 +1011,70 @@ const UserProfile = () => {
                 className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 mr-2"
                 onClick={() => setIsDepositModalOpen(true)}
               >
-                Deposit more money with VNPAY
+                Nạp thêm tiền qua VNPay
               </button>
               <button
                 className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800"
                 onClick={() => setIsWithdrawModalOpen(true)}
               >
-                Withdraw
+                Rút tiền
               </button>
             </div>
           </div>
           <div className="overflow-x-auto mt-4">
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                    Invoice Number
-                  </th>
-                  <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                    Transfer To
-                  </th>
-                  <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                    Tags
-                  </th>
-                  <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
-                    Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {user.transactions.map((transaction, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      {transaction.invoice}
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      {transaction.transferTo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      {transaction.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        {transaction.tags}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                      {transaction.amount}$
-                    </td>
+            {loading ? (
+              <div className="flex justify-center items-center h-48">
+                <Spin size="large" />
+              </div>
+            ) : noTransactions ? (
+              <p>Không có dữ liệu giao dịch</p>
+            ) : (
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                      Số hóa đơn
+                    </th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                      Loại giao dịch
+                    </th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                      Ngày
+                    </th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                      Mô tả
+                    </th>
+                    <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                      Tổng tiền
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {transactions.map((transaction, index) => {
+                    const formattedTransactionDate = moment(transaction.transactionDate).format('YYYY-MM-DD-HH-mm-ss');
+                    return (
+                      <tr key={transaction.id || index}>
+                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                          {index + 1}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                          {transaction.transactionType}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                          {formattedTransactionDate || "NA"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                          {transaction.description}
+                        </td>
+                        <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                          {formatMoneyVND(transaction.amount)}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>
@@ -881,11 +1121,11 @@ const UserProfile = () => {
           >
             Lịch sử đơn hàng
           </button>
-
         </nav>
         {activeTab === "profile" && renderProfile()}
         {activeTab === "orders" && renderOrders()}
         {activeTab === "history" && renderHistoryOrder()}
+        {activeTab === "booked" && renderBooked()}
       </div>
 
       <Modal

@@ -20,14 +20,60 @@ const CourtManagement = () => {
   }, []);
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    const confirmation = window.confirm(
+      "Are you sure you want to delete this court?"
+    );
+    if (!confirmation) return;
+
     try {
-      await api.delete(`/venues/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await api.delete(`/venues/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setCourts(courts.filter((court) => court.venueId !== id));
+      if (response.status === 204) {
+        setCourts((prev) =>
+          prev.map((court) =>
+            court.id === id ? { ...court, status: "CLOSE" } : court
+          )
+        );
+      } else {
+        console.error("Error:", response.data);
+        alert("Failed to delete the court. Please try again.");
+      }
     } catch (error) {
-      console.error("Failed to delete court:", error);
+      console.error("Error deleting court:", error);
+      alert("An error occurred. Please try again.");
     }
+  };
+
+  const handleEdit = async (id) => {
+    // const token = localStorage.getItem("token");
+    // try {
+    //   const response = await api.patch(`/courts/${Id}`, 
+    //     { status: "AVAILABLE" }, 
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
+
+    //   if (response.status === 200) {
+    //     setCourtData((prev) =>
+    //       prev.map((court) =>
+    //         court.id === Id ? { ...court, status: "AVAILABLE" } : court
+    //       )
+    //     );
+    //   } else {
+    //     console.error("Error:", response.data);
+    //     alert("Failed to update the court status. Please try again.");
+    //   }
+    // } catch (error) {
+    //   console.error("Error updating court status:", error);
+    //   alert("An error occurred. Please try again.");
+    // }
   };
 
   return (
@@ -50,9 +96,9 @@ const CourtManagement = () => {
         </thead>
         <tbody>
           {courts.map((court) => (
-            <tr key={court.venueId} className="hover:bg-gray-100">
+            <tr key={court.Id} className="hover:bg-gray-100">
               <td className="py-2 px-4 border border-gray-300 text-center">
-                {court.venueId}
+                {court.Id}
               </td>
               <td className="py-2 px-4 border border-gray-300 text-center">
                 {court.name}
@@ -79,11 +125,13 @@ const CourtManagement = () => {
                 {court.services}
               </td>
               <td className="py-2 px-4 border border-gray-300 text-center">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <button
+                onClick={() =>handleEdit(court.id)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
                   Chỉnh sửa
                 </button>
                 <button
-                  onClick={() => handleDelete(court.venueId)}
+                  onClick={() => handleDelete(court.id)}
                   className="bg-red-500 text-white px-4 py-2 rounded ml-2 hover:bg-red-700"
                 >
                   Xóa
