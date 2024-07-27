@@ -11,10 +11,17 @@ const CourtCard = ({ court }) => {
     // if(!user){
     //   navigate("/login");
     // }else{
+<<<<<<< HEAD
     navigate("/court-details", { state: { court } });
   }
 
 
+=======
+      navigate("/court-details", { state: { court } });
+    }
+   
+  
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
 
   return (
     <div onClick={() => navigate(`/court-details/${court.id}`, { state: { court } })} className="max-w-sm rounded overflow-hidden shadow-lg m-4 transition-transform transform hover:scale-105 hover:shadow-xl bg-white">

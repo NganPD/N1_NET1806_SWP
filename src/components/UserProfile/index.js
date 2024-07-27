@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
+<<<<<<< HEAD
 import { Button, DatePicker, Form, Modal as ModalANTD, Select, Spin } from "antd";
+=======
+import { Button, DatePicker, Form, Modal as ModalANTD, Select } from "antd";
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
 import axios from "axios";
 import api from "../../config/axios";
 import FormItem from "antd/es/form/FormItem";
@@ -21,6 +25,7 @@ const UserProfile = () => {
     transactions: []
   });
   const userRedux = useSelector(selectUser);
+<<<<<<< HEAD
 
   const getParams = useGetParams();
   const id = getParams("id");
@@ -42,6 +47,8 @@ const UserProfile = () => {
       rechage();
     }
   }, []);
+=======
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user.name);
@@ -92,6 +99,10 @@ const UserProfile = () => {
       console.log(error);
     }
   };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
   const [courtSelect, setCourtSelect] = useState([]);
   const [data, setData] = useState([]);
 
@@ -103,6 +114,7 @@ const UserProfile = () => {
       console.log(error);
     }
   };
+<<<<<<< HEAD
 
   const fetchTransactionHistory = async () => {
     setLoading(true);
@@ -117,6 +129,8 @@ const UserProfile = () => {
       setLoading(false);
     }
   };
+=======
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
 
   const fetchCourt = async () => {
     try {
@@ -377,12 +391,13 @@ const UserProfile = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                       <span
-                        className={`px-2 py-1 rounded-full ${order.status === "Completed"
-                          ? "bg-green-200 text-green-800"
-                          : order.status === "Pending"
+                        className={`px-2 py-1 rounded-full ${
+                          order.status === "Completed"
+                            ? "bg-green-200 text-green-800"
+                            : order.status === "Pending"
                             ? "bg-yellow-200 text-yellow-800"
                             : "bg-red-200 text-red-800"
-                          }`}
+                        }`}
                       >
                         {order.status}
                       </span>
@@ -589,12 +604,13 @@ const UserProfile = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                   <span
-                    className={`px-2 py-1 rounded-full ${order.status === "Completed"
-                      ? "bg-green-200 text-green-800"
-                      : order.status === "Pending"
+                    className={`px-2 py-1 rounded-full ${
+                      order.status === "Completed"
+                        ? "bg-green-200 text-green-800"
+                        : order.status === "Pending"
                         ? "bg-yellow-200 text-yellow-800"
                         : "bg-red-200 text-red-800"
-                      }`}
+                    }`}
                   >
                     {order.status}
                   </span>
@@ -624,7 +640,11 @@ const UserProfile = () => {
                   {
                     <button
                       className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+<<<<<<< HEAD
                       onClick={() => { }}
+=======
+                      onClick={() => {}}
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
                     >
                       Hủy lịch
                     </button>
@@ -736,6 +756,213 @@ const UserProfile = () => {
             ))}
         </ModalANTD>
       </div>
+<<<<<<< HEAD
+=======
+    );
+  };
+  const renderBooked = () => {
+    return (
+      <div className="overflow-x-auto mt-8">
+        <h2 className="text-2xl font-bold mb-4">Orders</h2>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Order ID
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Created Date
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Application Date
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Amount
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Total Times
+              </th>
+
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Sân
+              </th>
+              <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Booking Type
+              </th>
+              {/* <th className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-blue-500 tracking-wider">
+                Actions
+              </th> */}
+            </tr>
+          </thead>
+          <tbody>
+            {booked?.map(
+              (order) =>
+                order.status == "BOOKED" && (
+                  <tr key={order.id}>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.bookingDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.applicationDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      <span
+                        className={`px-2 py-1 rounded-full ${
+                          order.status === "Completed"
+                            ? "bg-green-200 text-green-800"
+                            : order.status === "Pending"
+                            ? "bg-yellow-200 text-yellow-800"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.totalPrice}$
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.totalTimes}h
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.venueName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.bookingType}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      {order.status === "Pending" && (
+                        <button
+                          className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+                          onClick={() => handleCancelOrder(order.id)}
+                        >
+                          Hủy đơn
+                        </button>
+                      )}
+                      {/* {
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+                      onClick={() => {}}
+                    >
+                      Hủy lịch
+                    </button>
+                  } */}
+                    </td>
+                  </tr>
+                )
+            )}
+          </tbody>
+        </table>
+        <ModalANTD
+          onOk={handleBooking}
+          onCancel={() => {
+            setOpen(false);
+            setListCheck([]);
+            form.resetFields();
+          }}
+          open={open}
+        >
+          <Form onFinish={(e) => handleCreate(e)} form={form}>
+            <FormItem
+              labelCol={{ span: "24" }}
+              label="Chọn ngày bắt đầu:"
+              name={"checkInDate"}
+            >
+              <DatePicker
+                onChange={(e) =>
+                  setSelectedDate(moment(e?.$d).format("YYYY-MM-DD"))
+                }
+              />
+            </FormItem>
+            <FormItem labelCol={{ span: "24" }} label="Chọn sân" name={"court"}>
+              <Select
+                value={courtSelect}
+                onChange={(e) => setCourtSelect(e)}
+                options={court?.map((item) => ({
+                  value: item.id,
+                  label: item.courtName,
+                  disabled: item.status == "INACTIVE",
+                }))}
+              />
+            </FormItem>
+            <FormItem
+              labelCol={{ span: "24" }}
+              label="Chọn slot"
+              name={"timeslot"}
+            >
+              <Select
+                mode="tags"
+                value={courtSelect}
+                onChange={(e) => setCourtSelect(e)}
+                options={slotDaily?.map((item) => ({
+                  value: item.id,
+                  label: `${item.startTime} - ${item.endTime}`,
+                  disabled: item.status == "INACTIVE",
+                }))}
+              />
+            </FormItem>
+            <Button
+              htmlType="submit"
+              style={{
+                marginBottom: "20px",
+                background: "green",
+              }}
+              type="primary"
+            >
+              Thêm
+            </Button>
+
+            {listCheck.length > 0 && (
+              <Button
+                onClick={() => setListCheck([])}
+                htmlType="submit"
+                style={{
+                  marginBottom: "20px",
+                  marginLeft: "10px",
+                }}
+                type=""
+              >
+                Reset
+              </Button>
+            )}
+          </Form>
+          {listCheck.length > 0 &&
+            listCheck?.map((e, slot) => (
+              <div className="listCheck" style={{ marginBottom: "15px  0px" }}>
+                <h3
+                  style={{
+                    display: "inline",
+                    fontWeight: 500,
+                  }}
+                >
+                  {" "}
+                  Lịch{" "}
+                </h3>{" "}
+                {slot + 1}
+                <br></br>
+                <h4>Ngày bắt đầu : </h4> {e?.checkInDate}
+                <br></br>
+                <h4>Sân : </h4> {e?.court}
+                <br></br>
+                <h4>{"Thời gian: "}</h4>
+                {e.timeslot.map((timeslot, index) => (
+                  <React.Fragment key={index}>
+                    {timeslot}
+                    {index !== e.timeslot.length - 1 && ", "}
+                  </React.Fragment>
+                ))}
+              </div>
+            ))}
+        </ModalANTD>
+      </div>
+>>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
     );
   };
   const renderBooked = () => {
@@ -1086,37 +1313,41 @@ const UserProfile = () => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <nav className="flex space-x-4">
           <button
-            className={`px-4 py-2 rounded-full ${activeTab === "profile"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-              }`}
+            className={`px-4 py-2 rounded-full ${
+              activeTab === "profile"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
             onClick={() => setActiveTab("profile")}
           >
             Hồ sơ
           </button>
           <button
-            className={`px-4 py-2 rounded-full ${activeTab === "orders"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-              }`}
+            className={`px-4 py-2 rounded-full ${
+              activeTab === "orders"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
             onClick={() => setActiveTab("orders")}
           >
             Đặt lịch
           </button>
           <button
-            className={`px-4 py-2 rounded-full ${activeTab === "booked"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-              }`}
+            className={`px-4 py-2 rounded-full ${
+              activeTab === "booked"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
             onClick={() => setActiveTab("booked")}
           >
             Lịch đã đặt
           </button>
           <button
-            className={`px-4 py-2 rounded-full ${activeTab === "history"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-              }`}
+            className={`px-4 py-2 rounded-full ${
+              activeTab === "history"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
             onClick={() => setActiveTab("history")}
           >
             Lịch sử đơn hàng
