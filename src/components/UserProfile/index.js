@@ -242,8 +242,7 @@ const UserProfile = () => {
         "/wallet/recharge-vnpay-url",
         {
           amount: depositInfo.amount.toString(),
-          description: depositInfo.description,
-          transitionDate: new Date().toISOString(),
+          description: "cc",
         },
         {
           headers: {

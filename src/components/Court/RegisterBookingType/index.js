@@ -6,11 +6,8 @@ import { toast } from "react-toastify";
 
 const RegisterBookingType = () => {
   const [formData, setFormData] = useState({
-
     startTime: "",
-    endTime: "",
-    venueId: 0
-
+    endTime: ""
   });
 
   const handleChange = (e) => {
@@ -23,10 +20,14 @@ const RegisterBookingType = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const response = await api.post('/timeslots', formData)
-    console.log(response.data)
-    toast.success("Đặt sân thành công !!!");
+    try {
+      const response = await api.post("/timeslots", formData);
+      console.log(response.data);
+      toast.success("Đặt sân thành công !!!");
+    } catch (error) {
+      console.error("There was an error!", error);
+      toast.error("Đặt sân thất bại!");
+    }
   };
 
   return (
@@ -57,7 +58,7 @@ const RegisterBookingType = () => {
         </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg"       
         >
           Đăng ký
         </button>

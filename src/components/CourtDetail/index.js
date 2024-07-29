@@ -230,9 +230,7 @@ const CourtDetails = () => {
     setStartDate(selectedOption);
     // console.log(selectedOption);
   };
-  const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
+
   const options = data?.courts?.map((item) => ({
     value: item.id,
     label: item.courtName,

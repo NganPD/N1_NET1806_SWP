@@ -1,16 +1,16 @@
 // src/components/Footer.js
 import React from "react";
-
+import badmintonImage from "D:/swp/N1_NET1806_SWP/src/Screenshot_2024-07-21_143641-removebg-preview (1).png";
 const Footer = () => {
   return (
     <footer className="bg-white shadow-md mt-20 py-10">
-      <div className="container mx-auto px-8">
+      <div className="container mx-auto px-10">
         <div className="ml-20 flex flex-wrap justify-center md:justify-between items-start">
           <div className="w-full md:w-1/4 mb-6 md:mb-0 text-center md:text-left">
             <img
-              src="https://sieuthicaulong.vn/images/logo/1678420509-final-logo.png?ver=1.2.2"
+              src={badmintonImage}
               alt="Logo"
-              className="h-10 mb-4 mx-auto md:mx-0"
+              className="h-20 mb-4 mx-auto md:mx-0"
             />
             <p className="text-gray-700">
               Vinhomes Grand Park, S10.02, Hồ Chí Minh, Thành phố Hồ Chí Minh

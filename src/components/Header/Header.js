@@ -3,6 +3,7 @@ import { NavLink, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/counterSlice";
 import Swal from "sweetalert2";
+import badmintonImage from "D:/swp/N1_NET1806_SWP/src/Screenshot_2024-07-21_143641-removebg-preview (1).png";
 
 const Header = () => {
   const user = useSelector(selectUser);
@@ -25,10 +26,10 @@ const Header = () => {
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link to="/" className="flex items-center">
             <img
-              src="https://sieuthicaulong.vn/images/logo/1678420509-final-logo.png?ver=1.2.2"
+              src={badmintonImage}
               alt="Logo"
-              className="h-12 mr-2"
-              style={{ filter: "brightness(0) invert(1)" }}
+              className="h-20 mr-4"
+
             />
           </Link>
 
