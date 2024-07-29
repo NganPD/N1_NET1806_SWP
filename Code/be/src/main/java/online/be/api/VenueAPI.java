@@ -71,8 +71,9 @@ public class VenueAPI {
     public ResponseEntity<List<VenueResponse>> searchVenues(
             @RequestParam(required = false) String operatingHoursStr,
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) String timeStr) {
-        List<VenueResponse> venueResponses = venueService.searchVenues(operatingHoursStr, location, timeStr);
+            @RequestParam(required = false) String timeStr,
+            @RequestParam(required = false) String keyWord) {
+        List<VenueResponse> venueResponses = venueService.searchVenues(operatingHoursStr, location, timeStr, keyWord);
         return ResponseEntity.ok(venueResponses);
     }
 

@@ -89,6 +89,18 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
             "AND cts.status IN ('BOOKED', 'CHECKED')")
     List<CourtTimeSlot> findByVenueIdAndDateAndStatus(@Param("venueId") long venueId,
                                                       @Param("checkInDate") LocalDate checkInDate);
+
+    @Query("SELECT COUNT(cts) > 0 " +
+            "FROM CourtTimeSlot cts " +
+            "JOIN cts.timeSlot ts " +
+            "JOIN cts.court c " +
+            "WHERE ts.id = :timeSlotId " +
+            "AND c.id = :courtId " +
+            "AND cts.status = 'AVAILABLE' " +
+            "AND cts.checkInDate = :checkInDate")
+    boolean existsByTimeSlotAndCourt(@Param("timeSlotId") Long timeSlotId,
+                                     @Param("courtId") Long courtId,
+                                     @Param("checkInDate") LocalDate checkInDate);
 }
 
 

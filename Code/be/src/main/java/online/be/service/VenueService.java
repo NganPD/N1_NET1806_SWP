@@ -157,7 +157,7 @@ public class VenueService {
 
     }
 
-    public List<VenueResponse> searchVenues(String operatingHoursStr, String location, String timeStr) {
+    public List<VenueResponse> searchVenues(String operatingHoursStr, String location, String timeStr, String keyword) {
         List<Venue> venues = venueRepository.findAll();
         List<VenueResponse> venueResponses = new ArrayList<>();
 
@@ -167,6 +167,7 @@ public class VenueService {
             boolean matchesOperatingHours = true;
             boolean matchesLocation = true;
             boolean matchesAvailableSlot = true;
+            boolean matchesKeyword = true;
 
             if (operatingHoursStr != null && !operatingHoursStr.isEmpty()) {
                 matchesOperatingHours = venue.getOpeningHour().toString().contains(operatingHoursStr);
@@ -179,7 +180,7 @@ public class VenueService {
             if (timeStr != null && !timeStr.isEmpty()) {
                 matchesAvailableSlot = false;
                 for (Court court : venue.getCourts()) {
-                    List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlots(court.getId(), String.valueOf(currentDateTime), venue.getId());
+                    List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlots(String.valueOf(currentDateTime), venue.getId());
                     for (TimeSlotResponse slot : availableSlots) {
                         if (slot.isAvailable() && slot.getStartTime().equals(timeStr)) {
                             matchesAvailableSlot = true;
@@ -192,14 +193,20 @@ public class VenueService {
                 }
             }
 
-            if (matchesOperatingHours && matchesLocation && matchesAvailableSlot) {
+            if (keyword != null && !keyword.isEmpty()) {
+                String keywordLowerCase = keyword.toLowerCase();
+                matchesKeyword = venue.getName().toLowerCase().contains(keywordLowerCase) ||
+                        venue.getDescription().toLowerCase().contains(keywordLowerCase);
+            }
+
+            if (matchesOperatingHours && matchesLocation && matchesAvailableSlot && matchesKeyword) {
                 venueResponses.add(mapToVenueResponse(venue));
             }
         }
 
-
         return venueResponses;
     }
+
 
     public Venue addStaffToVenue(long staffId, long venueId) {
         try {
