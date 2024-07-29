@@ -30,7 +30,7 @@ const RegisterCourtInfo = () => {
 
       if (response.status === 200) {
         console.log("Success:", response.data);
-        toast.success("Mua giờ thành công !!!");
+        toast.success("Đăng kí court thành công !!!");
       } else {
         console.error("Error:", response.data);
         toast.error("Registration failed. Please try again.");

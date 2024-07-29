@@ -17,8 +17,6 @@ const NewCourtRegistration = () => {
   const [services, setServices] = useState("");
   const [managerId, setManagerId] = useState(0);
   const [availableManagers, setAvailableManagers] = useState([]);
-
-  const token = localStorage.getItem("token");
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);

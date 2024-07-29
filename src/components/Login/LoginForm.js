@@ -37,7 +37,7 @@ const LoginForm = () => {
 
         // Get user role from response
         const role = res.data.role;
-        // console.log("🚀 ~ onSubmit ~ role:", role);
+        // console.log("role:", role);
 
         // Navigate based on user role
         if (role === "ADMIN") {
@@ -50,8 +50,6 @@ const LoginForm = () => {
           navigate("/");
         }
       });
-      // console.log("🚀 ~ onSubmit ~ res.data.token:", res.data.token);
-      // console.log("🚀 ~ onSubmit ~ res.data.token:", res.data.token);
     } catch (error) {
       console.log(error);
       Swal.fire({

@@ -27,18 +27,6 @@ const RegisterBookingType = () => {
     const response = await api.post('/timeslots', formData)
     console.log(response.data)
     toast.success("Đặt sân thành công !!!");
-
-    // if (response.ok) {
-    //   // Handle success
-    //   const data = await response.json();
-    //   console.log("Success:", data);
-    //   alert("Registration successful!");
-    // } else {
-    //   // Handle error
-    //   const error = await response.json();
-    //   console.error("Error:", error);
-    //   alert("Registration failed. Please try again.");
-    // }
   };
 
   return (
@@ -47,18 +35,6 @@ const RegisterBookingType = () => {
         Đăng ký slot
       </h1>
       <form onSubmit={handleSubmit}>
-        {/* <div className="mb-4">
-          <label className="block text-gray-700">Loại hình đặt lịch</label>
-          <select
-            name="bookingType"
-            value={formData.bookingType}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg"
-          >
-            <option value="FLEXIBLE">Flexible</option>
-            <option value="FIXED">Fixed</option>
-          </select>
-        </div> */}
         <div className="mb-4">
           <label className="block text-gray-700">Start time</label>
           <input
@@ -79,26 +55,6 @@ const RegisterBookingType = () => {
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
-        {/* <div className="mb-4">
-          <label className="block text-gray-700">venueID</label>
-          <input
-            type="number"
-            name="venueId"
-            value={formData.venueId}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div> */}
-        {/* <div className="mb-4">
-          <label className="block text-gray-700">Giảm giá</label>
-          <input
-            type="number"
-            name="discount"
-            value={formData.discount}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div> */}
         <button
           type="submit"
           className="px-4 py-2 bg-blue-500 text-white rounded-lg"

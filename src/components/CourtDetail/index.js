@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Modal from "react-modal";
 import moment from "moment-timezone";
 import api from "../../config/axios";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/counterSlice";
 import {
   InputNumber,
@@ -22,12 +22,6 @@ Modal.setAppElement("#root");
 const CourtDetails = () => {
   const navigate = useNavigate();
   const user = useSelector(selectUser);
-<<<<<<< HEAD
-  const dispatch = useDispatch();
-=======
-   const dispatch = useDispatch();
->>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
-
   const [form] = useForm();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState("");
@@ -88,11 +82,7 @@ const CourtDetails = () => {
   const fetchSlotDaily = async () => {
     try {
       const response = await api.get(
-<<<<<<< HEAD
         `/timeslots/available-slots?date=${selectedDate}&venueId=${id}`
-=======
-        `/timeslots/available-slots?courtId=${selectedCourt}&date=${selectedDate}&venueId=${id}`
->>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
       );
       console.log(response.data);
       setSlotDaily(response.data);
@@ -152,11 +142,7 @@ const CourtDetails = () => {
   const fetchSlot = async () => {
     try {
       const response = await api.get(
-<<<<<<< HEAD
         `/timeslots/venue-slots?venueId=${id}`
-=======
-        `/timeslots/available-fixed-slots?applicationStartDate=${selectedDate}&durationInMonths=${months}&dayOfWeek=${startDate}&court=${courtSelect}`
->>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
       );
       console.log(response.data);
       setSlots(response.data);
@@ -190,11 +176,7 @@ const CourtDetails = () => {
       newErrors.selectedCourt = "Vui lòng chọn sân.";
     }
     if (bookingType === "fixed" && !selectedTime) {
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
     }
     if (bookingType === "fixed" && !months) {
       newErrors.months = "Vui lòng nhập số tháng.";
@@ -405,31 +387,6 @@ const CourtDetails = () => {
                   </p>
                 )}
               </div>
-<<<<<<< HEAD
-
-=======
-              <div className="mb-4">
-                <label className="block mb-2">Chọn giờ:</label>
-                <Select
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  mode="tags"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn giờ"
-                  onChange={handleChange}
-                  options={slots.map((item) => ({
-                    value: item.id,
-                    label: `${item.startTime} - ${item.endTime}`,
-                  }))}
-                />
-
-                {errors.selectedTime && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.selectedTime}
-                  </p>
-                )}
-              </div>
->>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
-
               <div className="flex justify-between">
                 <button
                   onClick={handlePreviousStep}
@@ -584,22 +541,6 @@ const CourtDetails = () => {
                   onChange={(e) => setSelectedCourt(e)}
                 ></Select>
               </div>
-<<<<<<< HEAD
-
-=======
-              <label className="block mb-2">Chọn Slots:</label>
-              <Select
-                className="w-full mb-3"
-                mode="tags"
-                value={selectedSlot}
-                options={slotDaily?.map((item) => ({
-                  label: `${item.startTime} - ${item.endTime}`,
-                  value: item.id,
-                }))}
-                onChange={(e) => setSelectedSlot(e)}
-              ></Select>
->>>>>>> 52bab79ac4c19363bdc3cea85271878fb7aac695
-
               <div className="flex justify-between">
                 <button
                   onClick={handlePreviousStep}
