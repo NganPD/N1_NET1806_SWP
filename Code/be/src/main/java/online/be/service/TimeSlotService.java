@@ -127,6 +127,79 @@ public class TimeSlotService {
             checkInDate = LocalDate.parse(date);
         }
 
+
+        for (TimeSlot slot : slots) {
+            TimeSlotResponse slotResponse = mapperSlot(slot);
+            if (checkInDate != null) {
+                if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
+                    slotResponse.setAvailable(isSlotExpired(checkInDate, slot.getStartTime()));
+                }
+                slotResponses.add(slotResponse);
+            } else {
+                slotResponses.add(slotResponse);
+            }
+        }
+
+        return slotResponses;
+    }
+
+    public List<TimeSlotResponse> getAvailableSlotByDayOfWeek(String date, Integer durationMonths, List<String> dayOfWeeks, Long courtId) {
+        List<TimeSlotResponse> allSlots = new ArrayList<>();
+
+        // Check if all parameters are null
+        if (date == null || durationMonths == null || dayOfWeeks == null || courtId == null) {
+            // Get all slots if no parameters are provided
+            List<TimeSlot> slots = getAllSlots();
+            for (TimeSlot slot : slots) {
+                TimeSlotResponse slotResponse = mapperSlot(slot);
+                slotResponse.setAvailable(true); // Assume all slots are available
+                allSlots.add(slotResponse);
+            }
+            return allSlots;
+        }
+
+        // Validate and parse date
+        LocalDate applicationDate;
+        try {
+            applicationDate = LocalDate.parse(date);
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("Invalid date format: " + date);
+        }
+
+        // Validate durationMonths
+        if (durationMonths == null) {
+            throw new BadRequestException("Duration is null");
+        }
+
+        // Validate dayOfWeeks
+        if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
+            throw new BadRequestException("Day of weeks cannot be null or empty");
+        }
+
+        // Calculate all matching dates for the given dayOfWeeks and durationMonths
+        List<LocalDate> allMatchingDates = new ArrayList<>();
+        for (int month = 0; month < durationMonths; month++) {
+            for (String dayOfWeekStr : dayOfWeeks) {
+                DayOfWeek dayOfWeek;
+                try {
+                    dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new BadRequestException("Invalid day of week: " + dayOfWeekStr);
+                }
+                LocalDate firstMatchingDate = applicationDate.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+                for (LocalDate dateMatch = firstMatchingDate; !dateMatch.isAfter(applicationDate.plusMonths(1).minusDays(1)); dateMatch = dateMatch.plusWeeks(1)) {
+                    allMatchingDates.add(dateMatch);
+                }
+            }
+            applicationDate = applicationDate.plusMonths(1);
+        }
+
+        // Get all time slots for the court
+        Court court = courtRepo.findById(courtId).orElseThrow(() ->
+                new BadRequestException("Court not found with id: " + courtId));
+        List<TimeSlot> slots = getAllSlotByVenue(court.getVenue().getId());
+
+        // Check availability for each time slot
         for (TimeSlot slot : slots) {
             TimeSlotResponse slotResponse = mapperSlot(slot);
             if (checkInDate != null) {
@@ -163,4 +236,9 @@ public class TimeSlotService {
             return false;
         }
     }
+    // Method to get all slots of a venue
+    private List<TimeSlot> getAllSlots() {
+        return timeSlotRepository.findAll(); // Assumes timeSlotRepository is the repository for TimeSlot
+    }
+
 }
