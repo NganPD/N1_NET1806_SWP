@@ -116,7 +116,7 @@ const CourtDetails = () => {
       } else {
       }
       console.log(response);
-      toast.success("Booking SuccessFully!!!");
+      toast.success("Đặt lịch thành công !!!");
     } catch (error) {
       toast.error(error.response.data);
     }
@@ -397,7 +397,7 @@ const CourtDetails = () => {
                   onClick={handleCreateBooking}
                   className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
                 >
-                  Tiếp tục
+                  Đặt lịch
                 </button>
               </div>
             </div>
@@ -472,14 +472,7 @@ const CourtDetails = () => {
                 </ModalANTD>
                 <div className="flex flex-row justify-between items-center">
                   <h2 className="text-2xl font-bold mb-4">Chọn giờ chơi</h2>
-                  <div className="flex flex-row items-center justify-between gap-3">
-                    <button
-                      onClick={() => setOpenModal(true)}
-                      className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
-                    >
-                      + ( mua giờ )
-                    </button>
-                  </div>
+                  
                 </div>
 
                 <div className="flex justify-between">
@@ -489,12 +482,20 @@ const CourtDetails = () => {
                   >
                     Quay lại
                   </button>
-                  <button
+                  <div className="flex flex-row items-center justify-between gap-3">
+                    <button
+                      onClick={() => setOpenModal(true)}
+                      className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
+                    >
+                      + ( Mua giờ )
+                    </button>
+                  </div>
+                  {/* <button
                     onClick={handleNextStep}
                     className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
                   >
                     Tiếp tục
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </>
@@ -550,7 +551,7 @@ const CourtDetails = () => {
                   onClick={handleCreateBooking}
                   className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600"
                 >
-                  Chọn giờ chơi
+                  Đặt lịch
                 </button>
               </div>
             </div>
