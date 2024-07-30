@@ -9,6 +9,15 @@ const Sidebar = () => {
       </div>
       <nav className="mt-4">
         <ul>
+           <li className="mb-2">
+            <NavLink
+              to="/court-manager/overview"
+              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              activeClassName="bg-blue-500"
+            >
+              Thống kê
+            </NavLink>
+          </li>
           <li className="mb-2">
             <NavLink
               to="/court-manager/register-court-info"

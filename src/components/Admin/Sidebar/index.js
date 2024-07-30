@@ -11,15 +11,6 @@ const Sidebar = () => {
         <ul>
           <li className="mb-2">
             <NavLink
-              to="/admin/overview"
-              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
-              activeClassName="bg-blue-500"
-            >
-              Thống kê
-            </NavLink>
-          </li>
-          <li className="mb-2">
-            <NavLink
               to="/admin/accounts"
               className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"
