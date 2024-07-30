@@ -56,12 +56,13 @@ root.render(
             <Route path="accounts" element={<AccountManagement />} />
             <Route path="courts" element={<CourtManagement />} />
             <Route path="new-court" element={<NewCourtRegistration />} />
-            <Route path="overview" element={<Overview />} />
+            
           </Route>
           <Route path="/court-manager" element={<CourtLayout />}>
             <Route path="register-court-info" element={<RegisterCourtInfo />} />
             <Route path="register-booking-type"  element={<RegisterBookingType />} />
             <Route path="manage-courts" element={<ManageCourts />} />
+            <Route path="overview" element={<Overview />} />
           </Route>
 
           {/* Staff */}
