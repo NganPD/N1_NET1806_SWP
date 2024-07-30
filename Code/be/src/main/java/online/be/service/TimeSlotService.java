@@ -1,5 +1,6 @@
 package online.be.service;
 
+import online.be.entity.Account;
 import online.be.entity.Court;
 import online.be.entity.TimeSlot;
 import online.be.entity.Venue;
@@ -9,6 +10,7 @@ import online.be.model.Request.TimeSlotRequest;
 import online.be.model.Response.TimeSlotResponse;
 import online.be.model.SlotIdCountDTO;
 import online.be.repository.CourtRepository;
+import online.be.repository.CourtTimeSlotRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +35,23 @@ public class TimeSlotService {
     @Autowired
     CourtRepository courtRepo;
 
+    @Autowired
+    CourtTimeSlotRepository courtTimeSlotRepository;
+
+    @Autowired
+    AuthenticationService authenticationService;
 
     // Lưu một TimeSlot mới hoặc cập nhật một TimeSlot đã tồn tại
     public TimeSlot createTimeSlot(TimeSlotRequest timeSlotRequest) {
         LocalTime startTime = LocalTime.parse(timeSlotRequest.getStartTime());
         LocalTime endTime = LocalTime.parse(timeSlotRequest.getEndTime());
         //check the overlapping time slots
-        List<TimeSlot> existingSlots = timeSlotRepository.findByVenueId(timeSlotRequest.getVenueId());
+        Account manager =  authenticationService.getCurrentAccount();
+        Venue venue = manager.getAssignedVenue();
+        if(venue == null){
+            throw new BadRequestException("Venue not found");
+        }
+        List<TimeSlot> existingSlots = timeSlotRepository.findByVenueId(venue.getId());
         for (TimeSlot slot : existingSlots) {
             if (startTime.isBefore(slot.getStartTime())
                     && endTime.isAfter(slot.getStartTime())) {
@@ -55,8 +67,6 @@ public class TimeSlotService {
 
         //Set venue
         //check whether the venue exist or not
-        Venue venue = venueRepository.findById(timeSlotRequest.getVenueId())
-                .orElseThrow(() -> new BadRequestException("The venue cannot be found by ID" + timeSlotRequest.getVenueId()));
         timeSlot.setVenue(venue);
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
@@ -69,10 +79,9 @@ public class TimeSlotService {
 //        timeSlot.setDuration(timeSlotRequest.getDuration());
         timeSlot.setStartTime(LocalTime.parse(timeSlotRequest.getStartTime()));
         timeSlot.setEndTime(LocalTime.parse(timeSlotRequest.getEndTime()));
-        long duration = Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toMinutes();
+        long duration = Duration.between(timeSlot.getStartTime(), timeSlot.getEndTime()).toHours();
         timeSlot.setDuration(duration);
-        venueRepository.findById(timeSlotRequest.getVenueId())
-                .orElseThrow(() -> new ResourceNotFoundException("The venue cannot be found by ID: " + timeSlotRequest.getVenueId()));
+
         return timeSlotRepository.save(timeSlot);
     }    //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
 
@@ -99,7 +108,6 @@ public class TimeSlotService {
             throw new RuntimeException("An error occurred while fetching time slots: " + e.getMessage(), e);
         }
     }
-
     public TimeSlotResponse mapperSlot(TimeSlot slot) {
         TimeSlotResponse slotResponse = new TimeSlotResponse();
         slotResponse.setId(slot.getId());
@@ -118,6 +126,7 @@ public class TimeSlotService {
         if (date != null && !date.isEmpty()) {
             checkInDate = LocalDate.parse(date);
         }
+
 
         for (TimeSlot slot : slots) {
             TimeSlotResponse slotResponse = mapperSlot(slot);
@@ -193,29 +202,17 @@ public class TimeSlotService {
         // Check availability for each time slot
         for (TimeSlot slot : slots) {
             TimeSlotResponse slotResponse = mapperSlot(slot);
-            boolean isAvailable = true;
-
-            for (LocalDate dateMatch : allMatchingDates) {
-                if (dateMatch.isBefore(LocalDate.now())) {
-                    continue; // Skip past dates
+            if (checkInDate != null) {
+                if (checkInDate.equals(LocalDate.now()) || checkInDate.isBefore(LocalDate.now())) {
+                    slotResponse.setAvailable(isSlotExpired(checkInDate, slot.getStartTime()));
                 }
-
-                List<SlotIdCountDTO> slotIdCounts = getSlotIdCounts(courtId, dateMatch);
-                boolean slotOccupied = slotIdCounts.stream()
-                        .anyMatch(slotIdCount -> slot.getId() == slotIdCount.getSlotId() && slotIdCount.getCount() == 1);
-
-                if (slotOccupied) {
-                    isAvailable = false;
-                    break;
-                }
+                slotResponses.add(slotResponse);
+            } else {
+                slotResponses.add(slotResponse);
             }
-
-            // Set availability for the slot
-            slotResponse.setAvailable(isAvailable);
-            allSlots.add(slotResponse);
         }
 
-        return allSlots;
+        return slotResponses;
     }
 
     // Method to get all slots of a venue
@@ -223,20 +220,9 @@ public class TimeSlotService {
         return timeSlotRepository.findAll(); // Assumes timeSlotRepository is the repository for TimeSlot
     }
 
-
     // New method to get all slots by venue
-    private List<TimeSlot> getAllSlotByVenue(long venueId) {
+    public List<TimeSlot> getAllSlotByVenue(long venueId) {
         return timeSlotRepository.findByVenueId(venueId);
-    }
-
-    // Helper method to retrieve SlotIdCountDTOs
-    private List<SlotIdCountDTO> getSlotIdCounts(long courtId, LocalDate date) {
-        List<Object[]> results = timeSlotRepository.countTimeSlotsByCourtIdAndDate(courtId, date);
-        List<SlotIdCountDTO> slotIdCounts = new ArrayList<>();
-        for (Object[] result : results) {
-            slotIdCounts.add(new SlotIdCountDTO((Long) result[0], (Long) result[1]));
-        }
-        return slotIdCounts;
     }
 
     // Check if the slot date and time has already passed

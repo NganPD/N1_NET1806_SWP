@@ -12,6 +12,10 @@ import online.be.model.Request.FlexibleBookingRequest;
 
 import online.be.model.Response.BookingDetailResponse;
 import online.be.model.Response.BookingResponse;
+
+import online.be.model.Response.CheckInResponse;
+import online.be.model.Response.CourtTimeSlotResponse;
+
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -88,6 +92,7 @@ public class BookingService {
                     .orElseThrow(() -> new BadRequestException("Timeslot not found: " + slotId));
             timeSlots.add(timeSlot);
         }
+      
         // Retrieve court by id
         Court court = courtRepo.findById(bookingRequest.getCourt())
                 .orElseThrow(() -> new BadRequestException("Court not found with id: " + bookingRequest.getCourt()));
@@ -555,9 +560,6 @@ public class BookingService {
 
     public List<Booking> getBookingByUserId(long userId) {
         List<Booking> bookings = bookingRepo.findBookingByAccount_Id(userId);
-        if (bookings.isEmpty()) {
-            throw new NoDataFoundException("0 Booking History");
-        }
         return bookings;
     }
 
@@ -580,9 +582,6 @@ public class BookingService {
     public List<BookingResponse> getBookingHistory(){
         Account user = authenticationService.getCurrentAccount();
         List<Booking> bookingList = bookingRepo.findBookingByAccount_Id(user.getId());
-        if(bookingList.isEmpty()){
-            throw new BadRequestException("No Booking research");
-        }
         List<BookingResponse> responseList = new ArrayList<>();
         for(Booking booking : bookingList){
             BookingResponse response = mapToBookingResponse(booking);
@@ -662,4 +661,19 @@ public class BookingService {
 
         return revenueData;
     }
+
+    public List<BookingResponse> getBookedBooking( ){
+        Account user = authenticationService.getCurrentAccount();
+        List<Booking> bookings = bookingRepo.findByStatusAndAccount_Id(BookingStatus.BOOKED, user.getId());
+        List<BookingResponse> responses = new ArrayList<>();
+        for (Booking booking : bookings){
+            BookingResponse response = mapToBookingResponse(booking);
+            responses.add(response);
+        }
+        return responses;
+    }
+
+
+
+
 }

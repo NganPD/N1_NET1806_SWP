@@ -87,5 +87,29 @@ public interface CourtTimeSlotRepository extends JpaRepository<CourtTimeSlot, Lo
                                      @Param("courtId") Long courtId,
                                      @Param("checkInDate") LocalDate checkInDate);
 
+    @Query("SELECT cts FROM CourtTimeSlot cts JOIN cts.court court WHERE cts.status = :status AND court.venue.id = :venueId")
+    List<CourtTimeSlot> findByStatusAndVenueId(@Param("status") SlotStatus status, @Param("venueId") long venueId);
+
+    @Query("SELECT cts FROM CourtTimeSlot cts WHERE cts.court.id = :courtId AND cts.timeSlot.id IN :timeSlotIds AND cts.checkInDate = :date")
+    List<CourtTimeSlot> findByCourtIdAndTimeSlotIdsAndDate(@Param("courtId") Long courtId, @Param("timeSlotIds") List<Long> timeSlotIds, @Param("date") LocalDate date);
+
+    @Query("SELECT cts FROM CourtTimeSlot cts JOIN cts.court court " +
+            "WHERE court.venue.id = :venueId " +
+            "AND cts.checkInDate = :checkInDate " +
+            "AND cts.status IN ('BOOKED', 'CHECKED')")
+    List<CourtTimeSlot> findByVenueIdAndDateAndStatus(@Param("venueId") long venueId,
+                                                      @Param("checkInDate") LocalDate checkInDate);
+
+    @Query("SELECT COUNT(cts) > 0 " +
+            "FROM CourtTimeSlot cts " +
+            "JOIN cts.timeSlot ts " +
+            "JOIN cts.court c " +
+            "WHERE ts.id = :timeSlotId " +
+            "AND c.id = :courtId " +
+            "AND cts.status = 'AVAILABLE' " +
+            "AND cts.checkInDate = :checkInDate")
+    boolean existsByTimeSlotAndCourt(@Param("timeSlotId") Long timeSlotId,
+                                     @Param("courtId") Long courtId,
+                                     @Param("checkInDate") LocalDate checkInDate)
 }
 

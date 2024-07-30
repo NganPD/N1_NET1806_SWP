@@ -65,12 +65,6 @@ public class WalletService {
         String secretKey = VNPayConfig.vnp_HashSecret;
         String vnpUrl = VNPayConfig.vnp_PayUrl;
         String returnUrl = "http://localhost:3000/profile?id=" + transactionReturn.getTransactionID();
-
-        // Gửi email thông báo
-        String subject = "Nạp tiền đang chờ xử lý";
-        String body = "Bạn đã khởi tạo giao dịch nạp tiền vào ví với số tiền " + rechargeRequest.getAmount() + ". Vui lòng chờ xác nhận.";
-        emailService.sendMail(user, subject, body);
-
         String currCode = "VND";
         Map<String, String> vnpParams = new TreeMap<>();
         vnpParams.put("vnp_Version", "2.1.0");
@@ -241,6 +235,10 @@ public class WalletService {
     public Wallet getWalletByTransactionId(UUID transactionId) {
         Transaction transaction = transactionRepository.findByTransactionID(transactionId);
         return walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
+    }
+
+    public Account getUser(){
+        return authenticationService.getCurrentAccount();
     }
 
 }

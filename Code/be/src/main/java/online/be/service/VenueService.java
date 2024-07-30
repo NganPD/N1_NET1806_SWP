@@ -40,6 +40,9 @@ public class VenueService {
     @Autowired
     TimeSlotService timeSlotService;
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     // Tạo một venue
@@ -112,14 +115,16 @@ public class VenueService {
     }
 
     // Cập nhật thông tin venue
-    public Venue updateVenue(long venueId, UpdateVenueRequest updateVenueRequest) {
+    public Venue updateVenue(UpdateVenueRequest updateVenueRequest) {
         // Find venue by ID
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(() -> new BadRequestException("Venue not found with id: " + venueId));
+        Account manager = authenticationService.getCurrentAccount();
+        Venue venue = getVenueByManagerId(manager.getId());
         // Update venue information based on the request
         venue.setName(updateVenueRequest.getVenueName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
+        venue.setImageUrl(updateVenueRequest.getImageUrl());
+        venue.setServices(updateVenueRequest.getServices());
         venue.setContactInfor(updateVenueRequest.getContactInfor());
         venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
         venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
@@ -157,7 +162,7 @@ public class VenueService {
 
     }
 
-    public List<VenueResponse> searchVenues(String operatingHoursStr, String location, String timeStr) {
+    public List<VenueResponse> searchVenues(String operatingHoursStr, String location, String timeStr, String keyword) {
         List<Venue> venues = venueRepository.findAll();
         List<VenueResponse> venueResponses = new ArrayList<>();
 
@@ -167,6 +172,7 @@ public class VenueService {
             boolean matchesOperatingHours = true;
             boolean matchesLocation = true;
             boolean matchesAvailableSlot = true;
+            boolean matchesKeyword = true;
 
             if (operatingHoursStr != null && !operatingHoursStr.isEmpty()) {
                 matchesOperatingHours = venue.getOpeningHour().toString().contains(operatingHoursStr);
@@ -179,7 +185,7 @@ public class VenueService {
             if (timeStr != null && !timeStr.isEmpty()) {
                 matchesAvailableSlot = false;
                 for (Court court : venue.getCourts()) {
-                    List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlots(court.getId(), String.valueOf(currentDateTime), venue.getId());
+                    List<TimeSlotResponse> availableSlots = timeSlotService.getAvailableSlots(String.valueOf(currentDateTime), venue.getId());
                     for (TimeSlotResponse slot : availableSlots) {
                         if (slot.isAvailable() && slot.getStartTime().equals(timeStr)) {
                             matchesAvailableSlot = true;
@@ -192,14 +198,20 @@ public class VenueService {
                 }
             }
 
-            if (matchesOperatingHours && matchesLocation && matchesAvailableSlot) {
+            if (keyword != null && !keyword.isEmpty()) {
+                String keywordLowerCase = keyword.toLowerCase();
+                matchesKeyword = venue.getName().toLowerCase().contains(keywordLowerCase) ||
+                        venue.getDescription().toLowerCase().contains(keywordLowerCase);
+            }
+
+            if (matchesOperatingHours && matchesLocation && matchesAvailableSlot && matchesKeyword) {
                 venueResponses.add(mapToVenueResponse(venue));
             }
         }
 
-
         return venueResponses;
     }
+
 
     public Venue addStaffToVenue(long staffId, long venueId) {
         try {
@@ -219,9 +231,11 @@ public class VenueService {
         }
     }
 
-    public Account getManager(long venueId) {
-        return accountRepository.findManagerByAssignedVenue_Id(venueId);
-    }
+//    public Account getManager() {
+//        Account manager = authenticationService.getCurrentAccount();
+//        Venue venue = venueRepository.findVenueByManagerId(manager.getId());
+//        return accountRepository.findManagerByAssignedVenue_Id(venue.getId());
+//    }
 
     public List<Account> getStaffsByVenueId(long venueId) {
         return accountRepository.findStaffByStaffVenue_Id(venueId);
@@ -307,13 +321,16 @@ public class VenueService {
         return pricings.isEmpty() ? 0 : totalPrice / pricings.size(); // Tính giá trung bình
     }
 
-    public VenueResponse getVenueByManagerId(long managerId){
+    public Venue getVenueByManagerId(long managerId){
         Venue venue = venueRepository.findVenueByManagerId(managerId);
         if(venue == null){
             throw new BadRequestException("Not found manager");
         }
-        VenueResponse response = mapToVenueResponse(venue);
-        return response;
+        return venue;
+    }
+
+    public Account getManager() {
+        return authenticationService.getCurrentAccount();
     }
 }
 

@@ -14,5 +14,7 @@ public class UpdateVenueRequest {
     private VenueStatus venueStatus;
     private String operatingHours;
     private String closingHours;
+    private String services;
+    private String imageUrl;
     private String description;
 }

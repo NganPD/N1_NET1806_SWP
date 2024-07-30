@@ -16,6 +16,4 @@ public class TimeSlotRequest {
     @JsonFormat(pattern = "HH:mm")
     private String  endTime;
 
-    @NotNull(message = "Venue ID is required")
-    private long venueId;
 }

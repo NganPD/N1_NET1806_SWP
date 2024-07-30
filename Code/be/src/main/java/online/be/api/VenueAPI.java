@@ -41,9 +41,9 @@ public class VenueAPI {
         return ResponseEntity.ok().body(venueService.getAllVenues());
     }
 
-    @PutMapping("/{venueId}")
-    public ResponseEntity updateVenue(@PathVariable long venueId, @RequestBody UpdateVenueRequest updateVenueRequest){
-        Venue updatedVenue = venueService.updateVenue(venueId, updateVenueRequest);
+    @PutMapping("/update")
+    public ResponseEntity updateVenue(@RequestBody UpdateVenueRequest updateVenueRequest){
+        Venue updatedVenue = venueService.updateVenue(updateVenueRequest);
         return ResponseEntity.ok().body(updatedVenue);
     }
 
@@ -66,13 +66,18 @@ public class VenueAPI {
         return ResponseEntity.noContent().build();//204
     }
 
+    @GetMapping("/manager")
+    public ResponseEntity getManager(){
+        return ResponseEntity.ok(venueService.getManager());
+    }
 
     @GetMapping("/search")
     public ResponseEntity<List<VenueResponse>> searchVenues(
             @RequestParam(required = false) String operatingHoursStr,
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) String timeStr) {
-        List<VenueResponse> venueResponses = venueService.searchVenues(operatingHoursStr, location, timeStr);
+            @RequestParam(required = false) String timeStr,
+            @RequestParam(required = false) String keyWord) {
+        List<VenueResponse> venueResponses = venueService.searchVenues(operatingHoursStr, location, timeStr, keyWord);
         return ResponseEntity.ok(venueResponses);
     }
 

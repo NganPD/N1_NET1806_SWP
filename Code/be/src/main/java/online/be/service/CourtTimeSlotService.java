@@ -1,12 +1,11 @@
 
 package online.be.service;
 
-import online.be.entity.Court;
-import online.be.entity.CourtTimeSlot;
-import online.be.entity.TimeSlot;
+import online.be.entity.*;
 import online.be.enums.SlotStatus;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.CourtTimeSlotRequest;
+import online.be.model.Response.CourtTimeSlotResponse;
 import online.be.repository.CourtRepository;
 import online.be.repository.CourtTimeSlotRepository;
 import online.be.repository.TimeSlotRepository;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +27,9 @@ public class CourtTimeSlotService {
 
     @Autowired
     CourtRepository courtRepository;
+
+    @Autowired
+    AuthenticationService authenticationService;
 
     //create
     public CourtTimeSlot createCourtTimeSlot(CourtTimeSlotRequest request){
@@ -55,11 +58,51 @@ public class CourtTimeSlotService {
         return slots;
     }
 
-    public List<CourtTimeSlot> getBookedAndCheckedByVenue(long venueId){
+    public List<CourtTimeSlotResponse> getBookedAndCheckedByVenue(){
         LocalDate today = LocalDate.now();
-        List<CourtTimeSlot> courtTimeSlots = courtTimeSlotRepository.findByVenueIdAndDateAndStatus(venueId, today);
+        Account staff = authenticationService.getCurrentAccount();
+        Venue venue = staff.getStaffVenue();
+        if(venue == null){
+            throw new BadRequestException("Venue not found");
+        }
+        List<CourtTimeSlot> courtTimeSlots = courtTimeSlotRepository.findByVenueIdAndDateAndStatus(venue.getId(), today);
+        List<CourtTimeSlotResponse> courtTimeSlotResponses = new ArrayList<>();
+        for (CourtTimeSlot courtTimeSlot : courtTimeSlots){
+            CourtTimeSlotResponse response = convertToDTO(courtTimeSlot);
+            courtTimeSlotResponses.add(response);
+        }
+        return courtTimeSlotResponses;
+    }
 
-        return courtTimeSlots;
+    private boolean isExistedCourtTimeSlot(Long timeSlotId, Long courtId, LocalDate date){
+        return courtTimeSlotRepository.existsByTimeSlotAndCourt(timeSlotId, courtId, date);
+    }
+
+    public CourtTimeSlot checkIn(long courtTimeSlotId){
+        CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(courtTimeSlotId);
+        if (courtTimeSlot == null){
+            throw new BadRequestException("Court Time SLot ID not found: " + courtTimeSlotId);
+        }
+        if(courtTimeSlot.getStatus() == SlotStatus.BOOKED){
+            courtTimeSlot.setStatus(SlotStatus.CHECKED);
+            return courtTimeSlotRepository.save(courtTimeSlot);
+        }else{
+            throw new BadRequestException("Cannot check-in: Slot is not in BOOKED status");
+        }
+    }
+
+    private CourtTimeSlotResponse convertToDTO(CourtTimeSlot courtTimeSlot) {
+        CourtTimeSlotResponse dto = new CourtTimeSlotResponse();
+        dto.setBooker(courtTimeSlot.getBookingDetail().getBooking().getAccount().getFullName());
+        dto.setDate(courtTimeSlot.getCheckInDate());
+        dto.setPrice(courtTimeSlot.getBookingDetail().getPrice());
+        dto.setStartTime(courtTimeSlot.getTimeSlot().getStartTime());
+        dto.setEndTime(courtTimeSlot.getTimeSlot().getEndTime());
+        dto.setCourtName(courtTimeSlot.getCourt().getCourtName());
+        dto.setPhoneNumber(courtTimeSlot.getBookingDetail().getBooking().getAccount().getPhone());
+        dto.setStatus(courtTimeSlot.getStatus());
+        dto.setCourtTimeSlotId(courtTimeSlot.getId());
+        return dto;
     }
 
 

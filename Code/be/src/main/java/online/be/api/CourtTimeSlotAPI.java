@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import online.be.service.CourtTimeSlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/court-time-slot")
@@ -24,7 +21,12 @@ public class CourtTimeSlotAPI {
     }
 
     @GetMapping("/booked-or-checked")
-    public ResponseEntity getBookedAndCheckedSlot(long venueId){
-        return ResponseEntity.ok(courtTimeSlotService.getBookedAndCheckedByVenue(venueId));
+    public ResponseEntity getBookedAndCheckedSlot(){
+        return ResponseEntity.ok(courtTimeSlotService.getBookedAndCheckedByVenue());
+    }
+
+    @PatchMapping("/checkin/{id}")
+    public ResponseEntity checkIn(@PathVariable("id") long id){
+        return ResponseEntity.ok(courtTimeSlotService.checkIn(id));
     }
 }

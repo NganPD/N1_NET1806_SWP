@@ -11,5 +11,4 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RechargeRequest {
     private String amount;
-    private String description;
 }

@@ -86,5 +86,10 @@ public class WalletAPI {
         return balance;
     }
 
+    @GetMapping("/user")
+    public ResponseEntity getUser(){
+        return ResponseEntity.ok(walletService.getUser());
+    }
+
 
 }
