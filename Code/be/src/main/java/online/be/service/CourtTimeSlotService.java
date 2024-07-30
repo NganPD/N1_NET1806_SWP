@@ -78,6 +78,19 @@ public class CourtTimeSlotService {
         return courtTimeSlotRepository.existsByTimeSlotAndCourt(timeSlotId, courtId, date);
     }
 
+    public CourtTimeSlot checkIn(long courtTimeSlotId){
+        CourtTimeSlot courtTimeSlot = courtTimeSlotRepository.findById(courtTimeSlotId);
+        if (courtTimeSlot == null){
+            throw new BadRequestException("Court Time SLot ID not found: " + courtTimeSlotId);
+        }
+        if(courtTimeSlot.getStatus() == SlotStatus.BOOKED){
+            courtTimeSlot.setStatus(SlotStatus.CHECKED);
+            return courtTimeSlotRepository.save(courtTimeSlot);
+        }else{
+            throw new BadRequestException("Cannot check-in: Slot is not in BOOKED status");
+        }
+    }
+
     private CourtTimeSlotResponse convertToDTO(CourtTimeSlot courtTimeSlot) {
         CourtTimeSlotResponse dto = new CourtTimeSlotResponse();
         dto.setBooker(courtTimeSlot.getBookingDetail().getBooking().getAccount().getFullName());
@@ -88,6 +101,7 @@ public class CourtTimeSlotService {
         dto.setCourtName(courtTimeSlot.getCourt().getCourtName());
         dto.setPhoneNumber(courtTimeSlot.getBookingDetail().getBooking().getAccount().getPhone());
         dto.setStatus(courtTimeSlot.getStatus());
+        dto.setCourtTimeSlotId(courtTimeSlot.getId());
         return dto;
     }
 

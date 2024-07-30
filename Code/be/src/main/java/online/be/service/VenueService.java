@@ -40,6 +40,9 @@ public class VenueService {
     @Autowired
     TimeSlotService timeSlotService;
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     // Tạo một venue
@@ -112,14 +115,16 @@ public class VenueService {
     }
 
     // Cập nhật thông tin venue
-    public Venue updateVenue(long venueId, UpdateVenueRequest updateVenueRequest) {
+    public Venue updateVenue(UpdateVenueRequest updateVenueRequest) {
         // Find venue by ID
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(() -> new BadRequestException("Venue not found with id: " + venueId));
+        Account manager = authenticationService.getCurrentAccount();
+        Venue venue = getVenueByManagerId(manager.getId());
         // Update venue information based on the request
         venue.setName(updateVenueRequest.getVenueName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
+        venue.setImageUrl(updateVenueRequest.getImageUrl());
+        venue.setServices(updateVenueRequest.getServices());
         venue.setContactInfor(updateVenueRequest.getContactInfor());
         venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
         venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
@@ -226,9 +231,11 @@ public class VenueService {
         }
     }
 
-    public Account getManager(long venueId) {
-        return accountRepository.findManagerByAssignedVenue_Id(venueId);
-    }
+//    public Account getManager() {
+//        Account manager = authenticationService.getCurrentAccount();
+//        Venue venue = venueRepository.findVenueByManagerId(manager.getId());
+//        return accountRepository.findManagerByAssignedVenue_Id(venue.getId());
+//    }
 
     public List<Account> getStaffsByVenueId(long venueId) {
         return accountRepository.findStaffByStaffVenue_Id(venueId);
@@ -314,13 +321,16 @@ public class VenueService {
         return pricings.isEmpty() ? 0 : totalPrice / pricings.size(); // Tính giá trung bình
     }
 
-    public VenueResponse getVenueByManagerId(long managerId){
+    public Venue getVenueByManagerId(long managerId){
         Venue venue = venueRepository.findVenueByManagerId(managerId);
         if(venue == null){
             throw new BadRequestException("Not found manager");
         }
-        VenueResponse response = mapToVenueResponse(venue);
-        return response;
+        return venue;
+    }
+
+    public Account getManager() {
+        return authenticationService.getCurrentAccount();
     }
 }
 

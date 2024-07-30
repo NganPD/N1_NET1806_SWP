@@ -92,14 +92,6 @@ public class BookingService {
             timeSlots.add(timeSlot);
         }
 
-//        timeSlots.sort(new Comparator<TimeSlot>() {
-//            @Override
-//            public int compare(TimeSlot ts1, TimeSlot ts2) {
-//                return ts1.getStartTime().compareTo(ts2.getStartTime());
-//            }
-//        });
-
-
         // Retrieve court by id
         Court court = courtRepo.findById(bookingRequest.getCourt())
                 .orElseThrow(() -> new BadRequestException("Court not found with id: " + bookingRequest.getCourt()));
@@ -795,6 +787,7 @@ public class BookingService {
 
         return revenueData;
     }
+
     public List<BookingResponse> getBookedBooking( ){
         Account user = authenticationService.getCurrentAccount();
         List<Booking> bookings = bookingRepo.findByStatusAndAccount_Id(BookingStatus.BOOKED, user.getId());

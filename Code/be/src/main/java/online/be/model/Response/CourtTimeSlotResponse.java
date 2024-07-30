@@ -17,4 +17,5 @@ public class CourtTimeSlotResponse {
     private String courtName;
     private String phoneNumber;
     private SlotStatus status;
+    private long courtTimeSlotId;
 }

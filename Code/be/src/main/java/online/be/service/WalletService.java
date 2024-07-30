@@ -237,4 +237,8 @@ public class WalletService {
         return walletRepository.findWalletByWalletID(transaction.getTo().getWalletID());
     }
 
+    public Account getUser(){
+        return authenticationService.getCurrentAccount();
+    }
+
 }
