@@ -112,13 +112,13 @@ const HomePage = (props) => {
                 Tất cả
               </button>
               <button className="text-gray-600 hover:text-orange-500 px-4 py-2">
-                Sân ở Hồ Chí Minh
+                Sân ở Thủ Đức
               </button>
               <button className="text-gray-600 hover:text-orange-500 px-4 py-2">
-                Sân ở Hà Nội
+                Sân ở Quận 1
               </button>
               <button className="text-gray-600 hover:text-orange-500 px-4 py-2">
-                Sân ở Đà Nẵng
+                Sân ở Quận 7
               </button>
             </nav>
           </div>

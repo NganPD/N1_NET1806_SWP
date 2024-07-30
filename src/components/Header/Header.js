@@ -3,8 +3,7 @@ import { NavLink, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/counterSlice";
 import Swal from "sweetalert2";
-import badmintonImage from "D:/swp/N1_NET1806_SWP/src/Screenshot_2024-07-21_143641-removebg-preview (1).png";
-
+import goodminton from "D:/swp/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
 const Header = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
@@ -26,9 +25,10 @@ const Header = () => {
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link to="/" className="flex items-center">
             <img
-              src={badmintonImage}
+              src={goodminton}
+              style={{ filter: "brightness(0) invert(1)" }}
               alt="Logo"
-              className="h-20 mr-4"
+              className="h-20 w-auto ml-9"
 
             />
           </Link>
@@ -49,20 +49,7 @@ const Header = () => {
             >
               Sân cầu lông
             </NavLink>
-            {/* <NavLink
-              to="/news"
-              className="text-white hover:text-yellow-500 px-4 py-2"
-              activeClassName="text-yellow-500"
-            >
-              Bản tin
-            </NavLink>
-            <NavLink
-              to="/knowledge"
-              className="text-white hover:text-yellow-500 px-4 py-2"
-              activeClassName="text-yellow-500"
-            >
-              Chia sẻ kiến thức
-            </NavLink> */}
+          
             <NavLink
               to="/contact"
               className="text-white hover:text-yellow-500 px-4 py-2"
@@ -70,13 +57,7 @@ const Header = () => {
             >
               Liên hệ
             </NavLink>
-            {/* <NavLink
-              to="/about"
-              className="text-white hover:text-yellow-500 px-4 py-2"
-              activeClassName="text-yellow-500"
-            >
-              Về chúng tôi
-            </NavLink> */}
+        
           </nav>
 
           {user ? (

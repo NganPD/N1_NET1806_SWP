@@ -3,8 +3,8 @@ import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="w-64  text-white shadow-lg">
-      <div className="p-6 text-center text-[black] text-2xl font-bold border-b border-blue-500">
+    <div className="w-64 bg-gray-800 text-white shadow-lg">
+      <div className="p-6 text-center text-[white] text-2xl font-bold border-b border-blue-500">
         Admin Panel
       </div>
       <nav className="mt-4">
@@ -12,7 +12,7 @@ const Sidebar = () => {
           <li className="mb-2">
             <NavLink
               to="/admin/overview"
-              className="text-[black] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"
             >
               Thống kê
@@ -21,7 +21,7 @@ const Sidebar = () => {
           <li className="mb-2">
             <NavLink
               to="/admin/accounts"
-              className="text-[black] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"
             >
               Thông tin tài khoản
@@ -30,7 +30,7 @@ const Sidebar = () => {
           <li className="mb-2">
             <NavLink
               to="/admin/courts"
-              className="text-[black] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"
             >
               Thông tin Sân cầu lông
@@ -39,7 +39,7 @@ const Sidebar = () => {
           <li className="mb-2">
             <NavLink
               to="/admin/new-court"
-              className="text-[black] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
               activeClassName="bg-blue-500"
             >
               Đăng ký thông tin sân mới

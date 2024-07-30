@@ -75,8 +75,8 @@ function Overview() {
           name={"month"}
           label="Nhập tháng"
           style={{ display: "flex", alignItems: "center" }}
-          //   labelCol={{ span: 8 }}
-          //   wrapperCol={{ span: 16 }}
+        //   labelCol={{ span: 8 }}
+        //   wrapperCol={{ span: 16 }}
         >
           <InputNumber style={{ width: "100%" }} />
         </Form.Item>
@@ -84,8 +84,8 @@ function Overview() {
           name={"year"}
           label="Nhập năm"
           style={{ display: "flex", alignItems: "center" }}
-          //   labelCol={{ span: 8 }}
-          //   wrapperCol={{ span: 16 }}
+        //   labelCol={{ span: 8 }}
+        //   wrapperCol={{ span: 16 }}
         >
           <InputNumber style={{ width: "100%" }} />
         </Form.Item>
