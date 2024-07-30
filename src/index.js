@@ -32,6 +32,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import Overview from "./components/overview";
 import CheckIn from "./components/CourtStaff/Checkin";
+import AccountRole from "./components/Admin/AccountRole";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
@@ -57,6 +58,7 @@ root.render(
             <Route path="courts" element={<CourtManagement />} />
             <Route path="new-court" element={<NewCourtRegistration />} />
             <Route path="overview" element={<Overview />} />
+            <Route path="new-account" element={<AccountRole />} />
           </Route>
           <Route path="/court-manager" element={<CourtLayout />}>
             <Route path="register-court-info" element={<RegisterCourtInfo />} />

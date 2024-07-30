@@ -45,6 +45,15 @@ const Sidebar = () => {
               Đăng ký thông tin sân mới
             </NavLink>
           </li>
+          <li className="mb-2">
+            <NavLink
+              to="/admin/new-account"
+              className="text-[white] no-underline block px-6 py-3 rounded hover:bg-blue-500"
+              activeClassName="bg-blue-500"
+            >
+              Đăng ký thông tin tài khoản cho nhân viên
+            </NavLink>
+          </li>
         </ul>
       </nav>
     </div>
