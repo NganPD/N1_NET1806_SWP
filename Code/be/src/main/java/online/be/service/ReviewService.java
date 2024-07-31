@@ -9,6 +9,8 @@ import online.be.model.Request.ReviewRequest;
 import online.be.repository.ReviewRepository;
 import online.be.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -57,8 +59,9 @@ public class ReviewService {
         return reviewRepository.findAll();
     }
 
-    public List<Venue> getTopRatedVenues(){
-        return reviewRepository.findTopRatedVenues();
+    public List<Venue> getTopRatedVenues() {
+        Pageable topFive = PageRequest.of(0, 5);
+        return reviewRepository.findTopRatedVenues(topFive);
     }
 
 }
