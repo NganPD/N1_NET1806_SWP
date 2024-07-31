@@ -1,19 +1,20 @@
 package online.be.api;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import online.be.entity.Account;
+
 import online.be.entity.Venue;
 import online.be.model.Request.CreateVenueRequest;
 import online.be.model.Request.UpdateVenueRequest;
 import online.be.model.Response.VenueResponse;
 import online.be.service.VenueService;
-import org.hibernate.sql.Update;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalTime;
+
 import java.util.List;
 
 @RestController
@@ -25,49 +26,43 @@ public class VenueAPI {
     VenueService venueService;
 
     @PostMapping
-    public ResponseEntity createVenue(@RequestBody CreateVenueRequest request){
+    public ResponseEntity createVenue(@RequestBody CreateVenueRequest request) {
         Venue createdVenue = venueService.createVenue(request);
         return ResponseEntity.ok().body(createdVenue);
     }
 
     @GetMapping("/{venueId}")
-    public ResponseEntity getVenueById(@PathVariable long venueId){
+    public ResponseEntity getVenueById(@PathVariable long venueId) {
         Venue venue = venueService.getVenueById(venueId);
         return ResponseEntity.ok().body(venue);
     }
 
     @GetMapping
-    public ResponseEntity getAllVenue(){
+    public ResponseEntity getAllVenue() {
         return ResponseEntity.ok().body(venueService.getAllVenues());
     }
 
     @PutMapping("/update")
-    public ResponseEntity updateVenue(@RequestBody UpdateVenueRequest updateVenueRequest){
+    public ResponseEntity updateVenue(@RequestBody UpdateVenueRequest updateVenueRequest) {
         Venue updatedVenue = venueService.updateVenue(updateVenueRequest);
         return ResponseEntity.ok().body(updatedVenue);
     }
 
     //lấy theo tên
     @GetMapping("/search-keyword")
-    public ResponseEntity searchVenuesByKeyword(@RequestParam String keyword){
+    public ResponseEntity searchVenuesByKeyword(@RequestParam String keyword) {
         return ResponseEntity.ok(venueService.searchVenuesByKeyword(keyword));
     }
-//
-//    //get venue by address
-//    @GetMapping("/search-address")
-//    public ResponseEntity searchVenuesByAddress(@RequestParam String address){
-//        List<Venue> venues = venueService.searchVenuesByAddress(address);
-//        return ResponseEntity.ok(venues);
-//    }
+
 
     @DeleteMapping("/{venueId}")
-    public ResponseEntity deleteVenue(@PathVariable long venueId){
+    public ResponseEntity deleteVenue(@PathVariable long venueId) {
         venueService.deleteVenue(venueId);
         return ResponseEntity.noContent().build();//204
     }
 
     @GetMapping("/manager")
-    public ResponseEntity getManager(){
+    public ResponseEntity getManager() {
         return ResponseEntity.ok(venueService.getManager());
     }
 
@@ -82,7 +77,7 @@ public class VenueAPI {
     }
 
     @PostMapping("/{venueId}/staff/{staffId}")
-    public ResponseEntity addStaffToVenue(@PathVariable long venueId, @PathVariable long staffId){
+    public ResponseEntity addStaffToVenue(@PathVariable long venueId, @PathVariable long staffId) {
         Venue venue = venueService.addStaffToVenue(staffId, venueId);
         return ResponseEntity.ok(venue);
     }
@@ -98,17 +93,17 @@ public class VenueAPI {
 //    }
 
     @GetMapping("{venueId}/courts")
-    public ResponseEntity getCourtsByVenueId(@PathVariable long venueId){
+    public ResponseEntity getCourtsByVenueId(@PathVariable long venueId) {
         return ResponseEntity.ok(venueService.getCourtByVenueId(venueId));
     }
 
     @GetMapping("{venueId}/reviews")
-    public ResponseEntity getReviewsByVenueId(@PathVariable long venueId){
+    public ResponseEntity getReviewsByVenueId(@PathVariable long venueId) {
         return ResponseEntity.ok(venueService.getReviewByVenueId(venueId));
     }
 
     @GetMapping("/number-venues")
-    public ResponseEntity getNumberOfVenues(){
+    public ResponseEntity getNumberOfVenues() {
         return ResponseEntity.ok(venueService.numberOfVenues());
     }
 
@@ -117,5 +112,7 @@ public class VenueAPI {
         Venue venue = venueService.getVenueByManagerId(managerId);
         return ResponseEntity.ok(venue);
     }
+
+
 
 }
