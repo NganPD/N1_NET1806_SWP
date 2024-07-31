@@ -1,6 +1,6 @@
 // src/components/Footer.js
 import React from "react";
-import goodminton from "D:/swp/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
+import goodminton from "D:/Swp-301/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
 const Footer = () => {
   return (
     <footer className="bg-white shadow-md mt-20 py-10">

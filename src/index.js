@@ -33,6 +33,8 @@ import { ToastContainer } from "react-toastify";
 import Overview from "./components/overview";
 import CheckIn from "./components/CourtStaff/Checkin";
 import AccountRole from "./components/Admin/AccountRole";
+import ManageSchedules from "./components/Court/ManageSchedules";
+import CourtStaffCheckin from "./components/CourtStaff/Checkin";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
@@ -57,7 +59,6 @@ root.render(
             <Route path="accounts" element={<AccountManagement />} />
             <Route path="courts" element={<CourtManagement />} />
             <Route path="new-court" element={<NewCourtRegistration />} />
-
             <Route path="overview" element={<Overview />} />
             <Route path="new-account" element={<AccountRole />} />
 
@@ -67,11 +68,12 @@ root.render(
             <Route path="register-booking-type"  element={<RegisterBookingType />} />
             <Route path="manage-courts" element={<ManageCourts />} />
             <Route path="overview" element={<Overview />} />
+            <Route path="manage-schedules" element={<ManageSchedules />} />
           </Route>
 
           {/* Staff */}
           <Route path="/court-staff" element={<CourtStaffLayout />}>
-            <Route path="checkIn" element={<CheckIn />} />
+            <Route path="checkIn" element={<CourtStaffCheckin />} />
           </Route>
         </Routes>
       </BrowserRouter>

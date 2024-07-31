@@ -15,7 +15,7 @@ const NewCourtRegistration = () => {
   const [closingHours, setClosingHours] = useState("");
   const [description, setDescription] = useState("");
   const [services, setServices] = useState("");
-  const [managerId, setManagerId] = useState(0);
+  const [managerId, setManagerId] = useState(null);
   const [availableManagers, setAvailableManagers] = useState([]);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
