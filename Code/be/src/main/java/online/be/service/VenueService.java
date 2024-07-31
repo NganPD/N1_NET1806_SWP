@@ -14,6 +14,8 @@ import online.be.model.Response.VenueResponse;
 import online.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -347,5 +349,7 @@ public class VenueService {
     public Account getManager() {
         return authenticationService.getCurrentAccount();
     }
+
+
 }
 
