@@ -36,5 +36,4 @@ public class Court {
     @JsonIgnore
     @OneToMany(mappedBy = "court")
     private List<CourtTimeSlot> courtTimeSlots;
-
 }

@@ -7,8 +7,6 @@ import online.be.enums.CourtStatus;
 public class CreateCourtRequest {
     private String courtName;
     private CourtStatus status;
-    private String amenities;
     private String description;
-    private String services;
     private long venueId;
 }

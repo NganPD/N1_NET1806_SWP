@@ -30,15 +30,20 @@ public class CourtAPI {
         return ResponseEntity.ok().body(createdCourt);
     }
 
+    @PostMapping("/venues/{venueId}/courts")
+    public ResponseEntity addCourt(@PathVariable long venueId, @RequestBody UpdateCourtRequest courtRequest){
+        return ResponseEntity.ok().body(courtService.addCourt(venueId, courtRequest));
+    }
+
     @GetMapping("/{courtId}")
     public ResponseEntity getCourtById(@PathVariable long courtId){
         Court court = courtService.getCourtById(courtId);
         return ResponseEntity.ok().body(court);
     }
 
-    @PutMapping("/{courtId}")
-    public ResponseEntity updateCourt(@RequestBody UpdateCourtRequest updateCourtRequest, @PathVariable long courtId){
-        Court updatedCourt = courtService.updateCourt(updateCourtRequest, courtId);
+    @PutMapping("/venue/{venueId}/court/{courtId}")
+    public ResponseEntity updateCourt(@PathVariable long venueId, @PathVariable long courtId, @RequestBody UpdateCourtRequest updateCourtRequest){
+        Court updatedCourt = courtService.updateCourt(venueId, courtId, updateCourtRequest);
         return ResponseEntity.ok().body(updatedCourt);
     }
 

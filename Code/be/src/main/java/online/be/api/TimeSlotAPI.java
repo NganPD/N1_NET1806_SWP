@@ -73,6 +73,12 @@ public class TimeSlotAPI {
         return ResponseEntity.ok(timeSlotService.getAllSlotByVenue(venueId));
     }
 
+    @GetMapping("/without-pricing")
+    public ResponseEntity<List<TimeSlot>> getTimeSlotsWithoutPricing() {
+        List<TimeSlot> timeSlots = timeSlotService.getTimeSlotsWithoutPricing();
+        return ResponseEntity.ok(timeSlots);
+    }
+
 //    @GetMapping("/available-fixed-slots")
 //    public ResponseEntity<List<TimeSlotResponse>> getAvailableSlotByDayOfWeek(
 //            @RequestParam(value = "applicationStartDate", required = false) String applicationStartDate,

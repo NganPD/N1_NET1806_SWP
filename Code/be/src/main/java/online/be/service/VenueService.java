@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,14 +121,28 @@ public class VenueService {
         Account manager = authenticationService.getCurrentAccount();
         Venue venue = getVenueByManagerId(manager.getId());
         // Update venue information based on the request
-        venue.setName(updateVenueRequest.getVenueName());
+        venue.setName(updateVenueRequest.getName());
         venue.setAddress(updateVenueRequest.getAddress());
         venue.setDescription(updateVenueRequest.getDescription());
         venue.setImageUrl(updateVenueRequest.getImageUrl());
         venue.setServices(updateVenueRequest.getServices());
         venue.setContactInfor(updateVenueRequest.getContactInfor());
-        venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOperatingHours(), timeFormatter));
-        venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHours(), timeFormatter));
+        if(updateVenueRequest.getOpeningHour() != null){
+            try{
+                venue.setOpeningHour(LocalTime.parse(updateVenueRequest.getOpeningHour(), timeFormatter));
+            }catch (DateTimeParseException e){
+                throw new RuntimeException("error: "+updateVenueRequest.getOpeningHour() );
+            }
+        }
+        if(updateVenueRequest.getClosingHour() != null){
+            try{
+                venue.setClosingHour(LocalTime.parse(updateVenueRequest.getClosingHour(), timeFormatter));
+            }catch (DateTimeParseException e){
+                throw new RuntimeException("error: "+updateVenueRequest.getClosingHour());
+            }
+        }
+
+
         venue.setVenueStatus(updateVenueRequest.getVenueStatus());
         try {
             // Lưu và trả về venue đã được cập nhật

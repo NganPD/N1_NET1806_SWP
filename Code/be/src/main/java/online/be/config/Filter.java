@@ -45,12 +45,7 @@ public class Filter extends OncePerRequestFilter {
             "/api/login-google",
             "/api/register",
             "/api/forgot-password",
-            "/api/account",
-            "/api/venues",
-            "/api/venues/search",
-            "/api/venues/search-keyword",
-            "/api/venues/{venueId}/reviews",
-            "/api/venues/{venueId}"
+            "/api/account"
     );
 
     private boolean isPermitted(String uri) {
