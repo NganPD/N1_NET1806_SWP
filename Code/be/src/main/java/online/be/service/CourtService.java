@@ -57,7 +57,23 @@ public class CourtService {
         return court;
     }
     //Nên dùng try catch khi cố tạo hoặc thay đổi một đối tượng mới để handle lỗi
+    //tạo court
+    public Court addCourt(long venueId, UpdateCourtRequest courtRequest) {
+        //Find the venue ỏ throw exception if not found
+        Venue existingVenue = venueRepository.findById(venueId)
+                .orElseThrow(()-> new BadRequestException("The venue does not exist"));
 
+        //Create a new Court
+        Court court = new Court();
+        court.setCourtName(courtRequest.getCourtName());
+        court.setStatus(courtRequest.getStatus());
+        court.setDescription(courtRequest.getDescription());
+        court.setVenue(existingVenue);
+        courtRepository.save(court);
+        //lưu số lượng san
+        venueRepository.save(existingVenue);
+        return court;
+    }
     //lấy court dựa trên id
     public Court getCourtById(long courtId) {
         Court court = courtRepository.findById(courtId).orElseThrow(() -> new BadRequestException("Cpurt not found with Id: "+ courtId));
@@ -74,8 +90,8 @@ public class CourtService {
     }
 
     //update Court
-    public Court updateCourt(UpdateCourtRequest courtRequest, long courtId) {
-        Venue existingVenue = venueRepository.findById(courtRequest.getVenueId())
+    public Court updateCourt(long venueId, long courtId, UpdateCourtRequest courtRequest) {
+        Venue existingVenue = venueRepository.findById(venueId)
                 .orElseThrow(()-> new BadRequestException("Venue not found"));
         Court existingCourt = courtRepository.findById(courtId)
                 .orElseThrow(()-> new BadRequestException("Court not found "));

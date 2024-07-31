@@ -215,6 +215,10 @@ public class TimeSlotService {
         return slotResponses;
     }
 
+    public List<TimeSlot> getTimeSlotsWithoutPricing() {
+        return timeSlotRepository.findTimeSlotsWithoutPricingAndBookingType();
+    }
+
     // Method to get all slots of a venue
     private List<TimeSlot> getAllSlots() {
         return timeSlotRepository.findAll(); // Assumes timeSlotRepository is the repository for TimeSlot

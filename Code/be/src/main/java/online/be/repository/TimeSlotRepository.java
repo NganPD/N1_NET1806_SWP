@@ -36,4 +36,8 @@ TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     //Get timeslot by venue
     List<TimeSlot>getTimeSlotByVenue_Id(long venueId);
 
+    @Query("SELECT ts FROM TimeSlot ts WHERE ts.id NOT IN (SELECT p.timeSlot.id FROM Pricing p)" +
+            " AND ts.id NOT IN (SELECT ct.timeSlot.id FROM CourtTimeSlot ct)")
+    List<TimeSlot> findTimeSlotsWithoutPricingAndBookingType();
+
 }

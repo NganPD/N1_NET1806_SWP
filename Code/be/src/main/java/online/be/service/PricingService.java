@@ -1,10 +1,12 @@
 package online.be.service;
 
+import online.be.entity.Account;
 import online.be.entity.Pricing;
 import online.be.entity.TimeSlot;
 import online.be.entity.Venue;
 import online.be.exception.BadRequestException;
 import online.be.model.Request.PricingRequest;
+import online.be.model.Response.VenueScheduleResponse;
 import online.be.repository.PricingRepository;
 import online.be.repository.TimeSlotRepository;
 import online.be.repository.VenueRepository;
@@ -25,11 +27,17 @@ public class PricingService {
     @Autowired
     TimeSlotRepository timeSlotRepository;
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     //set bang gia theo loai booking type, venue va timeslot
-    public Pricing createPricingTable(PricingRequest request){
-        Venue venue = venueRepository.findById(request.getVenueId())
-                .orElseThrow(()-> new BadRequestException("Venue not found"));
-        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotId())
+    public Pricing createPricingTable(long timeSlotId, PricingRequest request){
+        Account manager = authenticationService.getCurrentAccount();
+        Venue venue = venueRepository.findVenueByManagerId(manager.getId());
+        if(venue == null){
+            throw new BadRequestException("Venue not found");
+        }
+        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
                 .orElseThrow(()-> new BadRequestException("Timeslot not found"));
         if(!timeSlot.getVenue().equals(venue)){
             throw new BadRequestException("Timeslot does not belong to given venue");
@@ -46,17 +54,8 @@ public class PricingService {
     public Pricing updatePricingTable(long pricingId, PricingRequest request){
         Pricing pricing = pricingRepository.findById(pricingId)
                 .orElseThrow(()-> new BadRequestException("Pricing Table not fond"));
-        Venue venue = venueRepository.findById(request.getVenueId())
-                .orElseThrow(()-> new BadRequestException("Venue not found"));
-        TimeSlot timeSlot = timeSlotRepository.findById(request.getTimeSlotId())
-                .orElseThrow(()-> new BadRequestException("Timeslot not found"));
-        if(!timeSlot.getVenue().equals(venue)){
-            throw new BadRequestException("Timeslot does not belong to given venue");
-        }
         pricing.setBookingType(request.getBookingType());
         pricing.setPricePerHour(request.getPrice());
-        pricing.setVenue(venue);
-        pricing.setTimeSlot(timeSlot);
         return pricingRepository.save(pricing);
     }
 
@@ -79,6 +78,17 @@ public class PricingService {
         return pricingRepository.findByVenueId(venueId);
     }
 
+    public VenueScheduleResponse getVenuePricingAndSchedule(long venueId) {
+        Venue venue = venueRepository.findById(venueId).orElseThrow(() -> new BadRequestException("Venue not found"));
+        List<TimeSlot> timeSlots = timeSlotRepository.findByVenueId(venueId);
+        List<Pricing> pricings = pricingRepository.findByVenueId(venueId);
+
+        VenueScheduleResponse dto = new VenueScheduleResponse();
+        dto.setVenue(venue);
+        dto.setTimeSlots(timeSlots);
+        dto.setPricingList(pricings);
+        return dto;
+    }
 
 
 }

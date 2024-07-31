@@ -8,12 +8,12 @@ import java.util.List;
 
 @Data
 public class UpdateVenueRequest {
-    private String venueName;
+    private String name;
     private String address;
     private String contactInfor;
     private VenueStatus venueStatus;
-    private String operatingHours;
-    private String closingHours;
+    private String openingHour;
+    private String closingHour;
     private String services;
     private String imageUrl;
     private String description;
