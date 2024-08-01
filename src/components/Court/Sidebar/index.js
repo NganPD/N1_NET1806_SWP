@@ -45,7 +45,7 @@ const Sidebar = () => {
               Quản lý thông tin sân
             </NavLink>
           </li>
-          <li className="mb-2">
+          {/* <li className="mb-2">
             <NavLink
               to="/court-manager/manage-schedules"
               className="text-white no-underline block px-6 py-3 rounded hover:bg-blue-500"
@@ -53,7 +53,7 @@ const Sidebar = () => {
             >
               Quản lý lịch thi đấu
             </NavLink>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </div>

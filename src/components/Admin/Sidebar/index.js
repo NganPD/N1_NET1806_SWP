@@ -1,8 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-
+// import Navbar from "../../NavBar/navbar";
 const Sidebar = () => {
   return (
+   <>
+   {/* <Navbar/> */}
     <div className="w-64 bg-gray-800 text-white shadow-lg">
       <div className="p-6 text-center text-[white] text-2xl font-bold border-b border-blue-500">
         Admin Panel
@@ -48,6 +50,7 @@ const Sidebar = () => {
         </ul>
       </nav>
     </div>
+    </>
   );
 };
 

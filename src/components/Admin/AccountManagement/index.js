@@ -56,6 +56,7 @@ const AccountManagement = () => {
   }
 
   return (
+    
     <div className="bg-white p-6 rounded shadow-lg">
       <h2 className="text-2xl font-bold mb-6">Quản lý thông tin tài khoản</h2>
       <table className="min-w-full border-collapse border border-gray-300">

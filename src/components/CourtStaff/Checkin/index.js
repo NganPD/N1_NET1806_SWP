@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout, selectUser } from "../../../redux/features/counterSlice";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../NavBar/navbar";
+// import Navbar from "../../NavBar/navbar";
 
 const { Search } = Input;
 const { Title } = Typography;
@@ -137,6 +137,11 @@ const CourtStaffCheckin = () => {
       key: "booker",
     },
     {
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (text, record) => (
@@ -151,7 +156,7 @@ const CourtStaffCheckin = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="bg-white p-4">
         <Row>
           <Col span={16}>

@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectUser } from "../../../redux/features/counterSlice";
 import { toast } from "react-toastify";
 import { render } from "@testing-library/react";
-import Navbar from "../../NavBar/navbar";
+// import Navbar from "../../NavBar/navbar";
 
 const { Option } = Select;
 const ManageCourts = () => {
@@ -264,7 +264,7 @@ const ManageCourts = () => {
   );
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div>
         {isLoading && <div>Loading...</div>}
         {error && <div className="text-red-500 mb-4">{error}</div>}

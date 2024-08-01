@@ -1,16 +1,17 @@
 import React from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/counterSlice";
 import Swal from "sweetalert2";
-import goodminton from "D:/Swp-301/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
+// import goodminton from "D:/Swp-301/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
 const Header = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
-
+  const navigate=useNavigate();
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("token");
+    navigate("/login")
     Swal.fire({
       icon: "success",
       title: "Logout successfully!",
@@ -25,7 +26,7 @@ const Header = () => {
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link to="/" className="flex items-center">
             <img
-              src={goodminton}
+              // src={goodminton}
               style={{ filter: "brightness(0) invert(1)" }}
               alt="Logo"
               className="h-20 w-auto ml-9"

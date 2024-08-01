@@ -15,7 +15,7 @@ const NewCourtRegistration = () => {
   const [closingHours, setClosingHours] = useState("");
   const [description, setDescription] = useState("");
   const [services, setServices] = useState("");
-  const [managerId, setManagerId] = useState(null);
+  const [managerId, setManagerId] = useState(0);
   const [availableManagers, setAvailableManagers] = useState([]);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
@@ -231,6 +231,7 @@ const NewCourtRegistration = () => {
             }}
             required
           >
+            <option value={0} disabled>Chọn quản lý</option>
             {availableManagers.map(manager => <option value={manager.id}>{manager.fullName}</option>)}
           </select>
         </div>

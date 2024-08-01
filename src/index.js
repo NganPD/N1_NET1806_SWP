@@ -33,7 +33,7 @@ import { ToastContainer } from "react-toastify";
 import Overview from "./components/overview";
 import CheckIn from "./components/CourtStaff/Checkin";
 import AccountRole from "./components/Admin/AccountRole";
-import ManageSchedules from "./components/Court/ManageSchedules";
+// import ManageSchedules from "./components/Court/ManageSchedules";
 import CourtStaffCheckin from "./components/CourtStaff/Checkin";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -68,7 +68,7 @@ root.render(
             <Route path="register-booking-type"  element={<RegisterBookingType />} />
             <Route path="manage-courts" element={<ManageCourts />} />
             <Route path="overview" element={<Overview />} />
-            <Route path="manage-schedules" element={<ManageSchedules />} />
+            {/* <Route path="manage-schedules" element={<ManageSchedules />} /> */}
           </Route>
 
           {/* Staff */}

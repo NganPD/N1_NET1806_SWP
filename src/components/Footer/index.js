@@ -1,6 +1,6 @@
 // src/components/Footer.js
 import React from "react";
-import goodminton from "D:/Swp-301/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
+// import goodminton from "D:/Swp-301/N1_NET1806_SWP/src/download__1_-removebg-preview.png";
 const Footer = () => {
   return (
     <footer className="bg-white shadow-md mt-20 py-10">
@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="ml-20 flex flex-wrap justify-center md:justify-between items-start">
           <div className="w-full md:w-1/4 mb-6 md:mb-0 text-center md:text-left">
             <img
-              src={goodminton}
+              // src={goodminton}
               alt="Logo"
               className="h-20 mb-4 mx-auto md:mx-0"
             />

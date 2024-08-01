@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../config/axios";
+// import Navbar from "../../NavBar/navbar";
 
 const CourtManagement = () => {
   const [courts, setCourts] = useState([]);
@@ -31,6 +32,9 @@ const CourtManagement = () => {
   };
 
   return (
+    <>
+
+    {/* <Navbar/> */}
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Quản lý thông tin Sân cầu lông</h2>
       <table className="min-w-full border-collapse border border-gray-300">
@@ -94,6 +98,7 @@ const CourtManagement = () => {
         </tbody>
       </table>
     </div>
+    </>
   );
 };
 
