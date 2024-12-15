@@ -16,12 +16,12 @@ public class CourtTimeSlotAPI {
     CourtTimeSlotService courtTimeSlotService;
 
     @GetMapping("/booked-court-slot")
-    public ResponseEntity getBookedCourtSlot(long venueId){
-        return ResponseEntity.ok(courtTimeSlotService.getBookedSlot(venueId));
+    public ResponseEntity getBookedCourtSlot(){
+        return ResponseEntity.ok(courtTimeSlotService.getBookedSlot();
     }
 
     @GetMapping("/booked-or-checked")
-    public ResponseEntity getBookedAndCheckedSlot(){
+public ResponseEntity getBookedAndCheckedSlot(){
         return ResponseEntity.ok(courtTimeSlotService.getBookedAndCheckedByVenue());
     }
 
